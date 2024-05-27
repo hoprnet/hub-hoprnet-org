@@ -430,8 +430,7 @@ const stakingFaq: FaqData = {
           There is no lock-up period for funds deposited in the HOPR safe. You can withdraw them at any time.
           <br />
           <br />
-          Although be warned, dropping below the minimum holding of 30,000 wxHOPR may lead to your node being removed
-          from the network
+          Although, be warned that dropping below the minimum holding of 10,000 wxHOPR (holding Network registry NFT) or 30,000 wxHOPR will cause your node to stop receiving rewards and may result in your node being removed from the network.
         </span>
       ),
     },
@@ -464,8 +463,7 @@ const stakingFaq: FaqData = {
           </a>
           .<br />
           <br />
-          Nodes are onboarded into the HOPR network in a first come, first serve basis. So fill out the form as soon as
-          possible if you haven't already.
+          Nodes are onboarded on a tri-weekly basis into the HOPR network on a first-come, first-served basis. Therefore, please fill out the form as soon as possible if you haven't already.
         </span>
       ),
     },
@@ -497,7 +495,7 @@ const stakingFaq: FaqData = {
           <br />
           Then remove the node as a delegate from the safe. You can view how to do this two-step procedure in our docs{' '}
           <a
-            href="https://docs.hoprnet.org/node/using-hopr-admin#remove-your-node"
+            href="https://docs.hoprnet.org/node/using-staking-hub#how-to-remove-nodes"
             target="_blank"
             rel="noreferrer"
           >
