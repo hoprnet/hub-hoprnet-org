@@ -57,10 +57,6 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
           method: 'POST',
           body: GET_THEGRAPH_QUERY,
         }),
-        fetch(`${STAKING_V2_SUBGRAPH}-test`, {
-          method: 'POST',
-          body: GET_THEGRAPH_QUERY,
-        })
       ])
 
       const json: { safes: {
@@ -72,15 +68,6 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
         }[]
       }[]} = await resp[0].json();
 
-      const json2: { safes: {
-        id: string,
-        addedModules: {
-          module: {
-            id: string
-          }
-        }[]
-      }[]} = await resp[1].json();
-
       let mapped1 = json.safes.map((elem) => {
         return {
           moduleAddress: getAddress(elem.addedModules[0].module.id),
@@ -89,15 +76,7 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
       });
       mapped1 = mapped1.filter(elem => elem.moduleAddress);
 
-      let mapped2 = json2.safes.map((elem) => {
-        return {
-          moduleAddress: getAddress(elem.addedModules[0].module.id),
-          safeAddress: getAddress(elem.id),
-        };
-      });
-      mapped2 = mapped2.filter(elem => elem.moduleAddress);
-
-      return [...mapped1, ...mapped2 ];
+      return [...mapped1];
     } catch (e) {
       return rejectWithValue(e);
     }
@@ -245,16 +224,10 @@ const getSubgraphDataThunk = createAsyncThunk<
           method: 'POST',
           body: GET_THEGRAPH_QUERY,
         }),
-        fetch(`${STAKING_V2_SUBGRAPH}-test`, {
-          method: 'POST',
-          body: GET_THEGRAPH_QUERY,
-        })
       ])
 
-      const json1 = await resp[0].json();
-      const json2 = await resp[1].json();
 
-      const json = json1.nodeManagementModules.length > 0 ? json1 : json2;
+      const json = await resp[0].json();
 
       console.log('SubgraphOutput', json);
 
