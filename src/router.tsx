@@ -40,6 +40,7 @@ import StakexDAI from './pages/staking-hub/stakexDai';
 import SetAllowance from './pages/staking-hub/setAllowance';
 import FundNode from './pages/staking-hub/fundNode';
 import EditOwners from './pages/staking-hub/editOwners';
+import GnoAirdrop from './pages/staking-hub/gno-airdrop'
 
 // Layout
 import Layout from './future-hopr-lib-components/Layout';
@@ -283,6 +284,11 @@ export const applicationMapStakingHub: ApplicationMapType = [
         element: <FundNode />,
         loginNeeded: 'safe',
         inDrawer: false,
+      },
+      {
+        path: 'gno-airdrop',
+        element: <GnoAirdrop />,
+        loginNeeded: 'safe',
       },
       {
         path: 'dev',
