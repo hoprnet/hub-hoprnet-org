@@ -137,7 +137,7 @@ function WrapperPage() {
       message,
     })
     console.log(signature);
-    const rez = await fetch(`${WEB_API}/api/gno-airdrop`, {
+    const rez = await fetch(`${WEB_API}/hub/gno-airdrop`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
