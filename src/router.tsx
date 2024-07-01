@@ -458,7 +458,6 @@ const LayoutEnhanced = () => {
           {(environment === 'dev' || environment === 'node') && <NotificationBar />}
           {(environment === 'dev' || environment === 'web3') && <ConnectSafe />}
           {(environment === 'dev' || environment === 'web3') && <ConnectWeb3 inTheAppBar />}
-          {(environment === 'dev' || environment === 'node') && <ConnectNode />}
         </>
       }
       drawerRight={showInfoBar() && <InfoBar />}
