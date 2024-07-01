@@ -80,8 +80,6 @@ function WrapperPage() {
     } finally {
       dispatch(safeActions.setgnoAirdropIsFetching(false));
     }
-
-
   };
 
  /**
@@ -165,7 +163,7 @@ function WrapperPage() {
 
         {alreadySubmittedFetching && <span style={{}}><br/><strong>Loading...</strong></span>}
         {!alreadySubmittedFetching && safeAddress && !eligible && <span style={{}}><br/><strong>Your safe is not eligible.</strong></span>}
-        {!alreadySubmittedFetching && alreadySubmitted && <span style={{}}><br/><strong>You already submitted validator files.</strong></span>}
+        {!alreadySubmittedFetching && alreadySubmitted && <span style={{color: 'darkgreen'}}><br/><strong>You submitted validator files.</strong></span>}
 
         {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
           <>
