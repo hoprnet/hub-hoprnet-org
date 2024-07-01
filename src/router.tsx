@@ -99,113 +99,6 @@ export type ApplicationMapType = {
   }[];
 }[];
 
-export const applicationMapNode: ApplicationMapType = [
-  {
-    groupName: 'NODE',
-    path: 'node',
-    icon: <NodeIcon />,
-    items: [
-      {
-        name: 'INFO',
-        path: 'info',
-        icon: <InfoIcon />,
-        element: <InfoPage />,
-        loginNeeded: 'node',
-      },
-      {
-        name: 'TICKETS',
-        path: 'tickets',
-        icon: <ConfirmationNumberIcon />,
-        element: <TicketsPage />,
-        loginNeeded: 'node',
-      },
-      {
-        name: 'METRICS',
-        path: 'metrics',
-        icon: <BarChartIcon />,
-        element: <MetricsPage />,
-        loginNeeded: 'node',
-      },
-      {
-        name: 'CONFIGURATION',
-        path: 'configuration',
-        icon: <SettingsIcon />,
-        element: <ConfigurationPage />,
-        loginNeeded: 'node',
-      },
-    ],
-  },
-  {
-    groupName: 'NETWORKING',
-    path: 'networking',
-    icon: <NetworkingIcon />,
-    items: [
-      {
-        name: 'PEERS',
-        path: 'peers',
-        icon: <LanIcon />,
-        element: <PeersPage />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfPeers'
-      },
-      {
-        name: 'ALIASES',
-        path: 'aliases',
-        icon: <ContactPhone />,
-        element: <AliasesPage />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfAliases'
-      },
-      {
-        name: 'MESSAGES',
-        path: 'messages',
-        icon: <MailIcon />,
-        element: <MessagesPage />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfMessagesReceived'
-      },
-      {
-        name: 'CHANNELS: IN',
-        path: 'channels-INCOMING',
-        icon: <IncomingChannelsIcon />,
-        element: <ChannelsPageIncoming />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfChannelsIn'
-      },
-      {
-        name: 'CHANNELS: OUT',
-        path: 'channels-OUTGOING',
-        icon: <OutgoingChannelsIcon />,
-        element: <ChannelsPageOutgoing />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfChannelsOut'
-      },
-    ],
-  },
-  {
-    groupName: 'LINKS',
-    path: 'links',
-    icon: <LinkIcon />,
-    items: [
-      {
-        name: 'Staking Hub',
-        path: 'https://hub.hoprnet.org/',
-        icon: <SavingsIcon />,
-      },
-      {
-        name: 'Docs',
-        path: 'https://docs.hoprnet.org/',
-        icon: <LibraryBooksIcon />,
-      },
-      {
-        name: 'Telegram',
-        path: 'https://t.me/hoprnet',
-        icon: <TelegramIcon />,
-      },
-    ],
-  },
-];
-
 export const applicationMapStakingHub: ApplicationMapType = [
   {
     groupName: 'STAKING HUB',
@@ -288,7 +181,9 @@ export const applicationMapStakingHub: ApplicationMapType = [
       {
         path: 'gno-airdrop',
         element: <GnoAirdrop />,
-        loginNeeded: 'safe',
+        icon: <TrainIcon />,
+        name: 'GNO Airdrop',
+
       },
       {
         path: 'dev',
@@ -348,7 +243,6 @@ export const applicationMapDev: ApplicationMapType = [
 
 function createApplicationMap() {
   const temp: ApplicationMapType = [];
-  if (environment === 'dev' || environment === 'node') applicationMapNode.map((elem) => temp.push(elem));
   if (environment === 'dev' || environment === 'web3') applicationMapStakingHub.map((elem) => temp.push(elem));
   if (environment === 'dev') applicationMapDevWeb3.map((elem) => temp.push(elem));
   if (environment === 'dev') applicationMapDev.map((elem) => temp.push(elem));

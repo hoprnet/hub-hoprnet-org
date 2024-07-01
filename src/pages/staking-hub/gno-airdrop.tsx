@@ -4,6 +4,7 @@ import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 import { erc20ABI, useContractRead, useWalletClient } from 'wagmi';
 import { parseUnits } from 'viem';
 import { xHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, WEB_API } from '../../../config'
+import { GNOeligible } from '../../utils/gno-airdrop';
 
 // Redux
 import { useAppSelector } from '../../store';
@@ -129,6 +130,9 @@ function WrapperPage() {
   const [message, set_message] = useState('Hello world');
   const address = useAppSelector((store) => store.web3.account) as `0x${string}` | null;
   const { data: walletClient } = useWalletClient();
+  const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
+
+  const eligible = safeAddress && Object.keys(GNOeligible).includes(safeAddress?.toLowerCase());
 
   const handleClick = async (account: `0x${string}` | null, message: string) => {
     if(!walletClient || !account) return;
@@ -161,23 +165,46 @@ function WrapperPage() {
         title="GNO Airdrop"
         //description={<p>Utility to wrap (xHOPR &#8594; wxHOPR) and unwrap (wxHOPR &#8594; xHOPR) xHOPR tokens.<br/><br/>Funds source: Your wallet</p>}
         image={{
-          src: '/assets/wrapper-wallet-wallet.png',
+          src: '/assets/gnosis-gno-gno-logo.svg',
           alt: 'Funds to safe image',
-          height: 134,
+          height: 30,
         }}
         buttons={
-          <Button
+          eligible && <Button
             className="swap-button"
             onClick={()=> {handleClick(address, message)}}
           >
-            Sign
+            Sign and send
           </Button>
         }
       >
-        <br />
-        <br />
+        <strong>Requirements and calculation:</strong><br/>
+        <span style={{
+          fontSize: '13px'
+        }}>
+        Snapshot time: 28 June 2024, 8AM UTC<br /><br />
+        To count how many GNO you get airdropped, we divide the wxHOPR sum of tokens in the safe and channels at the time of snaphot by 30k (10k if you staked Netowork Registry NFT) and:<br />
+        - if the quotient of the result is higher or equal than {`<number_of_nodes>`}, then you will get {`<number_of_nodes>`} GNO,<br />
+        - if the quotient will be smaller than {`<number_of_nodes>`}, then you will get the {`<quotient>`} GNO.<br /><br />
+
+        The {`<number_of_nodes>`} is a sum of all your nodes wich were online at least 50% in the 2 weeks before the snaphot date and have at least 1 outgoing channel funded at the snapchot time.<br /><br />
+
+        Do not worry if you did not qualify this time, just make sure that for the next one you have your nodes online and well!<br /><br /><br />
+
+
+        </span>
+        {safeAddress && !eligible && <span style={{
+
+        }}><strong>Your safe is not eligible.</strong></span>}
+
+
+        {safeAddress && eligible && <>
+
+
+        <strong>Your safe is eligible for {safeAddress && GNOeligible[safeAddress?.toLowerCase() as `0x${string}`]} GNO.</strong>
+        <br /><br />
         <StyledTextField
-          label="Address"
+          label="Safe Address"
           value={address}
           disabled
           fullWidth
@@ -192,6 +219,7 @@ function WrapperPage() {
           fullWidth
           multiline
         />
+        </>}
       </StepContainer>
       <NetworkOverlay />
     </Section>
