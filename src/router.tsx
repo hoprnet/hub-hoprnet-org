@@ -79,6 +79,7 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyNotice from './pages/PrivacyNotice';
 import MetaMaskFox from './future-hopr-lib-components/Icons/MetaMaskFox';
 import { trackGoal } from 'fathom-client';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 
 export type ApplicationMapType = {
   groupName: string;
@@ -181,7 +182,7 @@ export const applicationMapStakingHub: ApplicationMapType = [
       {
         path: 'gno-airdrop',
         element: <GnoAirdrop />,
-        icon: <TrainIcon />,
+        icon: <FlightTakeoffIcon />,
         name: 'GNO Airdrop',
 
       },
