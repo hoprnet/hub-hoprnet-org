@@ -21,9 +21,12 @@ export const HOPR_NETWORK_REGISTRY = '0x582b4b586168621dAf83bEb2AeADb5fb20F8d50d
 export const HOPR_CHANNELS_SMART_CONTRACT_ADDRESS = '0x693Bac5ce61c720dDC68533991Ceb41199D8F8ae';
 export const HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS = '0x619eabE23FD0E2291B50a507719aa633fE6069b8';
 
+//API
+export const WEB_API = 'https://webapi.hoprnet.org/api';
+
 //Subgraphs
-export const STAKE_SUBGRAPH = 'https://stake.hoprnet.org/api/hub/subgraph-allSeasons';
-export const STAKING_V2_SUBGRAPH = 'https://stake.hoprnet.org/api/hub/subgraph-dufour';
+export const STAKE_SUBGRAPH = 'https://webapi.hoprnet.org/api/hub/subgraph-allSeasons';
+export const STAKING_V2_SUBGRAPH = 'https://webapi.hoprnet.org/api/hub/subgraph-dufour';
 
 // Wallet Connect
 export const VITE_WALLET_CONNECT_PROJECT_ID = 'efdce6b5c6b10913211ff1b40bc4d54d';

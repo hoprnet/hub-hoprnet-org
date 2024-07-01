@@ -212,6 +212,9 @@ export default function ConnectSafe() {
           options: { safeAddress },
         })
       );
+      dispatch(
+        safeActionsAsync.getGnoAidropThunk(safeAddress)
+      );
     }
   };
 

@@ -215,6 +215,9 @@ function SafeSection() {
                   options: { safeAddress },
                 }),
               );
+              dispatch(
+                safeActionsAsync.getGnoAidropThunk(safeAddress)
+              );
             }
           }}
         >

@@ -41,7 +41,8 @@ import {
   HOPR_NODE_MANAGEMENT_MODULE,
   HOPR_NODE_STAKE_FACTORY,
   SAFE_SERVICE_URL,
-  STAKE_SUBGRAPH
+  STAKE_SUBGRAPH,
+  WEB_API
 } from '../../../../config';
 import { gql } from 'graphql-request';
 import { web3 } from '@hoprnet/hopr-sdk';
@@ -1253,6 +1254,28 @@ const getCommunityNftsOwnedBySafeThunk = createAsyncThunk(
   },
 );
 
+const getGnoAidropThunk = createAsyncThunk(
+  'web3/getGnoAidropThunk',
+  async (safe: string, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${WEB_API}/hub/gno-airdrop-check`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          safe
+        }),
+      });
+      const json = await response.json();
+
+      return json.status;
+    } catch (e) {
+      return false
+    }
+  },
+);
+
 export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initialState>) => {
   // CreateSafeWithConfig
   builder.addCase(createSafeWithConfigThunk.fulfilled, (state, action) => {
@@ -1426,6 +1449,17 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       }
     }
   });
+  builder.addCase(getGnoAidropThunk.pending, (state) => {
+    state.gnoAirdrop.isFetching = true;
+  });
+  builder.addCase(getGnoAidropThunk.fulfilled, (state, action) => {
+    state.gnoAirdrop.status = action.payload;
+    state.gnoAirdrop.isFetching = false;
+  });
+  builder.addCase(getGnoAidropThunk.rejected, (state) => {
+    state.gnoAirdrop.status = null;
+    state.gnoAirdrop.isFetching = false;
+  });
 };
 
 export const actionsAsync = {
@@ -1451,4 +1485,5 @@ export const actionsAsync = {
   createAndExecuteSafeContractTransactionThunk,
   createVanillaSafeWithConfigThunk,
   getCommunityNftsOwnedBySafeThunk,
+  getGnoAidropThunk,
 };

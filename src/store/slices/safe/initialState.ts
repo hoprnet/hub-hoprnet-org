@@ -95,6 +95,10 @@ type InitialState = {
     };
     isFetching: boolean;
   };
+  gnoAirdrop: {
+    status: boolean | null;
+    isFetching: boolean,
+  }
 };
 
 export const initialState: InitialState = {
@@ -158,4 +162,8 @@ export const initialState: InitialState = {
     },
     isFetching: false,
   },
+  gnoAirdrop: {
+    status: null,
+    isFetching: false,
+  }
 };
