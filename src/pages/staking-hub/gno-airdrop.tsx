@@ -7,7 +7,8 @@ import { WEB_API } from '../../../config'
 import { GNOeligible } from '../../utils/gno-airdrop';
 
 // Redux
-import { useAppSelector } from '../../store';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { safeActions } from '../../store/slices/safe';
 
 // HOPR Components
 import Button from '../../future-hopr-lib-components/Button';
@@ -15,10 +16,10 @@ import Section from '../../future-hopr-lib-components/Section';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import IconButton from '../../future-hopr-lib-components/Button/IconButton';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-
 import { StepContainer } from './onboarding/components';
 
 function WrapperPage() {
+  const dispatch = useAppDispatch();
   const [message, set_message] = useState('');
   const [fileName, set_fileName] = useState('');
   const [error, set_error] = useState('');
@@ -34,47 +35,52 @@ function WrapperPage() {
 
   const handleClick = async (account: `0x${string}` | null, message: string) => {
     if (!walletClient || !account) return;
-
+    dispatch(safeActions.setgnoAirdropIsFetching(true));
     // const signature = await walletClient.signMessage({
     //   account,
     //   message,
     // })
+    try{
+      const payload = {
+        types: {
+          'GNO-airdrop': [
+            { name: 'domain', type: 'string' },
+            { name: 'contents', type: 'string' },
+          ],
+        },
+        primaryType: 'GNO-airdrop',
+        message: {
+          domain: window.location.host,
+          contents: message,
+        },
+      }
 
-    const payload = {
-      types: {
-        'GNO-airdrop': [
-          { name: 'domain', type: 'string' },
-          { name: 'contents', type: 'string' },
-        ],
-      },
-      primaryType: 'GNO-airdrop',
-      message: {
-        domain: window.location.host,
-        contents: message,
-      },
+      // @ts-ignore
+      const signature = await walletClient.signTypedData(payload)
+
+      const rez = await fetch(`${WEB_API}/hub/gno-airdrop`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          signer: account,
+          safe: safeAddress,
+          payload,
+          signature
+        }),
+      });
+      const json = await rez.json();
+
+      if(json.status){
+        set_message('');
+        set_fileName('');
+        dispatch(safeActions.setgnoAirdropStatus(true));
+      }
+    } finally {
+      dispatch(safeActions.setgnoAirdropIsFetching(false));
     }
 
-    // @ts-ignore
-    const signature = await walletClient.signTypedData(payload)
-
-    const rez = await fetch(`${WEB_API}/hub/gno-airdrop`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        signer: account,
-        safe: safeAddress,
-        payload,
-        signature
-      }),
-    });
-    const json = await rez.json();
-
-    if(json.status){
-      set_message('');
-      set_fileName('');
-    }
 
   };
 

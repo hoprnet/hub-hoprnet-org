@@ -54,6 +54,12 @@ const safeSlice = createSlice({
         state.info.data.owners = state.info.data.owners.filter(owner => owner !== action.payload);
       }
     },
+    setgnoAirdropIsFetching: (state, action) => {
+      state.gnoAirdrop.isFetching = action.payload;
+    },
+    setgnoAirdropStatus: (state, action) => {
+      state.gnoAirdrop.status = action.payload;
+    },
   },
   extraReducers: (builder) => {
     createAsyncReducer(builder), createFetchingReducer(builder);

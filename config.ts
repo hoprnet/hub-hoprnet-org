@@ -22,7 +22,7 @@ export const HOPR_CHANNELS_SMART_CONTRACT_ADDRESS = '0x693Bac5ce61c720dDC6853399
 export const HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS = '0x619eabE23FD0E2291B50a507719aa633fE6069b8';
 
 //API
-export const WEB_API = 'http://localhost:3000/api';
+export const WEB_API = 'https://webapi.hoprnet.org/api';
 
 //Subgraphs
 export const STAKE_SUBGRAPH = 'https://webapi.hoprnet.org/api/hub/subgraph-allSeasons';
