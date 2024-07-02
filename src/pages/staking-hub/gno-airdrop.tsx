@@ -170,7 +170,7 @@ function WrapperPage() {
           fontSize: '13px'
         }}>
           Snapshot time: 28 June 2024, 8AM UTC<br /><br />
-          To count how many GNO you get airdropped, we divide the wxHOPR sum of tokens in the safe and channels at the time of snapshot by 30k (10k if you staked Netowork Registry NFT) and:<br />
+          To count how many GNO you get airdropped, we divide the wxHOPR sum of tokens in the safe and channels at the time of snapshot by 30k (10k if you staked Network Registry NFT) and:<br />
           - if the quotient of the result is higher or equal than {`<number_of_nodes>`}, then you will get {`<number_of_nodes>`} GNO,<br />
           - if the quotient will be smaller than {`<number_of_nodes>`}, then you will get the {`<quotient>`} GNO.<br /><br />
 
@@ -187,7 +187,7 @@ function WrapperPage() {
           >
               tutorial: How to generate deposits files
           </a>
-          ) till the end of July 2024. GNO will be distributed directly to those valiators before end of August 2024. Do not worry if you did not qualify this time, just make sure that for the next one you have your nodes online and well!<br /><br /><br />
+          ) till the end of July 2024. GNO will be distributed directly to those validators before end of August 2024. Do not worry if you did not qualify this time, just make sure that for the next one you have your nodes online and well!<br /><br /><br />
 
 
         </span>
