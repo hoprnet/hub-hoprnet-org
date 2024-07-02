@@ -194,7 +194,7 @@ function WrapperPage() {
 
         {alreadySubmittedFetching && <span style={{}}><br/><strong>Loading...</strong></span>}
         {!alreadySubmittedFetching && safeAddress && !eligible && <span style={{}}><br/><strong>Your safe is not eligible.</strong></span>}
-        {!alreadySubmittedFetching && alreadySubmitted && <span style={{color: 'darkgreen'}}><br/><strong>You submitted depiosit files.</strong></span>}
+        {!alreadySubmittedFetching && alreadySubmitted && <span style={{color: 'darkgreen'}}><br/><strong>You submitted deposit file.</strong></span>}
 
         {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
           <>
