@@ -33,7 +33,7 @@ function WrapperPage() {
 
   const eligible = safeAddress && Object.keys(GNOeligible).includes(safeAddress?.toLowerCase());
 
-  const handleClick = async (account: `0x${string}` | null, message: string) => {
+  const handleClick = async (account: `0x${string}` | null, depositFile: string) => {
     if (!walletClient || !account) return;
     dispatch(safeActions.setgnoAirdropIsFetching(true));
     // const signature = await walletClient.signMessage({
@@ -41,18 +41,49 @@ function WrapperPage() {
     //   message,
     // })
     try{
+
+      const deposits = JSON.parse(depositFile);
+
+      let GNOairfropType = [
+        { name: 'domain', type: 'string' },
+        { name: 'file', type: 'string' },
+      ]
+
+      let message: any= {
+        domain: window.location.host,
+      };
+
+      for (let i = 0; i < deposits.length; i++) {
+        GNOairfropType.push({ name: `Account ${i+1}: pubkey`, type: 'string' });
+        GNOairfropType.push({ name: `Account ${i+1}: withdrawal_credentials`, type: 'string' });
+        GNOairfropType.push({ name: `Account ${i+1}: amount`, type: 'string' });
+        GNOairfropType.push({ name: `Account ${i+1}: signature`, type: 'string' });
+        GNOairfropType.push({ name: `Account ${i+1}: deposit_message_root`, type: 'string' });
+        GNOairfropType.push({ name: `Account ${i+1}: deposit_data_root`, type: 'string' });
+        GNOairfropType.push({ name: `Account ${i+1}: fork_version`, type: 'string' });
+        GNOairfropType.push({ name: `Account ${i+1}: network_name`, type: 'string' });
+        GNOairfropType.push({ name: `Account ${i+1}: deposit_cli_version`, type: 'string' });
+
+        message[`Account ${i+1}: pubkey`] = deposits[0].pubkey;
+        message[`Account ${i+1}: withdrawal_credentials`] = deposits[0].withdrawal_credentials;
+        message[`Account ${i+1}: amount`] = deposits[0].amount;
+        message[`Account ${i+1}: signature`] = deposits[0].signature;
+        message[`Account ${i+1}: deposit_message_root`] = deposits[0].deposit_message_root;
+        message[`Account ${i+1}: deposit_data_root`] = deposits[0].deposit_data_root;
+        message[`Account ${i+1}: fork_version`] = deposits[0].fork_version;
+        message[`Account ${i+1}: network_name`] = deposits[0].network_name;
+        message[`Account ${i+1}: deposit_cli_version`] = deposits[0].deposit_cli_version;
+      }
+
+
+      message.file = depositFile;
+
       const payload = {
         types: {
-          'GNO-airdrop': [
-            { name: 'domain', type: 'string' },
-            { name: 'contents', type: 'string' },
-          ],
+          'GNO-airdrop': GNOairfropType,
         },
         primaryType: 'GNO-airdrop',
-        message: {
-          domain: window.location.host,
-          contents: message,
-        },
+        message,
       }
 
       // @ts-ignore
@@ -145,7 +176,7 @@ function WrapperPage() {
 
           The {`<number_of_nodes>`} is a sum of all your nodes wich were online at least 50% in the 2 weeks before the snapshot date and have at least 1 outgoing channel funded at the snapshot time.<br /><br />
 
-          You will be able to upload the validator keys (
+          You will be able to upload the deposits file (
           <a
             target="_blank"
             rel="noreferrer"
@@ -154,7 +185,7 @@ function WrapperPage() {
               textDecoration: 'underline'
             }}
           >
-              tutorial: How to generate validator keys
+              tutorial: How to generate deposits files
           </a>
           ) till the end of July 2024. GNO will be distributed directly to those valiators before end of August 2024. Do not worry if you did not qualify this time, just make sure that for the next one you have your nodes online and well!<br /><br /><br />
 
@@ -163,13 +194,13 @@ function WrapperPage() {
 
         {alreadySubmittedFetching && <span style={{}}><br/><strong>Loading...</strong></span>}
         {!alreadySubmittedFetching && safeAddress && !eligible && <span style={{}}><br/><strong>Your safe is not eligible.</strong></span>}
-        {!alreadySubmittedFetching && alreadySubmitted && <span style={{color: 'darkgreen'}}><br/><strong>You submitted validator files.</strong></span>}
+        {!alreadySubmittedFetching && alreadySubmitted && <span style={{color: 'darkgreen'}}><br/><strong>You submitted depiosit files.</strong></span>}
 
         {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
           <>
             <strong >Your <span style={{overflowWrap: 'anywhere'}}>{safeAddress}</span> safe is eligible for {safeAddress && GNOeligible[safeAddress?.toLowerCase() as `0x${string}`]} GNO.</strong>
             <br /><br />
-            Upload validator file {fileName && `(uploaded file '${fileName}')`}
+            Upload deposit file {fileName && `(uploaded file '${fileName}')`}
             <IconButton
               iconComponent={<FileUploadIcon />}
               tooltipText={
