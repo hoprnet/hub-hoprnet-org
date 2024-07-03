@@ -207,7 +207,7 @@ function WrapperPage() {
 
 
           {
-            eligible && !alreadySubmitted && <Button
+            eligible && !alreadySubmitted && !alreadySubmittedFetching && <Button
               className="swap-button"
               onClick={() => { handleClick(address, message) }}
               disabled={fileName.length === 0}
