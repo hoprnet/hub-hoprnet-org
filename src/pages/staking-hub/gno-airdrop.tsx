@@ -174,7 +174,13 @@ function WrapperPage() {
           {!alreadySubmittedFetching && alreadySubmitted && <span style={{ color: 'darkgreen' }}><br /><strong>You submitted deposit file.</strong></span>}
           {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
             <>
-              <strong >Your <span style={{ overflowWrap: 'anywhere' }}>{safeAddress}</span> safe is eligible for {GNO2GET} GNO.</strong>
+              <strong >Your <span style={{ overflowWrap: 'anywhere' }}>{safeAddress}</span> safe is eligible for {' '}
+                <span
+                  style={{
+                    fontSize: '26px',
+                    color: 'darkblue'
+                  }}
+                >{GNO2GET}</span> GNO.</strong>
               <br /><br />
               Upload deposit file {fileName && `(uploaded file '${fileName}')`}
               <IconButton
