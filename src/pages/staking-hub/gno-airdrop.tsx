@@ -18,6 +18,8 @@ import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import IconButton from '../../future-hopr-lib-components/Button/IconButton';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { StepContainer } from './onboarding/components';
+//@ts-ignore
+import confetti from 'canvas-confetti';
 
 function WrapperPage() {
   const dispatch = useAppDispatch();
@@ -31,9 +33,48 @@ function WrapperPage() {
   const web3Connected = useAppSelector((store) => store.web3.status.connected);
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const alreadySubmitted = useAppSelector((store) => store.safe.gnoAirdrop.status);
+
   const alreadySubmittedFetching = useAppSelector((store) => store.safe.gnoAirdrop.isFetching);
 
   const eligible = safeAddress && Object.keys(GNOeligible).includes(safeAddress?.toLowerCase());
+
+
+  const doConfetti = () => {
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.5 }
+    };
+
+    function fire(particleRatio: number, opts: object) {
+      confetti(Object.assign({}, defaults, opts, {
+        particleCount: Math.floor(count * particleRatio)
+      }));
+    }
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+    fire(0.2, {
+      spread: 60,
+    });
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
+  }
+  alreadySubmitted && doConfetti();
 
   const handleClick = async (account: `0x${string}` | null, depositFile: string) => {
     if (!walletClient || !account) return;
