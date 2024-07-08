@@ -127,10 +127,34 @@ function WrapperPage() {
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const contents = e.target?.result;
       if (typeof contents === 'string') {
-        set_message(contents);
-        set_fileName(fileName)
+        try{
+          const json = JSON.parse(contents);
+          const length = json.length;
+          if(length >= 49) {
+            alert('Error: deposit file too long')
+          } else {
+
+            let gnosisOK = true;
+            // @ts-ignore
+            json.forEach( validator => {
+              if(validator.network_name === "gnosis") gnosisOK = true;
+              else {
+                alert('You did not upload gnosis deposit file. Please check the netowrk.')
+                return;
+              }
+            })
+
+            console.log(json)
+            set_message(contents);
+            set_fileName(fileName);
+          }
+        } catch(e) {
+          console.log('Error2')
+          alert('Error loading file')
+        }
       } else {
-        set_error('Error loading file')
+        console.log('Error3')
+        alert('Error loading file')
       }
     };
 
