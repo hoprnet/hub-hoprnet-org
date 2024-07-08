@@ -39,7 +39,7 @@ const hubFaq: FaqData = {
             textDecoration: 'underline'
           }}
         >
-          how to generate deposits files here on the gnosis docs.
+          how to generate deposits files here on the gnosis docs. Remember to provide withdrawal address while creating the validators. It will be a lot easier while creation than adding them later.
         </a>
         </span>
       ),
