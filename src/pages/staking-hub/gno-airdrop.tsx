@@ -174,17 +174,23 @@ function WrapperPage() {
           if(length >= 49) {
             alert('Error: deposit file too long')
           } else {
-
+            let correctNetwork = true;
             // @ts-ignore
             json.forEach( validator => {
-              if(validator.network_name !== "gnosis") {
-                alert('You did not upload Gnosis chain deposit file. Please generate correct validator files.')
-                throw 'error';
+              if(correctNetwork && validator.network_name === "gnosis"){
+                correctNetwork = true;
+              } else {
+                correctNetwork = false;
               }
             })
 
-            set_message(contents);
-            set_fileName(fileName);
+            if(correctNetwork) {
+              set_message(contents);
+              set_fileName(fileName);
+            } else {
+              alert('You did not upload Gnosis chain deposit file. Please generate correct validator files.')
+            }
+
           }
         } catch(e) {
           console.log('Error2')
