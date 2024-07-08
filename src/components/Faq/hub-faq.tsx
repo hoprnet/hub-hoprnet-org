@@ -52,7 +52,7 @@ const hubFaq: FaqData = {
     },
     {
       id: 4,
-      title: 'How many validators do I need?',
+      title: 'How many validators do I need to provide?',
       content:
         `If you are eligible for 1+ GNOs, it means that you should create a new deposit file for that number of GNOs that you will receive. 1 GNO per validator will be distributed. Each validator can use only exactly 1 GNO.`
     },
