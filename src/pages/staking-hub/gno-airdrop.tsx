@@ -5,6 +5,7 @@ import { erc20ABI, useContractRead, useWalletClient } from 'wagmi';
 import { parseUnits } from 'viem';
 import { WEB_API } from '../../../config'
 import { GNOeligible } from '../../utils/gno-airdrop';
+import { truncateEthereumAddress } from '../../utils/blockchain';
 
 // Redux
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -156,32 +157,100 @@ function WrapperPage() {
       <StepContainer
         title="GNO Airdrop"
         image={{
-          src: '/assets/gnosis-gno-gno-logo.svg',
+          src: '/assets/GNO_Airdrop.svg',
           alt: 'GNO Aridrop',
-          height: 30,
+          height: 120,
         }}
+        buttons={
+          eligible && !alreadySubmitted && !alreadySubmittedFetching && <Button
+            className="swap-button"
+            onClick={() => { handleClick(address, message) }}
+            disabled={fileName.length === 0}
+          >
+            Sign and send
+          </Button>
+        }
       >
+
+        <span>
+          To strengthen the link between the Gnosis and HOPR infrastructure ecosystems, 500 GNO was be made available to HOPR nodes runners. Node runners will receive their GNO by submitting their validators. More information you can find at {` `}
+          <a
+            href="https://forum.gnosis.io/t/gip-98-should-gnosisdao-invest-in-hopr-to-kickstart-development-of-gnosisvpn/8348"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              textDecoration: 'underline'
+            }}
+          >GIP-98 on Gnosis the official forum</a>.
+        </span><br /><br />
+
+        {!alreadySubmittedFetching && safeAddress && eligible  &&
+            <p
+              style={{
+                fontSize: '20px',
+                textAlign: 'center',
+                fontWeight: 700,
+                marginBlockStart: 0,
+                marginBlockEnd: '20px',
+              }}
+            >Your <span style={{ overflowWrap: 'anywhere' }}>{truncateEthereumAddress(safeAddress as string)}</span> safe is eligible for {' '}
+              <span
+                style={{
+                  fontSize: '40px',
+                  color: 'darkblue'
+                }}
+              >{GNO2GET}</span> GNO.
+              </p>
+        }
+
+
+        {
+          GNO2GET > 0 &&
+          <>
+            <strong>How to claim</strong><br />
+            <span
+            // style={{
+            //   fontSize: '13px'
+            // }}
+            >
+              To claim, we'll need you to sign the deposit file for your <strong>{GNO2GET}</strong> new Gnosis validator{
+                GNO2GET > 1 ? `s` : ``
+              } (
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href="https://docs.gnosischain.com/node/manual/validator/generate-keys/"
+                style={{
+                  textDecoration: 'underline'
+                }}
+              >
+                tutorial: how to generate deposits files
+              </a>
+              ).<br /><br />
+              You'll have until the end of July 2024 to do this. GNO will be distributed directly to validators before the end of August 2024.
+              <br /><br />
+            </span>
+          </>
+        }
+
         <div
-          style={{
-            height: '150px'
-          }}
+        // style={{
+        //   height: '150px'
+        // }}
         >
+
           {!web3Connected && <span style={{}}><br /><strong>Connect wallet and safe to check if you are eligible.</strong></span>}
 
           {web3Connected && !safeAddress && <span style={{}}><br /><strong>Connect safe to check if you are eligible.</strong></span>}
           {alreadySubmittedFetching && <span style={{}}><br /><strong>Loading...</strong></span>}
           {willNotGetGNO && <span style={{}}><br /><strong>Your safe is not eligible.</strong></span>}
-          {!alreadySubmittedFetching && alreadySubmitted && <span style={{ color: 'darkgreen' }}><br /><strong>You submitted deposit file.</strong></span>}
+          {!alreadySubmittedFetching && alreadySubmitted && <span style={{ color: 'darkgreen' }}><br /><strong>Congratulations, you submitted your deposit file.<br/>Airdrop will automatically be transferred to your validator before the end of August 2024.</strong></span>}
+
+
+
           {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
             <>
-              <strong >Your <span style={{ overflowWrap: 'anywhere' }}>{safeAddress}</span> safe is eligible for {' '}
-                <span
-                  style={{
-                    fontSize: '26px',
-                    color: 'darkblue'
-                  }}
-                >{GNO2GET}</span> GNO.</strong>
-              <br /><br />
+              <br />
               Upload deposit file {fileName && `(uploaded file '${fileName}')`}
               <IconButton
                 iconComponent={<FileUploadIcon />}
@@ -205,58 +274,10 @@ function WrapperPage() {
               />
             </>}
 
-
-          {
-            eligible && !alreadySubmitted && !alreadySubmittedFetching && <Button
-              className="swap-button"
-              onClick={() => { handleClick(address, message) }}
-              disabled={fileName.length === 0}
-            >
-              Sign and send
-            </Button>
-          }
         </div>
-        <strong>How this was calculated</strong><br />
-        <span style={{
-          fontSize: '13px'
-        }}>
-          We:
-          <ul>
-            <li>Took a snapshot on 28 June 2024, 8AM UTC</li>
-            <li>Calculated the wxHOPR tokens in your Safe and channels at that time</li>
-            <li>Divided it by the node minimum of 30,000 (or 10,000 if you're staking a Network Registry NFT)</li>
-            <li>Rounded down to the nearest whole number</li>
-          </ul>
-          We also checked how many of your HOPR nodes were running at 50% uptime for the previous two weeks<br />
-          Whichever number was smallest is your airdrop amount.<br /><br />
-        </span>
 
-        {
-          GNO2GET > 0 &&
-          <>
-            <strong>How to claim</strong><br />
-            <span style={{
-              fontSize: '13px'
-            }}>
-              To claim, we'll need you to sign the deposit file for your {GNO2GET} new Gnosis validator{
-                GNO2GET > 1 ? `s` : ``
-              } (
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href="https://docs.gnosischain.com/node/manual/validator/generate-keys/"
-                style={{
-                  textDecoration: 'underline'
-                }}
-              >
-                tutorial: how to generate deposits files
-              </a>
-              ).<br /><br />
-              You'll have until the end of July 2024 to do this. GNO will be distributed directly to validators in August 2024.
-              <br /><br />
-            </span>
-          </>
-        }
+
+
 
 
       </StepContainer>

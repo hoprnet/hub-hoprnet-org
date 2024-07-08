@@ -7,7 +7,9 @@ import Details from './details';
 import FAQ from '../Faq';
 import nodeInfoData from '../Faq/node-faq';
 import stakingInfoData from '../Faq/staking-faq';
+import HubFaq from '../Faq/hub-faq';
 import stakingAlertsData from '../Faq/staking-alerts';
+import hubFaq from '../Faq/hub-faq';
 
 type InfoData = {
   [routePath: string]: {
@@ -74,13 +76,15 @@ export default function InfoBar(props: Props) {
   const currentRoute = useLocation().pathname;
   const currentHash = window.location.hash;
 
+  const completeHubFaq = Object.assign(hubFaq, stakingInfoData)
+
   const pageHasNodeFAQ = () => {
     if (nodeInfoData[currentRoute]) return true;
     return false;
   };
 
   const pageHasStakingFAQ = () => {
-    if (stakingInfoData[`${currentRoute}${currentHash}`]) return true;
+    if (completeHubFaq[`${currentRoute}${currentHash}`]) return true;
     return false;
   };
 
@@ -103,7 +107,7 @@ export default function InfoBar(props: Props) {
           )}
           {web3Connected && pageHasStakingFAQ() && (
             <FAQ
-              data={stakingInfoData[`${currentRoute}${currentHash}`]}
+              data={completeHubFaq[`${currentRoute}${currentHash}`]}
               label={currentRoute.split('/')[currentRoute.split('/').length - 1]}
               variant="blue"
             />

@@ -3,6 +3,7 @@ import { createBrowserRouter, RouteObject, useSearchParams, Navigate, useLocatio
 import { environment } from '../config';
 import { useDisconnect } from 'wagmi';
 import { parseAndFormatUrl } from './utils/parseAndFormatUrl';
+import { trackGoal } from 'fathom-client';
 
 // Store
 import { useAppDispatch, useAppSelector } from './store';
@@ -11,6 +12,7 @@ import { nodeActions, nodeActionsAsync } from './store/slices/node';
 import { web3Actions } from './store/slices/web3';
 import { appActions } from './store/slices/app';
 import { safeActions } from './store/slices/safe';
+import { stakingHubActions } from './store/slices/stakingHub';
 
 // Sections
 import NodeLandingPage from './pages/node/landingPage';
@@ -45,41 +47,25 @@ import GnoAirdrop from './pages/staking-hub/gno-airdrop'
 // Layout
 import Layout from './future-hopr-lib-components/Layout';
 import ConnectWeb3 from './components/ConnectWeb3';
-import ConnectNode from './components/ConnectNode';
 import ConnectSafe from './components/ConnectSafe';
 import NotificationBar from './components/NotificationBar';
 import InfoBar from './components/InfoBar';
 
 // Icons
-import InfoIcon from '@mui/icons-material/Info';
-import LanIcon from '@mui/icons-material/Lan';
-import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
-import SettingsIcon from '@mui/icons-material/Settings';
-import MailIcon from '@mui/icons-material/Mail';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import LockIcon from '@mui/icons-material/Lock';
-import ContactPhone from '@mui/icons-material/ContactPhone';
 import SavingsIcon from '@mui/icons-material/Savings';
-import NodeIcon from '@mui/icons-material/Router';
-import NetworkingIcon from '@mui/icons-material/Diversity3';
 import DevelopIcon from '@mui/icons-material/Code';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import PaidIcon from '@mui/icons-material/Paid';
 import WalletIcon from '@mui/icons-material/Wallet';
-import LinkIcon from '@mui/icons-material/Link';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import TelegramIcon from '@mui/icons-material/Telegram';
-import IncomingChannelsIcon from './future-hopr-lib-components/Icons/channelsIn';
-import OutgoingChannelsIcon from './future-hopr-lib-components/Icons/channelsOut';
 import TrainIcon from './future-hopr-lib-components/Icons/TrainIcon';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
-import { stakingHubActions } from './store/slices/stakingHub';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyNotice from './pages/PrivacyNotice';
 import MetaMaskFox from './future-hopr-lib-components/Icons/MetaMaskFox';
-import { trackGoal } from 'fathom-client';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import GnoAridropIcon from './future-hopr-lib-components/Icons/GnoAirdropIcon';
 
 export type ApplicationMapType = {
   groupName: string;
@@ -182,7 +168,7 @@ export const applicationMapStakingHub: ApplicationMapType = [
       {
         path: 'gno-airdrop',
         element: <GnoAirdrop />,
-        icon: <FlightTakeoffIcon />,
+        icon: <GnoAridropIcon />,
         name: 'GNO Airdrop',
 
       },
