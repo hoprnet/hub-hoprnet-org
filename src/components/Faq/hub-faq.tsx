@@ -48,7 +48,7 @@ const hubFaq: FaqData = {
       id: 3,
       title: 'How to claim',
       content:
-        `You'll have until the end of July 2024 to upload deposit file. GNO will be distributed directly to validators before the end of August 2024.`,
+        `You'll have until the end of August 2024 to upload deposit file. GNO will be distributed directly to validators before the end of September 2024.`,
     },
     {
       id: 4,
