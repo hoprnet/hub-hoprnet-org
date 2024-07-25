@@ -296,7 +296,7 @@ function WrapperPage() {
                 tutorial: how to generate deposits files
               </a>
               ).<br /><br />
-              You'll have until the end of August 2024 to do this. GNO will be distributed directly to validators before the end of September 2024.
+              You have until August 8th to fill in your generated validator(s) file. If you don't submit within this 2-week period, you will receive GNO in future distributions. GNO will be distributed directly to validators before the end of September 2024.
               <br /><br />
             </span>
           </>
