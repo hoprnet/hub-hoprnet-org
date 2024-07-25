@@ -33,6 +33,7 @@ function WrapperPage() {
   const web3Connected = useAppSelector((store) => store.web3.status.connected);
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const alreadySubmitted = useAppSelector((store) => store.safe.gnoAirdrop.status);
+  const paidOut = useAppSelector((store) => store.safe.gnoAirdrop.paid);
 
   const alreadySubmittedFetching = useAppSelector((store) => store.safe.gnoAirdrop.isFetching);
 
@@ -273,7 +274,7 @@ function WrapperPage() {
 
 
         {
-          GNO2GET > 0 &&
+          GNO2GET > 0 && !paidOut &&
           <>
             <strong>How to claim</strong><br />
             <span
@@ -312,8 +313,13 @@ function WrapperPage() {
           {web3Connected && !safeAddress && <span style={{}}><br /><strong>Connect safe to check if you are eligible.</strong></span>}
           {alreadySubmittedFetching && <span style={{}}><br /><strong>Loading...</strong></span>}
           {willNotGetGNO && <span style={{}}><br /><strong>Your safe is not eligible.</strong></span>}
-          {!alreadySubmittedFetching && alreadySubmitted && <span style={{ color: 'darkgreen' }}><br /><strong>Congratulations, you submitted your deposit file.<br/>Airdrop will automatically be transferred to your validator before the end of August 2024.</strong></span>}
-
+          {!alreadySubmittedFetching && alreadySubmitted  && !paidOut && <span style={{ color: 'darkgreen' }}><br /><strong>Congratulations, you submitted your deposit file.<br/>Airdrop will automatically be transferred to your validator before the end of August 2024.</strong></span>}
+          {!alreadySubmittedFetching && paidOut &&  <div
+            style={{
+              width: '100%',
+              textAlign: 'center'
+            }}
+        ><span style={{ color: 'darkgreen', fontSize: '20px' }}><br /><strong>Congratulations, airdrop was transferred to your validator.</strong></span></div>}
 
 
           {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
