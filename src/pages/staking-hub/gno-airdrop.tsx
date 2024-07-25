@@ -296,7 +296,7 @@ function WrapperPage() {
                 tutorial: how to generate deposits files
               </a>
               ).<br /><br />
-              You have until August 8th to fill in your generated validator(s) file. If you don't submit within this 2-week period, you will receive GNO in future distributions.
+              You have until August 8th to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.
               <br /><br />
             </span>
           </>
