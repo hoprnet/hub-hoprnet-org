@@ -1269,7 +1269,7 @@ const getGnoAidropThunk = createAsyncThunk(
       });
       const json = await response.json();
 
-      return json.status;
+      return json;
     } catch (e) {
       return false
     }
@@ -1453,11 +1453,13 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
     state.gnoAirdrop.isFetching = true;
   });
   builder.addCase(getGnoAidropThunk.fulfilled, (state, action) => {
-    state.gnoAirdrop.status = action.payload;
+    state.gnoAirdrop.status = action.payload.status;
+    state.gnoAirdrop.paid = action.payload.paid;
     state.gnoAirdrop.isFetching = false;
   });
   builder.addCase(getGnoAidropThunk.rejected, (state) => {
     state.gnoAirdrop.status = null;
+    state.gnoAirdrop.paid = null;
     state.gnoAirdrop.isFetching = false;
   });
 };
