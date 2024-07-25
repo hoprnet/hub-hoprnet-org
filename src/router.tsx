@@ -3,6 +3,7 @@ import { createBrowserRouter, RouteObject, useSearchParams, Navigate, useLocatio
 import { environment } from '../config';
 import { useDisconnect } from 'wagmi';
 import { parseAndFormatUrl } from './utils/parseAndFormatUrl';
+import { trackGoal } from 'fathom-client';
 
 // Store
 import { useAppDispatch, useAppSelector } from './store';
@@ -11,6 +12,7 @@ import { nodeActions, nodeActionsAsync } from './store/slices/node';
 import { web3Actions } from './store/slices/web3';
 import { appActions } from './store/slices/app';
 import { safeActions } from './store/slices/safe';
+import { stakingHubActions } from './store/slices/stakingHub';
 
 // Sections
 import NodeLandingPage from './pages/node/landingPage';
@@ -40,44 +42,30 @@ import StakexDAI from './pages/staking-hub/stakexDai';
 import SetAllowance from './pages/staking-hub/setAllowance';
 import FundNode from './pages/staking-hub/fundNode';
 import EditOwners from './pages/staking-hub/editOwners';
+import GnoAirdrop from './pages/staking-hub/gno-airdrop'
 
 // Layout
 import Layout from './future-hopr-lib-components/Layout';
 import ConnectWeb3 from './components/ConnectWeb3';
-import ConnectNode from './components/ConnectNode';
 import ConnectSafe from './components/ConnectSafe';
 import NotificationBar from './components/NotificationBar';
 import InfoBar from './components/InfoBar';
 
 // Icons
-import InfoIcon from '@mui/icons-material/Info';
-import LanIcon from '@mui/icons-material/Lan';
-import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
-import SettingsIcon from '@mui/icons-material/Settings';
-import MailIcon from '@mui/icons-material/Mail';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import LockIcon from '@mui/icons-material/Lock';
-import ContactPhone from '@mui/icons-material/ContactPhone';
 import SavingsIcon from '@mui/icons-material/Savings';
-import NodeIcon from '@mui/icons-material/Router';
-import NetworkingIcon from '@mui/icons-material/Diversity3';
 import DevelopIcon from '@mui/icons-material/Code';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import PaidIcon from '@mui/icons-material/Paid';
 import WalletIcon from '@mui/icons-material/Wallet';
-import LinkIcon from '@mui/icons-material/Link';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import TelegramIcon from '@mui/icons-material/Telegram';
-import IncomingChannelsIcon from './future-hopr-lib-components/Icons/channelsIn';
-import OutgoingChannelsIcon from './future-hopr-lib-components/Icons/channelsOut';
 import TrainIcon from './future-hopr-lib-components/Icons/TrainIcon';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
-import { stakingHubActions } from './store/slices/stakingHub';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyNotice from './pages/PrivacyNotice';
 import MetaMaskFox from './future-hopr-lib-components/Icons/MetaMaskFox';
-import { trackGoal } from 'fathom-client';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import GnoAridropIcon from './future-hopr-lib-components/Icons/GnoAirdropIcon';
 
 export type ApplicationMapType = {
   groupName: string;
@@ -97,113 +85,6 @@ export type ApplicationMapType = {
     numberKey?: string;
   }[];
 }[];
-
-export const applicationMapNode: ApplicationMapType = [
-  {
-    groupName: 'NODE',
-    path: 'node',
-    icon: <NodeIcon />,
-    items: [
-      {
-        name: 'INFO',
-        path: 'info',
-        icon: <InfoIcon />,
-        element: <InfoPage />,
-        loginNeeded: 'node',
-      },
-      {
-        name: 'TICKETS',
-        path: 'tickets',
-        icon: <ConfirmationNumberIcon />,
-        element: <TicketsPage />,
-        loginNeeded: 'node',
-      },
-      {
-        name: 'METRICS',
-        path: 'metrics',
-        icon: <BarChartIcon />,
-        element: <MetricsPage />,
-        loginNeeded: 'node',
-      },
-      {
-        name: 'CONFIGURATION',
-        path: 'configuration',
-        icon: <SettingsIcon />,
-        element: <ConfigurationPage />,
-        loginNeeded: 'node',
-      },
-    ],
-  },
-  {
-    groupName: 'NETWORKING',
-    path: 'networking',
-    icon: <NetworkingIcon />,
-    items: [
-      {
-        name: 'PEERS',
-        path: 'peers',
-        icon: <LanIcon />,
-        element: <PeersPage />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfPeers'
-      },
-      {
-        name: 'ALIASES',
-        path: 'aliases',
-        icon: <ContactPhone />,
-        element: <AliasesPage />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfAliases'
-      },
-      {
-        name: 'MESSAGES',
-        path: 'messages',
-        icon: <MailIcon />,
-        element: <MessagesPage />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfMessagesReceived'
-      },
-      {
-        name: 'CHANNELS: IN',
-        path: 'channels-INCOMING',
-        icon: <IncomingChannelsIcon />,
-        element: <ChannelsPageIncoming />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfChannelsIn'
-      },
-      {
-        name: 'CHANNELS: OUT',
-        path: 'channels-OUTGOING',
-        icon: <OutgoingChannelsIcon />,
-        element: <ChannelsPageOutgoing />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfChannelsOut'
-      },
-    ],
-  },
-  {
-    groupName: 'LINKS',
-    path: 'links',
-    icon: <LinkIcon />,
-    items: [
-      {
-        name: 'Staking Hub',
-        path: 'https://hub.hoprnet.org/',
-        icon: <SavingsIcon />,
-      },
-      {
-        name: 'Docs',
-        path: 'https://docs.hoprnet.org/',
-        icon: <LibraryBooksIcon />,
-      },
-      {
-        name: 'Telegram',
-        path: 'https://t.me/hoprnet',
-        icon: <TelegramIcon />,
-      },
-    ],
-  },
-];
 
 export const applicationMapStakingHub: ApplicationMapType = [
   {
@@ -285,6 +166,13 @@ export const applicationMapStakingHub: ApplicationMapType = [
         inDrawer: false,
       },
       {
+        path: 'gno-airdrop',
+        element: <GnoAirdrop />,
+        icon: <GnoAridropIcon />,
+        name: 'GNO Airdrop',
+
+      },
+      {
         path: 'dev',
         element: <SectionSafe />,
         loginNeeded: 'web3',
@@ -342,7 +230,6 @@ export const applicationMapDev: ApplicationMapType = [
 
 function createApplicationMap() {
   const temp: ApplicationMapType = [];
-  if (environment === 'dev' || environment === 'node') applicationMapNode.map((elem) => temp.push(elem));
   if (environment === 'dev' || environment === 'web3') applicationMapStakingHub.map((elem) => temp.push(elem));
   if (environment === 'dev') applicationMapDevWeb3.map((elem) => temp.push(elem));
   if (environment === 'dev') applicationMapDev.map((elem) => temp.push(elem));
@@ -557,7 +444,6 @@ const LayoutEnhanced = () => {
           {(environment === 'dev' || environment === 'node') && <NotificationBar />}
           {(environment === 'dev' || environment === 'web3') && <ConnectSafe />}
           {(environment === 'dev' || environment === 'web3') && <ConnectWeb3 inTheAppBar />}
-          {(environment === 'dev' || environment === 'node') && <ConnectNode />}
         </>
       }
       drawerRight={showInfoBar() && <InfoBar />}
