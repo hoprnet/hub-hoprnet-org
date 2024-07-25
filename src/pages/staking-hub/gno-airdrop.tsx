@@ -296,7 +296,7 @@ function WrapperPage() {
                 tutorial: how to generate deposits files
               </a>
               ).<br /><br />
-              You have until<strong>August 8th</strong>to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.
+              You have until<strong>{` `}August 8th{` `}</strong>to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.
               <br /><br />
             </span>
           </>
