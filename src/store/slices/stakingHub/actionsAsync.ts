@@ -240,15 +240,19 @@ const getSubgraphDataThunk = createAsyncThunk<
       console.log('output.registeredNodesInSafeRegistry', output.registeredNodesInSafeRegistry);
 
       let allNodes = [...output.registeredNodesInNetworkRegistry, ...output.registeredNodesInSafeRegistry];
-      allNodes = allNodes.filter(function(item, pos) {
-        return allNodes.indexOf(item) == pos;
-      })
-
       console.log('allNodes found', allNodes);
+      let allNodesAddresses: string[] = [];
       allNodes.forEach((safeRegNode: {node: { id: string}}) => {
         let nodeAddress = safeRegNode.node.id;
-        dispatch(getNodeDataThunk({nodeAddress, browserClient}));
+        allNodesAddresses.push(nodeAddress);
       })
+
+      // filter duplicates
+      allNodesAddresses = allNodesAddresses.filter(function(item, pos) {
+        return allNodesAddresses.indexOf(item) == pos;
+      })
+
+      dispatch(getNodeDataThunk({nodeAddresses: allNodesAddresses, browserClient}));
 
       console.log('SubgraphParsedOutput', output);
       return output;
@@ -501,7 +505,7 @@ const getOnboardingDataThunk = createAsyncThunk<
 
 const getNodeDataThunk = createAsyncThunk<
   NodePayload,
-  { nodeAddress: string, browserClient: PublicClient, },
+  { nodeAddresses: string[], browserClient: PublicClient, },
   { state: RootState }
 >(
   'stakingHub/getNodeData',
@@ -509,20 +513,28 @@ const getNodeDataThunk = createAsyncThunk<
     rejectWithValue,
     dispatch,
   }) => {
-    dispatch(getNodeBalanceThunk(payload));
-    const rez = await fetch(`https://network.hoprnet.org/api/getNode?env=37&nodeAddress=${payload.nodeAddress}`);
+
+    const nodeAddresses = payload.nodeAddresses;
+    const browserClient = payload.browserClient;
+    console.log('nodeAddresses', nodeAddresses)
+    nodeAddresses.forEach((nodeAddress) => {
+      dispatch(getNodeBalanceThunk({ nodeAddress, browserClient }));
+    })
+
+    const rez = await fetch(`https://network.hoprnet.org/api/getSomeNodes`, {
+      "headers": {
+        "content-type": "application/json",
+      },
+      "method": "POST",
+      "body": JSON.stringify(
+        {
+          nodes: nodeAddresses
+        }
+      ) ,
+    });
     const json = await rez.json();
-    let nodeData = {
-      nodeAddress: payload.nodeAddress,
-      isFetching: false,
-    };
-    if(json.length > 0) {
-      nodeData = {
-        ...json[0],
-        ...nodeData
-      }
-    }
-    return nodeData;
+
+    return json;
   },
   { condition: (_payload, { getState }) => {
     return true;
@@ -679,6 +691,9 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   builder.addCase(getNodeDataThunk.fulfilled, (state, action) => {
     const nodeData = action.payload;
+
+
+
     if(nodeData.nodeAddress){
       const nodeAddress = nodeData.nodeAddress.toLocaleLowerCase();
       if(state.nodes[nodeAddress]) {
