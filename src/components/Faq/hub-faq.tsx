@@ -54,7 +54,7 @@ const hubFaq: FaqData = {
       id: 4,
       title: 'How many validators do I need to provide?',
       content:
-        `Only new validators are eligible for these rewards. You should create the same number of new validators as GNO you are due to receive. Each validator can only receive 1 GNO, and if a validator already has GNO, it will not be able to recieve more. If you will provide more validators in the deposit file than you are eligible for, we take into account only the entries at the beginning of the deposit file and disregard the rest of the validators inside the deposit file.`
+        `Only new validators are eligible for these rewards. You should create the same number of new validators as GNO you are due to receive. Each validator can only receive 1 GNO, and if a validator already has GNO, it will not be able to recieve more. If you will provide more validators in the deposit file than you are eligible for, we take into account only the entries at the beginning of the deposit file and disregard the rest of the validators inside it.`
     },
     {
       id: 5,
