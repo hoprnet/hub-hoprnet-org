@@ -98,8 +98,8 @@ const stakingHubSlice = createSlice({
           typeof(action?.payload?.value) === 'boolean'
         ) {
           const nodeAddress = action.payload.nodeAddress.toLocaleLowerCase();
-          if(state.nodes[nodeAddress]) {
-            state.nodes[nodeAddress][action.payload.key] = action.payload.value;
+          if(state.nodes.data[nodeAddress]) {
+            state.nodes.data[nodeAddress][action.payload.key] = action.payload.value;
           }
       }
     },

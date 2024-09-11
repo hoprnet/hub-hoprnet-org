@@ -226,7 +226,6 @@ const getSubgraphDataThunk = createAsyncThunk<
         }),
       ])
 
-
       const json = await resp[0].json();
 
       console.log('SubgraphOutput', json);
@@ -239,15 +238,22 @@ const getSubgraphDataThunk = createAsyncThunk<
       console.log('output.registeredNodesInNetworkRegistry', output.registeredNodesInNetworkRegistry);
       console.log('output.registeredNodesInSafeRegistry', output.registeredNodesInSafeRegistry);
 
-      let allNodes = [...output.registeredNodesInNetworkRegistry, ...output.registeredNodesInSafeRegistry];
-      allNodes = allNodes.filter(function(item, pos) {
-        return allNodes.indexOf(item) == pos;
+      const allNodes = [...output.registeredNodesInNetworkRegistry, ...output.registeredNodesInSafeRegistry];
+
+      const nodesAddresses = allNodes.map((safeRegNode: {node: { id: string}}) => {
+        let nodeAddress = safeRegNode.node.id;
+        return nodeAddress;
       })
 
-      console.log('allNodes found', allNodes);
-      allNodes.forEach((safeRegNode: {node: { id: string}}) => {
-        let nodeAddress = safeRegNode.node.id;
-        dispatch(getNodeDataThunk({nodeAddress, browserClient}));
+      const nodesAddressesFiltered = nodesAddresses.filter(function(item, pos) {
+        return nodesAddresses.indexOf(item) == pos;
+      });
+
+      console.log('nodeAddress', nodesAddressesFiltered);
+
+      dispatch(getNodesDataThunk({nodesAddresses: nodesAddressesFiltered, browserClient}));
+      nodesAddressesFiltered.map(nodeAddress=> {
+        dispatch(getNodeBalanceThunk({nodeAddress, browserClient}));
       })
 
       console.log('SubgraphParsedOutput', output);
@@ -499,30 +505,26 @@ const getOnboardingDataThunk = createAsyncThunk<
   dispatch(stakingHubActions.onboardingIsFetching(false));
 });
 
-const getNodeDataThunk = createAsyncThunk<
-  NodePayload,
-  { nodeAddress: string, browserClient: PublicClient, },
+const getNodesDataThunk = createAsyncThunk<
+  NodePayload[],
+  { nodesAddresses: string[], browserClient: PublicClient, },
   { state: RootState }
 >(
-  'stakingHub/getNodeData',
+  'stakingHub/getNodesData',
   async (payload, {
     rejectWithValue,
     dispatch,
   }) => {
-    dispatch(getNodeBalanceThunk(payload));
-    const rez = await fetch(`https://network.hoprnet.org/api/getNode?env=37&nodeAddress=${payload.nodeAddress}`);
+  //  dispatch(getNodeBalanceThunk(payload));
+    const rez = await fetch(`https://network.hoprnet.org/api/getSomeNodes`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        nodes: payload.nodesAddresses
+      }),
+    });
     const json = await rez.json();
-    let nodeData = {
-      nodeAddress: payload.nodeAddress,
-      isFetching: false,
-    };
-    if(json.length > 0) {
-      nodeData = {
-        ...json[0],
-        ...nodeData
-      }
-    }
-    return nodeData;
+    return json.nodes;
   },
   { condition: (_payload, { getState }) => {
     return true;
@@ -540,14 +542,14 @@ const getNodeBalanceThunk = createAsyncThunk<
     dispatch,
   }) => {
     const nodeBalanceInBigInt = await payload.browserClient?.getBalance({ address: payload.nodeAddress as Address });
-    console.log('nodeBalanceInBigInt', payload.nodeAddress, nodeBalanceInBigInt)
     const nodeXDaiBalance = nodeBalanceInBigInt?.toString() ?? '0';
     const nodeXDaiBalanceFormatted = formatEther(nodeBalanceInBigInt);
     let nodeBalance = {
       nodeAddress: payload.nodeAddress,
+      peeraddress: payload.nodeAddress,
       balance: nodeXDaiBalance,
       balanceFormatted: nodeXDaiBalanceFormatted,
-      isFetching: false,
+      isFetchingBalance: false,
     };
     return nodeBalance;
   },
@@ -588,11 +590,12 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         tmp = action.payload.registeredNodesInNetworkRegistry.map((elem: { node: { id: string | null}}) => {
           if(elem.node.id) {
             const nodeAddress = elem.node.id.toLocaleLowerCase();
-            if(state.nodes[nodeAddress]) state.nodes[nodeAddress].registeredNodesInNetworkRegistry = true;
-            else state.nodes[nodeAddress] = {
-              nodeAddress: nodeAddress,
+            if(state.nodes.data[nodeAddress]) state.nodes.data[nodeAddress].registeredNodesInNetworkRegistry = true;
+            else state.nodes.data[nodeAddress] = {
+              peeraddress: nodeAddress,
+              nodeAddress,
               registeredNodesInNetworkRegistry:true,
-              isFetching: false,
+              isFetchingBalance: false,
             }
           }
           return elem.node.id as string
@@ -605,11 +608,12 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         tmp = action.payload.registeredNodesInSafeRegistry.map((elem: { node: { id: string | null}}) => {
           if(elem.node.id) {
             const nodeAddress = elem.node.id.toLocaleLowerCase();
-            if(state.nodes[nodeAddress]) state.nodes[nodeAddress].registeredNodesInSafeRegistry = true;
-            else state.nodes[nodeAddress] = {
-              nodeAddress: nodeAddress,
+            if(state.nodes.data[nodeAddress]) state.nodes.data[nodeAddress].registeredNodesInSafeRegistry = true;
+            else state.nodes.data[nodeAddress] = {
+              peeraddress: nodeAddress,
+              nodeAddress,
               registeredNodesInSafeRegistry:true,
-              isFetching: false,
+              isFetchingBalance: false,
             }
           }
           return elem.node.id as string
@@ -621,11 +625,12 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         action.payload.module.includedNodes.map((elem: { node: { id: string | null}}) => {
           if(elem.node.id) {
             const nodeAddress = elem.node.id.toLocaleLowerCase();
-            if(state.nodes[nodeAddress]) state.nodes[nodeAddress].includedInModule = true;
-            else state.nodes[nodeAddress] = {
-              nodeAddress: nodeAddress,
+            if(state.nodes.data[nodeAddress]) state.nodes.data[nodeAddress].includedInModule = true;
+            else state.nodes.data[nodeAddress] = {
+              peeraddress: nodeAddress,
+              nodeAddress,
               includedInModule: true,
-              isFetching: false,
+              isFetchingBalance: false,
             }
           }
         })
@@ -677,37 +682,56 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       }
     }
   });
-  builder.addCase(getNodeDataThunk.fulfilled, (state, action) => {
-    const nodeData = action.payload;
-    if(nodeData.nodeAddress){
-      const nodeAddress = nodeData.nodeAddress.toLocaleLowerCase();
-      if(state.nodes[nodeAddress]) {
-        state.nodes[nodeAddress] = {
-          ...state.nodes[nodeAddress],
-          ...nodeData
+  builder.addCase(getNodesDataThunk.fulfilled, (state, action) => {
+    const nodesData = action.payload;
+    nodesData.map(nodeData => {
+      if(nodeData.peeraddress){
+        const nodeAddress = nodeData.peeraddress.toLowerCase();
+        if(state.nodes.data[nodeAddress]) {
+          state.nodes.data[nodeAddress] = {
+            ...state.nodes.data[nodeAddress],
+            ...nodeData
+          }
+        } else {
+          state.nodes.data[nodeAddress] = nodeData;
         }
-      } else {
-        state.nodes[nodeAddress] = nodeData;
       }
-    }
-    if (state.nodes[0]) {
-      state.nodes[0].isFetching = false;
-    }
+      if (state.nodes.isFetching) {
+        state.nodes.isFetching = false;
+      }
+    })
   });
-  builder.addCase(getNodeDataThunk.rejected, (state) => {
-    state.nodes[0].isFetching = false;
+  builder.addCase(getNodesDataThunk.rejected, (state) => {
+    state.nodes.isFetching = false;
   });
+  // builder.addCase(getNodeBalanceThunk.pending, (state, action) => {
+  //   const nodeData = action.payload;
+  //   if(nodeData && nodeData.peeraddress){
+  //     const nodeAddress = nodeData.peeraddress.toLocaleLowerCase();
+  //     if(state.nodes.data[nodeAddress]) {
+  //       state.nodes.data[nodeAddress] = {
+  //         isFetchingBalance: true,
+  //         ...state.nodes.data[nodeAddress],
+  //       }
+  //     }
+  //     else {
+  //       state.nodes.data[nodeAddress] = {
+  //         isFetchingBalance: true,
+  //       };
+  //     }
+  //   }
+  // });
   builder.addCase(getNodeBalanceThunk.fulfilled, (state, action) => {
     const nodeData = action.payload;
-    if(nodeData.nodeAddress){
-      const nodeAddress = nodeData.nodeAddress.toLocaleLowerCase();
-      if(state.nodes[nodeAddress]) {
-        state.nodes[nodeAddress] = {
-          ...state.nodes[nodeAddress],
-          ...nodeData
+    if(nodeData.peeraddress){
+      const nodeAddress = nodeData.peeraddress.toLowerCase();
+      if(Object.keys(state.nodes.data).includes(nodeAddress)) {
+        state.nodes.data[nodeAddress] = {
+          ...state.nodes.data[nodeAddress],
+          ...nodeData,
         }
       } else {
-        state.nodes[nodeAddress] = nodeData;
+        state.nodes.data[nodeAddress] = nodeData;
       }
     }
   });

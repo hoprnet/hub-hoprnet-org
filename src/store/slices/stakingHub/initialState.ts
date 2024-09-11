@@ -37,21 +37,25 @@ type InitialState = {
     }
   },
   nodes: {
-    [key: string]: NodePayload
+    data: { [key: string]: NodePayload }
+    isFetching: Boolean
   }
 };
 
 export type NodePayload = {
-  nodeAddress?: string,
-  peerId?: string,
-  lastSeen?: number,
-  latencyAverage?: number,
-  count?: number,
-  since1667080800count?: number,
-  availability?: number,
-  availability24h?: number,
-  version?: string
-  isFetching: boolean;
+  availability1y?: number | null;
+  availability6m?: number;
+  availability7d?: number;
+  availability24h?: number;
+  availability30d?: number;
+  firstseen?: number;
+  lastseen?: number;
+  latency?: number;
+  peeraddress: string;
+  nodeAddress: string;
+  peerid?: string;
+  version?: string;
+  isFetchingBalance?: boolean;
   balance?: string;
   balanceFormatted?: string;
   registeredNodesInNetworkRegistry?: boolean;
@@ -198,5 +202,8 @@ export const initialState: InitialState = {
       isFetching: false,
     }
   },
-  nodes: {},
+  nodes: {
+    data: {},
+    isFetching: false
+  },
 };

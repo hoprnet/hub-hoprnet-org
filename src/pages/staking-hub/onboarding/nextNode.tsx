@@ -50,7 +50,7 @@ function Onboarding() {
   useEffect(() => {
     console.log('[Next Onboarding] nodeAddress', nodeAddress);
     if(nodeAddress) {
-      const nodeData = nodesData[nodeAddress];
+      const nodeData = nodesData.data[nodeAddress];
       const isDelegate = delegatesArray.includes(nodeAddress);
       const isFunded = nodeData?.balanceFormatted ? parseFloat(nodeData.balanceFormatted) > 0.5 : false;
       const includedInModule = nodeData?.includedInModule ? true : false;

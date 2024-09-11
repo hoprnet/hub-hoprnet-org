@@ -17,6 +17,8 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import WalletIcon from '@mui/icons-material/Wallet';
 import TooltipMui from '@mui/material/Tooltip';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 
 // HOPR components
 import Button from '../../../future-hopr-lib-components/Button';
@@ -28,6 +30,7 @@ import Tooltip from '../../../future-hopr-lib-components/Tooltip/tooltip-fixed-w
 import { DockerRunCommandModal } from '../../../components/Modal/staking-hub/DockerRunCommandModal';
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
 import TrainIcon from '../../../future-hopr-lib-components/Icons/TrainIcon';
+
 
 //web3
 import { Address } from 'viem';
@@ -47,21 +50,20 @@ const Container = styled.section`
       font-weight: 600;
       margin: 0;
     }
+
+    svg[data-testid="CheckCircleRoundedIcon"]{
+      color: darkgreen;
+    }
+
+    svg[data-testid="CancelRoundedIcon"]{
+      color: red;
+    }
 `;
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
-
-  #node-details {
-    grid-column: 1/3;
-    grid-row: 1/3;
-  }
-
-  @media screen and (max-width: 1660px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
 
   @media screen and (max-width: 1350px) {
     grid-template-columns: repeat(1, 1fr);
@@ -203,19 +205,19 @@ const GrayCard = ({
           {subtitle && <h5 className='subtitle'>{subtitle}</h5>}
           {value && (
             valueTooltip ?
-            <Tooltip
-              title={valueTooltip}
-            >
+              <Tooltip
+                title={valueTooltip}
+              >
+                <ValueAndCurrency>
+                  <CardValue>{value}</CardValue>
+                  {currency && <CardCurrency>{currency}</CardCurrency>}
+                </ValueAndCurrency>
+              </Tooltip>
+              :
               <ValueAndCurrency>
                 <CardValue>{value}</CardValue>
                 {currency && <CardCurrency>{currency}</CardCurrency>}
               </ValueAndCurrency>
-            </Tooltip>
-            :
-            <ValueAndCurrency>
-              <CardValue>{value}</CardValue>
-              {currency && <CardCurrency>{currency}</CardCurrency>}
-            </ValueAndCurrency>
           )}
         </CardContent>
       )}
@@ -250,31 +252,32 @@ const header = [
     search: true,
   },
   {
-    key: 'inNetworkRegistry',
-    name: 'NR',
+    key: 'onboarding',
+    name: 'Onboarding',
     search: true,
     maxWidth: '160px',
-    tooltipHeader: 'Has this node been successfully added to the HOPR Network Registry?',
+    tooltipHeader: 'Has this node been successfully onboarded. Hover over icons to see specific statuses.',
   },
   {
-    key: 'inSafeRegistry',
-    name: 'SR',
-    search: true,
-    tooltipHeader: 'Has this node been successfully added to the Safe Registry?',
-  },
-  {
-    key: 'isDelegate',
-    name: 'Delegate',
+    key: 'version',
+    name: 'Version',
     search: true,
     maxWidth: '160px',
-    tooltipHeader: 'Is this node a delegate? (allowed to propose transactions to the safe owner)'
+    tooltipHeader: 'Last version seen by the Network Dashboard',
   },
   {
-    key: 'includedInModule',
-    name: 'Config',
+    key: 'lastSeen',
+    name: 'Last seen',
     search: true,
     maxWidth: '160px',
-    tooltipHeader: 'Is this node included & configured in the Node Management Module?'
+    tooltipHeader: 'Last time the node was seen by the Network Dashboard',
+  },
+  {
+    key: 'avability30d',
+    name: '30d avail.',
+    search: true,
+    maxWidth: '160px',
+    tooltipHeader: 'The percentage of pings received by this node in the last 30 days seen by the Network Dashboard',
   },
   {
     key: 'balance',
@@ -305,16 +308,16 @@ const getOnboardingTooltip = (
   balanceFormatted?: string,
   finishMainOnboardingForThisNode?: boolean,
 ) => {
-  if(finishMainOnboardingForThisNode) {
+  if (finishMainOnboardingForThisNode) {
     return (
       <span>
         Finish ONBOARDING for this node first
       </span>
     )
-  } else if(onboardingNotFinished) {
+  } else if (onboardingNotFinished) {
     return (
       <span>
-        Please finish the main<br/> ONBOARDING first
+        Please finish the main<br /> ONBOARDING first
       </span>
     )
   } else if (!inNetworkRegistry) {
@@ -350,56 +353,73 @@ const NodeAdded = () => {
   const nodeHoprAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress);
   const onboardingNotFinished = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
   const onboardingNodeAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress);
-  const nodeBalance = useAppSelector((store) => store.stakingHub.onboarding.nodeBalance.xDai.formatted);
-  const nodes = useAppSelector((store) => store.stakingHub.nodes);
+  const nodes = useAppSelector((store) => store.stakingHub.nodes.data);
   const delegates = useAppSelector((store) => store.safe.delegates.data);
-  const [chosenNode, set_chosenNode] = useState< string | null>(nodeHoprAddress);
-
-  useEffect(()=>{
-    set_chosenNode((prev) => {
-      if(!prev) return nodeHoprAddress
-      else return prev
-    })
-  }, [nodeHoprAddress]);
-
-  useEffect(()=>{
-    console.log('chosenNode', chosenNode)
-  }, [chosenNode]);
 
   const delegatesArray = delegates?.results?.map(elem => elem.delegate.toLocaleLowerCase()) || [];
   const nodesPeerIdArr = Object.keys(nodes);
+
   const parsedTableData = nodesPeerIdArr.map((node, index) => {
-    const inNetworkRegistry = nodes[node].registeredNodesInNetworkRegistry;
-    const inSafeRegistry = nodes[node].registeredNodesInSafeRegistry
+    const inNetworkRegistry = nodes[node]?.registeredNodesInNetworkRegistry;
+    const inSafeRegistry = nodes[node]?.registeredNodesInSafeRegistry
     const isDelegate = delegatesArray.includes(node);
-    const includedInModule = nodes[node].includedInModule;
+    const includedInModule  = nodes[node]?.includedInModule;
+    const lastSeen = nodes[node]?.lastseen;
+    const version = nodes[node]?.version;
+    const availability30d = nodes[node]?.availability30d;
 
     const finishMainOnboardingForThisNode = onboardingNotFinished && onboardingNodeAddress?.toLowerCase() === node?.toLowerCase();
 
     return {
       peerId: <>
-                {node}
-                <SquaredIconButton
-                  onClick={() => nodeHoprAddress && navigator.clipboard.writeText(node)}
-                >
-                  <CopyIcon />
-                </SquaredIconButton>
-                <Link to={`https://gnosisscan.io/address/${node}`} target='_blank'>
-                  <SquaredIconButton>
-                    <LaunchIcon />
-                  </SquaredIconButton>
-                </Link>
-              </>,
-      inNetworkRegistry: inNetworkRegistry ? 'Yes' : 'No',
-      inSafeRegistry: inSafeRegistry ? 'Yes' : 'No',
-      isDelegate: isDelegate ? 'Yes' : 'No',
-      includedInModule: includedInModule ? 'Yes' : 'No',
+        {node}
+        <SquaredIconButton
+          onClick={() => nodeHoprAddress && navigator.clipboard.writeText(node)}
+        >
+          <CopyIcon />
+        </SquaredIconButton>
+        <Link to={`https://gnosisscan.io/address/${node}`} target='_blank'>
+          <SquaredIconButton>
+            <LaunchIcon />
+          </SquaredIconButton>
+        </Link>
+      </>,
+      onboarding:
+        <>
+          <Tooltip
+            title={`Has this node been successfully added to the HOPR Network Registry?`}
+          >
+            {inNetworkRegistry ?
+
+              <CheckCircleRoundedIcon />
+              : <CancelRoundedIcon />}
+          </Tooltip>
+          <Tooltip
+            title={`Has this node been successfully added to the Safe Registry?`}
+          >
+          {inSafeRegistry ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
+          </Tooltip>
+          <Tooltip
+            title={`Is this node a delegate? (allowed to propose transactions to the safe owner)`}
+          >
+          {isDelegate ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
+          </Tooltip>
+          <Tooltip
+            title={`Is this node included & configured in the Node Management Module?`}
+          >
+          {includedInModule ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
+          </Tooltip>
+        </>,
+      inNetworkRegistry: inNetworkRegistry? 'Yes' : 'No',
+      lastSeen: lastSeen ? formatDate(lastSeen) : '-',
+      avability30d: <ProgressBar value={availability30d}/>,
+      version: version || '-',
       id: node,
       balance: <Tooltip
-                  title={nodes[node].balanceFormatted}
-                >
-                  <span>{nodes[node]?.balanceFormatted ? `${rounder(nodes[node].balanceFormatted)} xDAI` : '-'}</span>
-                </Tooltip>,
+        title={nodes[node]?.balanceFormatted}
+      >
+        <span>{nodes[node]?.balanceFormatted ? `${rounder(nodes[node]?.balanceFormatted)} xDAI` : '-'}</span>
+      </Tooltip>,
       search: node,
       actions: <>
         <IconButton
@@ -409,30 +429,14 @@ const NodeAdded = () => {
             inNetworkRegistry,
             isDelegate,
             includedInModule,
-            nodes[node].balanceFormatted,
+            nodes[node]?.balanceFormatted,
             finishMainOnboardingForThisNode,
           )}
-          onClick={()=>{
-            if(finishMainOnboardingForThisNode) {navigate(`/staking/onboarding/`)}
-            else {navigate(`/staking/onboarding/nextNode?nodeAddress=${node}`);}
+          onClick={() => {
+            if (finishMainOnboardingForThisNode) { navigate(`/staking/onboarding/`) }
+            else { navigate(`/staking/onboarding/nextNode?nodeAddress=${node}`); }
           }}
-          disabled={(onboardingNotFinished || (includedInModule && isDelegate && nodes[node].balanceFormatted !== '0')) && !finishMainOnboardingForThisNode}
-        />
-        <IconButton
-          iconComponent={<VisibilityIcon />}
-          tooltipText={
-            <span>
-              Display node DETAILS at the top of page
-            </span>
-          }
-          onClick={()=>{
-            window.scrollTo({
-              top: 0,
-              left: 0,
-              behavior: "smooth",
-            });
-            set_chosenNode(node);
-          }}
+          disabled={(onboardingNotFinished || (includedInModule && isDelegate && nodes[node]?.balanceFormatted !== '0')) && !finishMainOnboardingForThisNode}
         />
         <IconButton
           iconComponent={<WalletIcon />}
@@ -441,114 +445,17 @@ const NodeAdded = () => {
               FUND node
             </span>
           }
-          onClick={()=>{
+          onClick={() => {
             navigate(`/staking/fund-node?nodeAddress=${node}`);
           }}
         />
       </>
     }
-  }).filter(node => node.inNetworkRegistry === 'Yes' ) || [];
-  const chosenNodeData = chosenNode && nodes[chosenNode] ? nodes[chosenNode] : null;
+  }).filter(node => node.inNetworkRegistry === 'Yes') || [];
 
   return (
     <Container>
       <Grid>
-        <GrayCard id="node-details">
-          <Graphic>
-            <NodeGraphic>
-              <img
-                src="/assets/node-graphic.svg"
-                alt="Node Graphic"
-              />
-            </NodeGraphic>
-            <Table>
-              <tbody>
-                <tr>
-                  <th>Node Address
-                    <div>
-                      <SquaredIconButton
-                        onClick={() => chosenNode && navigator.clipboard.writeText(chosenNode)}
-                      >
-                        <CopyIcon />
-                      </SquaredIconButton>
-                      <Link to={`https://gnosisscan.io/address/${chosenNode}`} target='_blank'>
-                        <SquaredIconButton>
-                          <LaunchIcon />
-                        </SquaredIconButton>
-                      </Link>
-                    </div>
-                  </th>
-                  <td>
-                    <p
-                      style={{
-                        maxHeight: '72px',
-                        textOverflow: 'ellipsis',
-                        overflow: 'hidden',
-                        margin: '0',
-                      }}
-                    >
-                      {chosenNode}
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Last seen</th>
-                  <td>
-                    <p
-                      style={{
-                        maxHeight: '72px',
-                        textOverflow: 'ellipsis',
-                        overflow: 'hidden',
-                        margin: '0',
-                      }}
-                    >{chosenNodeData?.lastSeen ? formatDate(chosenNodeData.lastSeen) : '-'}
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Ping count</th>
-                  <td>{chosenNode && nodes[chosenNode]?.count || '-'}</td>
-                </tr>
-                <tr>
-                  <th>24h Availability</th>
-                  <td>
-                    {
-                      chosenNodeData?.availability24h ?
-                        <ProgressBar
-                          value={chosenNodeData.availability24h}
-                        />
-                        :
-                        '-'
-                    }
-                  </td>
-                </tr>
-                <tr>
-                  <th>Availability</th>
-                  <td>
-                    {
-                      chosenNodeData?.availability ?
-                        <ProgressBar
-                          value={chosenNodeData.availability}
-                        />
-                        :
-                        '-'
-                    }
-                  </td>
-                </tr>
-                <tr>
-                  <th>Last seen version</th>
-                  <td>{chosenNodeData?.version || '-'}</td>
-                </tr>
-              </tbody>
-            </Table>
-          </Graphic>
-        </GrayCard>
-        <GrayCard
-          id="node-balance"
-          title="xDAI"
-          value={chosenNodeData?.balanceFormatted ? rounder(chosenNodeData?.balanceFormatted, 5) : '-'}
-          valueTooltip={chosenNodeData?.balanceFormatted && chosenNodeData.balanceFormatted || '-'}
-        />
         {/* <GrayCard
           id="earned-rewards"
           title="Earned rewards"
@@ -579,7 +486,7 @@ const NodeAdded = () => {
           </Button>
         </GrayCard>
       </Grid>
-      <br/>
+      <br />
       <TablePro
         data={parsedTableData}
         id={'nodes-in-safe-table'}
