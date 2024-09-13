@@ -395,11 +395,6 @@ const NodeAdded = () => {
               : <CancelRoundedIcon />}
           </Tooltip>
           <Tooltip
-            title={`Has this node been successfully added to the Safe Registry?`}
-          >
-          {inSafeRegistry ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
-          </Tooltip>
-          <Tooltip
             title={`Is this node a delegate? (allowed to propose transactions to the safe owner)`}
           >
           {isDelegate ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
@@ -408,6 +403,11 @@ const NodeAdded = () => {
             title={`Is this node included & configured in the Node Management Module?`}
           >
           {includedInModule ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
+          </Tooltip>
+          <Tooltip
+            title={<span>Has this node been successfully added to the Safe Registry?<br/>That will be done by the node after it starts and syncs.</span>}
+          >
+          {inSafeRegistry ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
           </Tooltip>
         </>,
       inNetworkRegistry: inNetworkRegistry? 'Yes' : 'No',
