@@ -38,7 +38,7 @@ type InitialState = {
   },
   nodes: {
     data: { [key: string]: NodePayload }
-    isFetching: Boolean
+    isFetching: boolean
   }
 };
 
