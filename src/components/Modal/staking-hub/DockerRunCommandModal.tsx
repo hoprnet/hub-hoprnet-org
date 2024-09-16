@@ -71,6 +71,7 @@ export const DockerRunCommandModal = (props: DockerRunCommandModalProps) => {
         </TopBar>
         <SDialogContent>
         <span style={{fontSize: '15px'}}>
+          <span style={{fontWeight: 500}}>YOUR_NODE_FOLDER:</span> Fill in a folder name that you will be using to store node identity and database.<br/> That name has to be different per node.<br/><br/>
           <span style={{fontWeight: 500}}>YOUR_SECURITY_TOKEN:</span> Fill in a password that you will be using when connecting to your node<br/><br/>
           <span style={{fontWeight: 500}}>YOUR_PUBLIC_IP:</span> Fill in the public IP of the machine on which the node will be reachable<br/><br/>
           <span style={{fontWeight: 500}}>CUSTOM_RPC_PROVIDER:</span> Fill in the custom RPC provider, please follow <a
