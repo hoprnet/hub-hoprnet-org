@@ -169,23 +169,23 @@ function WrapperPage() {
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const contents = e.target?.result;
       if (typeof contents === 'string') {
-        try{
+        try {
           const json = JSON.parse(contents);
           const length = json.length;
-          if(length >= 49) {
+          if (length >= 49) {
             alert('Error: deposit file too long')
           } else {
             let correctNetwork = true;
             // @ts-ignore
-            json.forEach( validator => {
-              if(correctNetwork && validator.network_name === "gnosis"){
+            json.forEach(validator => {
+              if (correctNetwork && validator.network_name === "gnosis") {
                 correctNetwork = true;
               } else {
                 correctNetwork = false;
               }
             })
 
-            if(correctNetwork) {
+            if (correctNetwork) {
               set_message(contents);
               set_fileName(fileName);
             } else {
@@ -193,7 +193,7 @@ function WrapperPage() {
             }
 
           }
-        } catch(e) {
+        } catch (e) {
           console.log('Error2')
           alert('Error loading file')
         }
@@ -231,7 +231,9 @@ function WrapperPage() {
           height: 120,
         }}
         buttons={
-          eligible && !alreadySubmitted && !alreadySubmittedFetching && <Button
+          //eligible && !alreadySubmitted && !alreadySubmittedFetching &&
+          false &&
+          <Button
             className="swap-button"
             onClick={() => { handleClick(address, message) }}
             disabled={fileName.length === 0}
@@ -253,28 +255,30 @@ function WrapperPage() {
           >GIP-98 on Gnosis the official forum</a>.
         </span><br /><br />
 
-        {!alreadySubmittedFetching && safeAddress && eligible  &&
-            <p
+        {//!alreadySubmittedFetching && safeAddress && eligible  &&
+          false &&
+          <p
+            style={{
+              fontSize: '20px',
+              textAlign: 'center',
+              fontWeight: 700,
+              marginBlockStart: 0,
+              marginBlockEnd: '20px',
+            }}
+          >Your <span style={{ overflowWrap: 'anywhere' }}>{truncateEthereumAddress(safeAddress as string)}</span> safe is eligible for {' '}
+            <span
               style={{
-                fontSize: '20px',
-                textAlign: 'center',
-                fontWeight: 700,
-                marginBlockStart: 0,
-                marginBlockEnd: '20px',
+                fontSize: '40px',
+                color: 'darkblue'
               }}
-            >Your <span style={{ overflowWrap: 'anywhere' }}>{truncateEthereumAddress(safeAddress as string)}</span> safe is eligible for {' '}
-              <span
-                style={{
-                  fontSize: '40px',
-                  color: 'darkblue'
-                }}
-              >{GNO2GET}</span> GNO.
-              </p>
+            >{GNO2GET}</span> GNO.
+          </p>
         }
 
 
         {
-          GNO2GET > 0 && !paidOut &&
+          //GNO2GET > 0 && !paidOut &&
+          false &&
           <>
             <strong>How to claim</strong><br />
             <span
@@ -303,23 +307,31 @@ function WrapperPage() {
         }
 
         <div
-        // style={{
-        //   height: '150px'
-        // }}
+          style={{
+            width: '100%',
+            textAlign: 'center'
+          }}
+        ><span style={{ color: 'darkgreen', fontSize: '20px' }}><br /><strong>We’re excited to announce the 2nd batch of $GNO distribution 💰<br /><br />New HOPR nodes that maintain 90%+ uptime from Oct 1st - 30th at 12:00 AM CET will be eligible to claim!</strong></span></div>
+
+        <div
+          style={{
+            display: 'none'
+          }}
         >
+
 
           {!web3Connected && <span style={{}}><br /><strong>Connect wallet and safe to check if you are eligible.</strong></span>}
 
           {web3Connected && !safeAddress && <span style={{}}><br /><strong>Connect safe to check if you are eligible.</strong></span>}
           {alreadySubmittedFetching && <span style={{}}><br /><strong>Loading...</strong></span>}
           {willNotGetGNO && <span style={{}}><br /><strong>Your safe is not eligible.</strong></span>}
-          {!alreadySubmittedFetching && alreadySubmitted  && !paidOut && <span style={{ color: 'darkgreen' }}><br /><strong>Congratulations, you submitted your deposit file.<br/>Airdrop will automatically be transferred to your validator before the end of August 2024.</strong></span>}
-          {!alreadySubmittedFetching && paidOut &&  <div
+          {!alreadySubmittedFetching && alreadySubmitted && !paidOut && <span style={{ color: 'darkgreen' }}><br /><strong>Congratulations, you submitted your deposit file.<br />Airdrop will automatically be transferred to your validator before the end of August 2024.</strong></span>}
+          {!alreadySubmittedFetching && paidOut && <div
             style={{
               width: '100%',
               textAlign: 'center'
             }}
-        ><span style={{ color: 'darkgreen', fontSize: '20px' }}><br /><strong>Congratulations, airdrop was transferred to your validator.</strong></span></div>}
+          ><span style={{ color: 'darkgreen', fontSize: '20px' }}><br /><strong>Congratulations, airdrop was transferred to your validator.</strong></span></div>}
 
 
           {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
