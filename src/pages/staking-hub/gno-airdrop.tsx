@@ -302,11 +302,19 @@ function WrapperPage() {
           </>
         }
 
+          <div
+              style={{
+                width: '100%',
+                textAlign: 'center'
+              }}
+          ><span style={{ color: 'darkgreen', fontSize: '20px' }}><br /><strong>We’re excited to announce the 2nd batch of $GNO distribution 💰<br /><br />New HOPR nodes that maintain 90%+ uptime from Oct 1st - 30th at 12:00 AM CET will be eligible to claim!</strong></span></div>
+
         <div
-        // style={{
-        //   height: '150px'
-        // }}
+          style={{
+            display: 'none'
+          }}
         >
+
 
           {!web3Connected && <span style={{}}><br /><strong>Connect wallet and safe to check if you are eligible.</strong></span>}
 
