@@ -485,17 +485,7 @@ const stakingFaq: FaqData = {
       title: 'Remove node from safe',
       content: (
         <span>
-          To remove your node from your safe, first, execute the removeNode(address nodeAddress) function on the{' '}
-          <a
-            href="https://gnosisscan.io/address/0xB7397C218766eBe6A1A634df523A1a7e412e67eA#writeContract"
-            target="_blank"
-            rel="noreferrer"
-          >
-            NodeManagementModule contract
-          </a>
-          .<br />
-          <br />
-          Then remove the node as a delegate from the safe. You can view how to do this two-step procedure in our docs{' '}
+          To remove your node from your safe, you can view how to do this procedure in our docs{' '}
           <a
             href="https://docs.hoprnet.org/node/staking-hub#remove-a-node-from-your-hopr-safe-account"
             target="_blank"
