@@ -17,7 +17,7 @@ const nodeFaq: FaqData = {
           <br />
           <br />- For{' '}
           <a
-            href="https://docs.hoprnet.org/node/using-dappnode"
+            href="https://docs.hoprnet.org/node/node-dappnode"
             target="_blank"
             rel="noreferrer"
           >
@@ -26,7 +26,7 @@ const nodeFaq: FaqData = {
           <br />
           <br />- For{' '}
           <a
-            href="https://docs.hoprnet.org/node/using-docker"
+            href="https://docs.hoprnet.org/node/node-docker"
             target="_blank"
             rel="noreferrer"
           >
@@ -70,7 +70,7 @@ const nodeFaq: FaqData = {
           <br />
           You can read what differentiates each category{' '}
           <a
-            href="https://docs.hoprnet.org/node/hoprd-commands#info"
+            href="https://docs.hoprnet.org/node/node-management-admin-ui#info"
             target="_blank"
             rel="noreferrer"
           >

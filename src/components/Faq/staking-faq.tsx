@@ -28,7 +28,7 @@ const stakingFaq: FaqData = {
         <span>
           You can find the best options for buying HOPR, DAI, xDAI and xHOPR in our{' '}
           <a
-            href="https://docs.hoprnet.org/staking/how-to-get-hopr"
+            href="https://docs.hoprnet.org/token/acquiring-hopr-tokens"
             target="_blank"
             rel="noreferrer"
           >
@@ -116,7 +116,7 @@ const stakingFaq: FaqData = {
         <span>
           You can find the best options for buying HOPR, DAI, xDAI and xHOPR in our{' '}
           <a
-            href="https://docs.hoprnet.org/staking/how-to-get-hopr"
+            href="https://docs.hoprnet.org/token/acquiring-hopr-tokens"
             target="_blank"
             rel="noreferrer"
           >
@@ -158,7 +158,7 @@ const stakingFaq: FaqData = {
         <span>
           You will need to install Docker on your device to complete this installation. Follow{' '}
           <a
-            href="https://docs.hoprnet.org/node/using-docker#1-install-docker"
+            href="https://docs.hoprnet.org/node/node-docker#1-install-docker"
             target="_blank"
             rel="noreferrer"
           >
@@ -175,7 +175,7 @@ const stakingFaq: FaqData = {
         <span>
           You can view a complete breakdown of how to install a HOPR node using Docker{' '}
           <a
-            href="https://docs.hoprnet.org/node/using-docker"
+            href="https://docs.hoprnet.org/node/node-docker"
             target="_blank"
             rel="noreferrer"
           >
@@ -193,7 +193,7 @@ const stakingFaq: FaqData = {
           You will need to edit the Docker command to include your public IP address. To find your IP address and edit
           the command correctly follow the instructions{' '}
           <a
-            href="https://docs.hoprnet.org/node/hidden-page#find-your-ip-address"
+            href="https://docs.hoprnet.org/node/node-docker#24-adjust-host-setting"
             target="_blank"
             rel="noreferrer"
           >
@@ -262,13 +262,10 @@ const stakingFaq: FaqData = {
       title: 'How to update my node',
       content: (
         <span>
-          The process for updating your node depends on the device you're using. Follow the appropriate link for your
-          setup.
-          <br />
-          <br />- For Dappnode users, click <a href="#">here</a> for the steps.
-          <br />- Docker users, find your instructions{' '}
+          The process for updating your node depends on the device you're using. Follow the link for your
+          setup{' '}
           <a
-            href="https://docs.hoprnet.org/node/using-docker#updating-to-a-new-release"
+            href="https://docs.hoprnet.org/node/backup-restore-update#update-your-node"
             target="_blank"
             rel="noreferrer"
           >
@@ -283,11 +280,16 @@ const stakingFaq: FaqData = {
       title: 'How to restart my node',
       content: (
         <span>
-          The process for restarting your node depends on the device you're using. Follow the appropriate link for your
-          setup.
-          <br />
-          <br />- For Dappnode users, click <a href="#">here</a> for the steps.
-          <br />- Docker users, find your instructions <a href="#">here</a>.
+          The process for restarting your node depends on the device you're using. Follow the link for your
+          setup{' '}
+          <a
+            href="https://docs.hoprnet.org/node/node-operations"
+            target="_blank"
+            rel="noreferrer"
+          >
+            here
+          </a>
+          .
         </span>
       ),
     },
@@ -338,7 +340,7 @@ const stakingFaq: FaqData = {
         <span>
           You can find the best options for buying HOPR, DAI, xDAI and xHOPR in our{' '}
           <a
-            href="https://docs.hoprnet.org/staking/how-to-get-hopr"
+            href="https://docs.hoprnet.org/token/acquiring-hopr-tokens"
             target="_blank"
             rel="noreferrer"
           >
@@ -363,7 +365,7 @@ const stakingFaq: FaqData = {
         <span>
           You can find the best options for buying HOPR, DAI, xDAI and xHOPR in{' '}
           <a
-            href="https://docs.hoprnet.org/staking/how-to-get-hopr"
+            href="https://docs.hoprnet.org/token/acquiring-hopr-tokens#on-the-gnosis-chain-xhopr"
             target="_blank"
             rel="noreferrer"
           >
@@ -394,7 +396,7 @@ const stakingFaq: FaqData = {
         <span>
           You can find the best options for buying HOPR, DAI, xDAI and xHOPR in our{' '}
           <a
-            href="https://docs.hoprnet.org/staking/how-to-get-hopr"
+            href="https://docs.hoprnet.org/token/acquiring-hopr-tokens#on-the-gnosis-chain-xhopr"
             target="_blank"
             rel="noreferrer"
           >
@@ -483,19 +485,9 @@ const stakingFaq: FaqData = {
       title: 'Remove node from safe',
       content: (
         <span>
-          To remove your node from your safe, first, execute the removeNode(address nodeAddress) function on the{' '}
+          To remove your node from your safe, you can view how to do this procedure in our docs{' '}
           <a
-            href="https://gnosisscan.io/address/0xB7397C218766eBe6A1A634df523A1a7e412e67eA#writeContract"
-            target="_blank"
-            rel="noreferrer"
-          >
-            NodeManagementModule contract
-          </a>
-          .<br />
-          <br />
-          Then remove the node as a delegate from the safe. You can view how to do this two-step procedure in our docs{' '}
-          <a
-            href="https://docs.hoprnet.org/node/using-staking-hub#how-to-remove-nodes"
+            href="https://docs.hoprnet.org/node/staking-hub#remove-a-node-from-your-hopr-safe-account"
             target="_blank"
             rel="noreferrer"
           >
@@ -515,7 +507,7 @@ const stakingFaq: FaqData = {
           <br />
           You can read what differentiates each category{' '}
           <a
-            href="https://docs.hoprnet.org/node/hoprd-commands#info"
+            href="https://docs.hoprnet.org/node/node-management-admin-ui#info"
             target="_blank"
             rel="noreferrer"
           >

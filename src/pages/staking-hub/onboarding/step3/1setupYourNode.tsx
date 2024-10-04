@@ -146,7 +146,7 @@ export default function SetupNodeStep() {
           <Instruction num={1}>
             <div>
               <p>Copy the following command into your terminal and follow the instructions{' '}<StyledLink
-                to={`https://docs.hoprnet.org/node/using-docker` }
+                to={`https://docs.hoprnet.org/node/node-docker` }
                 target="_blank"
                 rel="noopener noreferrer"
               >here</StyledLink>.</p>

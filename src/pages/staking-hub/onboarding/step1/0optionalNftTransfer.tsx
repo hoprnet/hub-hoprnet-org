@@ -122,7 +122,7 @@ export default function optionalNftTtransfer() {
       title="NFT TRANSFER (OPTIONAL)"
       description={<>Transfer your NR (Network Registry) NFT to join the network with only 10,000 wxHOPR. If you do not have one Please select the 30k option and continue. Read more about NR NFTs{' '}
         <a
-          href="https://docs.hoprnet.org/node/waitlist-FAQ"
+          href="https://docs.hoprnet.org/node/frequently-asked-questions#waitlist-related-faq"
           target="_blank"
           rel="noreferrer"
           style={{ color: '#007bff', textDecoration: 'underline'}}
