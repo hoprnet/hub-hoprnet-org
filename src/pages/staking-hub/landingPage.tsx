@@ -395,11 +395,11 @@ const StakingLandingPage = () => {
               <BrandText>DEVELOPED USING</BrandText>
               <BrandImage>
                 <a
-                  href="https://Safe.global/"
+                  href="https://safe.global/"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <img src="/assets/Safe-icon2.svg" />
+                  <img src="/assets/safe-icon2.svg" />
                 </a>
               </BrandImage>
             </Brand>
@@ -531,7 +531,7 @@ const StakingLandingPage = () => {
             reverse
             noShadow
             title="HOPR Safe"
-            image="/assets/Safe-with-shadow.svg"
+            image="/assets/safe-with-shadow.svg"
             text={
               <>
                 The HOPR Safe is a secured smart contract wallet built using{' '}
