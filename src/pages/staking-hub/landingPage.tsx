@@ -536,7 +536,7 @@ const StakingLandingPage = () => {
               <>
                 The HOPR Safe is a secured smart contract wallet built using{' '}
                 <a
-                  href="https://Safe.global/"
+                  href="https://safe.global/"
                   target="_blank"
                   rel="noreferrer"
                 >
