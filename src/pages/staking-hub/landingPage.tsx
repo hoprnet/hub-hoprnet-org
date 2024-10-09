@@ -523,14 +523,14 @@ const StakingLandingPage = () => {
           <Title>How it works</Title>
           <Brick
             noShadow
-            title="Hopr Node"
+            title="HOPR Node"
             image="/assets/hopr-node.svg"
             text="Your HOPR node gives you complete access to the HOPR network's functionality and the ability to earn $HOPR from your staked tokens. Your node can request funds from your HOPR Safe to complete certain tasks and interact with other nodes on the network."
           />
           <Brick
             reverse
             noShadow
-            title="Hopr safe"
+            title="HOPR safe"
             image="/assets/safe-with-shadow.svg"
             text={
               <>
