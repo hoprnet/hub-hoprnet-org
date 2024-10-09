@@ -358,7 +358,7 @@ const StakingLandingPage = () => {
           <Title>HOPR STAKING HUB</Title>
           <Description>
             Earn $HOPR while providing web3 users with the data privacy and autonomy Web 2.0 never did. Create your HOPR
-            safe and start running a node now!
+            Safe and start running a Node now!
           </Description>
           {!status.connected && (
             <StyledButton
@@ -395,11 +395,11 @@ const StakingLandingPage = () => {
               <BrandText>DEVELOPED USING</BrandText>
               <BrandImage>
                 <a
-                  href="https://safe.global/"
+                  href="https://Safe.global/"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <img src="/assets/safe-icon2.svg" />
+                  <img src="/assets/Safe-icon2.svg" />
                 </a>
               </BrandImage>
             </Brand>
@@ -429,7 +429,7 @@ const StakingLandingPage = () => {
             </Brand>
           </BrandsSection>
           <br />
-          <Title>Run a node, earn hopr</Title>
+          <Title>Run a Node, earn hopr</Title>
           <br />
           <SideToSideContainer>
             <div className="ImageSide">
@@ -463,8 +463,8 @@ const StakingLandingPage = () => {
                 Store funds with <BlueText>&lt;complete security&gt;</BlueText>
               </h2>
               <SideDescription>
-                We compartmentalize access to your funds and node through our unique key management protocol, minimizing
-                your funds at risk in case of a compromised node.
+                We compartmentalize access to your funds and Node through our unique key management protocol, minimizing
+                your funds at risk in case of a compromised Node.
               </SideDescription>
             </div>
           </SideToSideContainer>
@@ -477,8 +477,8 @@ const StakingLandingPage = () => {
                 Make web3 <BlueText>&lt;private&gt;</BlueText>
               </h2>
               <SideDescription>
-                Every node on the HOPR mixnet serves as a point to relay data and anonymize traffic sent across the
-                network. As such, every node not only earns you $HOPR for the data you relay, but contributes to
+                Every Node on the HOPR mixnet serves as a point to relay data and anonymize traffic sent across the
+                network. As such, every Node not only earns you $HOPR for the data you relay, but contributes to
                 providing web3 with a truly decentralized and private transport layer.
               </SideDescription>
             </div>
@@ -492,17 +492,17 @@ const StakingLandingPage = () => {
       >
         <StyledContainer>
           <br />
-          <WhiteTitle>Complete control over your funds & node</WhiteTitle>
+          <WhiteTitle>Complete control over your funds & Node</WhiteTitle>
           <SideToSideContainer>
             <div className="TextSide">
               <WhiteMediumText>
-                Use our interactive HOPR node admin interface to control, customize and track your node with ease.
+                Use our interactive HOPR Node admin interface to control, customize and track your Node with ease.
               </WhiteMediumText>
               <WhiteSideTitle>Features</WhiteSideTitle>
               <WhiteSideDescription>
                 <li>View detailed real-time metrics</li>
                 <li>Manage, transfer and secure your funds in a few clicks</li>
-                <li>Directly access your node and all of its features</li>
+                <li>Directly access your Node and all of its features</li>
                 <li>Easily manage requests and transactions</li>
               </WhiteSideDescription>
             </div>
@@ -525,25 +525,25 @@ const StakingLandingPage = () => {
             noShadow
             title="HOPR Node"
             image="/assets/hopr-node.svg"
-            text="Your HOPR node gives you complete access to the HOPR network's functionality and the ability to earn $HOPR from your staked tokens. Your node can request funds from your HOPR Safe to complete certain tasks and interact with other nodes on the network."
+            text="Your HOPR Node gives you complete access to the HOPR network's functionality and the ability to earn $HOPR from your staked tokens. Your Node can request funds from your HOPR Safe to complete certain tasks and interact with other Nodes on the network."
           />
           <Brick
             reverse
             noShadow
-            title="HOPR safe"
-            image="/assets/safe-with-shadow.svg"
+            title="HOPR Safe"
+            image="/assets/Safe-with-shadow.svg"
             text={
               <>
                 The HOPR Safe is a secured smart contract wallet built using{' '}
                 <a
-                  href="https://safe.global/"
+                  href="https://Safe.global/"
                   target="_blank"
                   rel="noreferrer"
                 >
                   Safe (previously called Gnosis Safe).
                 </a>{' '}
                 Assets deposited into your HOPR Safe are secured by a customizable multisig, limiting exposure even when
-                your HOPR node's private key gets compromised.
+                your HOPR Node's private key gets compromised.
                 <br />
                 {
                   <a
@@ -563,9 +563,9 @@ const StakingLandingPage = () => {
             image="/assets/payment-channels.svg"
             text={
               <>
-                HOPR payment channels are a scalable and privacy respecting way of incentivizing HOPR nodes for their
-                service. Your node will automatically request tokens from your Safe to fund these channels. Run a
-                well-connected node to maximize your earnings.
+                HOPR payment channels are a scalable and privacy respecting way of incentivizing HOPR Nodes for their
+                service. Your Node will automatically request tokens from your Safe to fund these channels. Run a
+                well-connected Node to maximize your earnings.
                 <br />
                 <a
                   href="https://docs.hoprnet.org/core/tickets-and-payment-channels"
@@ -670,15 +670,15 @@ const faq: FaqData = [
     id: 1,
     title: 'Can anyone join the network?',
     content:
-      'Yes, but after creating your HOPR Safe and funding it, you must wait to be given access to the network. You can only run a HOPR node within the latest version of the HOPR network.',
+      'Yes, but after creating your HOPR Safe and funding it, you must wait to be given access to the network. You can only run a HOPR Node within the latest version of the HOPR network.',
   },
   {
     id: 2,
-    title: 'How much can I expect to earn running a HOPR node?',
+    title: 'How much can I expect to earn running a HOPR Node?',
     content: (
       <span>
-        The amount of $HOPR earned will vary depending on your stake, the number of nodes in the network, your
-        availability and how well-connected you are in the network. It's expected that the average node will earn an APY
+        The amount of $HOPR earned will vary depending on your stake, the number of Nodes in the network, your
+        availability and how well-connected you are in the network. It's expected that the average Node will earn an APY
         of 10-15%, but you can find a complete breakdown of the economic model of reward distribution and strategies to
         increase your share{' '}
         <a
@@ -695,19 +695,19 @@ const faq: FaqData = [
     id: 3,
     title: 'How much do I need to stake to earn money?',
     content:
-      'You need to stake a minimum of 30,000 wxHOPR to join the network (or 10,000 if you are a returning node runner with an access NFT). All node runners with reachable, connected nodes will earn wxHOPR tokens based on their stake.',
+      'You need to stake a minimum of 30,000 wxHOPR to join the network (or 10,000 if you are a returning Node runner with an access NFT). All Node runners with reachable, connected Nodes will earn wxHOPR tokens based on their stake.',
   },
   {
     id: 4,
     title: 'Can I use my HOPR boost NFTs to increase my earnings?',
     content:
-      'All previous HOPR boost NFTs are no longer usable. Your earnings are purely dependent on the data relayed. However, you are still guaranteed to earn $HOPR if you run a HOPR node, as every connected node will be used to relay cover traffic. ',
+      'All previous HOPR boost NFTs are no longer usable. Your earnings are purely dependent on the data relayed. However, you are still guaranteed to earn $HOPR if you run a HOPR Node, as every connected Node will be used to relay cover traffic. ',
   },
   {
     id: 5,
     title: 'What is HOPR?',
     content:
-      'The HOPR network is an incentivized p2p mixnet where nodes are relay points for transferring data between users. Data is encrypted and mixed in between nodes so only the users at the source and destination of the data can know the source and destination and decrypt the data.',
+      'The HOPR network is an incentivized p2p mixnet where Nodes are relay points for transferring data between users. Data is encrypted and mixed in between Nodes so only the users at the source and destination of the data can know the source and destination and decrypt the data.',
   },
   {
     id: 6,
@@ -722,7 +722,7 @@ const faq: FaqData = [
         >
           Safe
         </a>
-        . It allows you to store assets with complete security and spin up a HOPR node in order to earn tokens as a node
+        . It allows you to store assets with complete security and spin up a HOPR Node in order to earn tokens as a Node
         runner. To create your own HOPR Safe, follow the instructions{' '}
         <a
           href="/staking/onboarding"
