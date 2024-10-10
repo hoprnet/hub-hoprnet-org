@@ -1,8 +1,6 @@
-//const uClientId = 'X';
-const uClientId = 'X';
-const uForceZeroHop = true;
-//const discoveryPlatformEndpoint = 'https://discovery-platform.hoprnet.link'
-const discoveryPlatformEndpoint = 'https://discovery-platform.staging.hoprnet.link'
+const uClientId = 'REPLACE_uClientId';
+const uForceZeroHop = REPLACE_uForceZeroHop;
+const discoveryPlatformEndpoint = 'REPLACE_discoveryPlatformEndpoint'
 const broadcastChannel = new BroadcastChannel("sw-uhttp");
 
 let appended = false;
@@ -131,16 +129,6 @@ async function registerServiceWorker(tryOnce = false) {
 
 }
 
-
-
-async function appendPage() {
-    const s = document.createElement("script");
-    s.type = "module";
-    s.src = "/assets/index-2f54c8a7.js";
-    document.querySelector('head').append(s);
-}
-
-
 export class TimeoutError extends Error { }
 
 /**
@@ -166,5 +154,7 @@ export function timeout(ms, promise) {
         });
     })
 }
+
+
 
 

@@ -1,6 +1,6 @@
 import { Routing } from '/uHTTP/uhttp-lib.min.mjs';
 let uClient;
-const broadcastChannel = new BroadcastChannel("sw-uhttp")
+const broadcastChannel = new BroadcastChannel("sw-uhttp");
 
 const installEvent = () => {
     self.addEventListener('install', (event) => {
