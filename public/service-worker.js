@@ -5,6 +5,15 @@ const broadcastChannel = new BroadcastChannel("sw-uhttp");
 const installEvent = () => {
     self.addEventListener('install', (event) => {
         console.log('install');
+        //    event.waitUntil(self.skipWaiting()); // Activate worker immediately
+    });
+};
+installEvent();
+
+const activateEvent = () => {
+    self.addEventListener('activate', async (event) => {
+        console.log('activate');
+    //    event.waitUntil(self.clients.claim()); // Become available to all pages
         const params = new URLSearchParams(self.location.search);
         const uClientId = params.get('uClientId');
         const forceZeroHop = params.get('uForceZeroHop');
@@ -14,16 +23,8 @@ const installEvent = () => {
             discoveryPlatformEndpoint,
             timeout: 10000,
         });
-        console.log('service worker installed');
-    //    event.waitUntil(self.skipWaiting());
-    });
-};
-installEvent();
-
-const activateEvent = () => {
-    self.addEventListener('activate', async () => {
         const isReady = await uClient.isReady(60_000);
-        console.log('isReady', isReady);
+        console.log('uHTTP isReady', isReady);
         if(isReady) {
             broadcastChannel.postMessage({ message: "uHTTP-is-ready" })
         } else {
@@ -76,21 +77,10 @@ function reqLog(request) {
 fetchEvent();
 
 
-self.addEventListener('install', function(event) {
-    console.log('install: self.skipWaiting()')
-    event.waitUntil(self.skipWaiting()); // Activate worker immediately
-});
-
-self.addEventListener('activate', function(event) {
-    console.log('activate: self.clients.claim()')
-    event.waitUntil(self.clients.claim()); // Become available to all pages
-});
-
-
 broadcastChannel.addEventListener("message", async function eventListener(event) {
-    if(event.data.message === "uHTTP-ready?") {
+    if(event.data.message === "uHTTP-ready?" && uClient) {
         const isReady = await uClient.isReady(10_000);
-        console.log('isReady', isReady);
+        console.log('uHTTP isReady', isReady);
         if(isReady) {
             broadcastChannel.postMessage({ message: "uHTTP-is-ready" })
         }

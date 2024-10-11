@@ -1,6 +1,7 @@
 const uClientId = 'REPLACE_uClientId';
 const uForceZeroHop = REPLACE_uForceZeroHop;
-const discoveryPlatformEndpoint = 'REPLACE_discoveryPlatformEndpoint'
+const discoveryPlatformEndpoint = 'REPLACE_discoveryPlatformEndpoint';
+const uHTTPVersion = 'REPLACE_uHTTPVersion';
 const broadcastChannel = new BroadcastChannel("sw-uhttp");
 
 let appended = false;
@@ -30,7 +31,7 @@ async function registerServiceWorker(tryOnce = false) {
     if (!('serviceWorker' in navigator)) throw new Error('serviceWorker not supported');
 
     //  const url = (new URL(`/http/script/_sw.js?hash=${swhash}`, location)).toString();
-    const url = `${window.location.protocol}//${window.location.host}/service-worker.js?uClientId=${uClientId}&uForceZeroHop=${uForceZeroHop}&discoveryPlatformEndpoint=${encodeURI(discoveryPlatformEndpoint)}`;
+    const url = `${window.location.protocol}//${window.location.host}/service-worker.js?uClientId=${uClientId}&uForceZeroHop=${uForceZeroHop}&discoveryPlatformEndpoint=${encodeURI(discoveryPlatformEndpoint)}&uHTTPVersion=${uHTTPVersion}`;
 
     console.info('Registering worker');
     const registration = await navigator.serviceWorker.register(url, {

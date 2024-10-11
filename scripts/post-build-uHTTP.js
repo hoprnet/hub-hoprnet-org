@@ -1,5 +1,6 @@
 const fs = require('fs');
 const cheerio = require('cheerio');
+const uHTTP = require('../node_modules/@hoprnet/uhttp-lib/package.json');
 require('dotenv').config()
 
 main();
@@ -48,7 +49,7 @@ function getScriptsAndLinks(originalHTML) {
         const el = links[i];
         const attributes = el.attribs;
         elements.push({
-            tag: 'script',
+            tag: 'link',
             attributes,
         });
     }
@@ -75,16 +76,17 @@ function preparePersonalasiedStartingScript(elements) {
     startuHTTPFile = startuHTTPFile.replace('REPLACE_uClientId', process.env.uClientId);
     startuHTTPFile = startuHTTPFile.replace('REPLACE_uForceZeroHop', process.env.uForceZeroHop);
     startuHTTPFile = startuHTTPFile.replace('REPLACE_discoveryPlatformEndpoint', process.env.discoveryPlatformEndpoint);
+    startuHTTPFile = startuHTTPFile.replace('REPLACE_uHTTPVersion', uHTTP.version);
     startuHTTPFile = startuHTTPFile + createAppendFunction(elements);
     fs.writeFileSync('./build/uHTTP/start-uHTTP.js', startuHTTPFile);
 };
 
 
 function createAppendFunction(elements) {
-    let output = `    async function appendPage() {\n`
+    let output = `\nasync function appendPage() {\n`
 
     elements.map((element, index) =>{
-        output = output + `    const s${index} = document.createElement("${element.type}");\n`
+        output = output + `    const s${index} = document.createElement("${element.tag}");\n`
         const attributes = element.attributes;
         const attributeNames = Object.keys(attributes);
         for(let i = 0; i < attributeNames.length; i++) {
