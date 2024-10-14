@@ -6,6 +6,7 @@
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.0",
+    "@hoprnet/uhttp-lib": "3.7.3-beta.1",
     "@hoprnet/hopr-sdk": "2.1.0-beta.30",
     "@metamask/jazzicon": "^2.0.0",
     "@mui/icons-material": "^5.11.16",
@@ -79,7 +80,6 @@
   },
   "packageManager": "yarn@1.22.19",
   "devDependencies": {
-    "@hoprnet/uhttp-lib": "3.7.3-beta.0",
     "@types/canvas-confetti": "^1.6.0",
     "@types/lodash": "^4.14.197",
     "@types/md5": "^2.3.2",
