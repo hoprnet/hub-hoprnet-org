@@ -48,8 +48,8 @@
   "scripts": {
     "dev": "vite",
     "dev:clean": "npm run dev -- --force",
-    "build": "tsc && vite build",
-    "build:uHTTP": "tsc && vite build && node ./scripts/post-build-uHTTP.js",
+    "build": "tsc && vite build && node ./node_modules/@hoprnet/uhttp-lib/service-worker/post-build-uHTTP.js",
+    "build:uHTTP": "tsc && vite build && node ./node_modules/@hoprnet/uhttp-lib/service-worker/post-build-uHTTP.js",
     "serve": "vite preview --port 3000",
     "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx ./src",
     "format": "yarn prettier --write ./src",
@@ -79,6 +79,7 @@
   },
   "packageManager": "yarn@1.22.19",
   "devDependencies": {
+    "@hoprnet/uhttp-lib": "3.7.3-beta.0",
     "@types/canvas-confetti": "^1.6.0",
     "@types/lodash": "^4.14.197",
     "@types/md5": "^2.3.2",
