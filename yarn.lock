@@ -916,10 +916,10 @@
     "@noble/curves" "^1.3.0"
     "@noble/hashes" "^1.3.3"
 
-"@hoprnet/uhttp-lib@3.8.0-beta.2":
-  version "3.8.0-beta.2"
-  resolved "https://registry.yarnpkg.com/@hoprnet/uhttp-lib/-/uhttp-lib-3.8.0-beta.2.tgz#abcd233225c5dd963b641c1773adef98795b8d6f"
-  integrity sha512-Br3EQgweFaRN5TkxWGxcChgGv3ct52/kOZP8qit5f2oCQ0mBoUdBL6TmT6/+06K9Vu3JootNO75lnIEtVlUhXg==
+"@hoprnet/uhttp-lib@3.8.0-beta.3":
+  version "3.8.0-beta.3"
+  resolved "https://registry.yarnpkg.com/@hoprnet/uhttp-lib/-/uhttp-lib-3.8.0-beta.3.tgz#1a5a746114600a6111d338d33ecd47e935942d24"
+  integrity sha512-idJk4hCorRAJ53vZhr4SpuSjWK4oWu2DiFOVNrXPhNZ2paHQ20Wvhsu/zhG52DYMwVDRTNHgMKhQxXlMlbrQ6A==
   dependencies:
     "@hoprnet/uhttp-crypto" "^1.0.1"
     debug "^4.3.4"
