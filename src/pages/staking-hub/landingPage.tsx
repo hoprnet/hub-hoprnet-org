@@ -547,7 +547,7 @@ const StakingLandingPage = () => {
                 <br />
                 {
                   <a
-                    href="https://docs.hoprnet.org/staking/what-is-safestaking"
+                    href="https://docs.hoprnet.org/token/safestaking"
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -618,14 +618,14 @@ const StakingLandingPage = () => {
             View Docs
           </FurtherReadingButton>
           <FurtherReadingButton
-            href="https://docs.hoprnet.org/staking/why-use-safe"
+            href="https://docs.hoprnet.org/token/safestaking#why-does-hopr-use-safe"
             target="_blank"
             rel="noreferrer"
           >
             Why use Safe?
           </FurtherReadingButton>
           <FurtherReadingButton
-            href="https://docs.hoprnet.org/node/start-here"
+            href="https://docs.hoprnet.org/node/run-a-node-overview"
             target="_blank"
             rel="noreferrer"
           >
@@ -633,14 +633,14 @@ const StakingLandingPage = () => {
           </FurtherReadingButton>
           <br />
           <FurtherReadingButton
-            href="https://docs.hoprnet.org/staking/how-to-get-hopr"
+            href="https://docs.hoprnet.org/token/acquiring-hopr-tokens"
             target="_blank"
             rel="noreferrer"
           >
             Buy Tokens
           </FurtherReadingButton>
           <FurtherReadingButton
-            href="https://docs.hoprnet.org/staking/what-is-safestaking"
+            href="https://docs.hoprnet.org/token/safestaking#how-does-safestaking-work"
             target="_blank"
             rel="noreferrer"
           >

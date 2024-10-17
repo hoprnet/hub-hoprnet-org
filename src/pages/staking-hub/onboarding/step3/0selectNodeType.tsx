@@ -159,7 +159,7 @@ export default function SelectNodeType() {
               <ImageContainer>
                 <Image src="/images/dappnode.png" />
                 <StyledButton
-                  href="https://dappnode.com/collections/frontpage/products/hopr-special-edition"
+                  href="https://dappnode.com/collections/frontpage/products/hopr-home-pro"
                   target="_blank"
                 >
                   Order
@@ -168,7 +168,7 @@ export default function SelectNodeType() {
               <span>
                 If you already own a DAppNode, choose this option. If you own an Avado device, please follow{' '}
                 <a
-                  href="https://docs.hoprnet.org/node/using-avado#how-to-migrate-your-avado-node-to-a-dappnode"
+                  href="https://docs.hoprnet.org/node/ac-migration-from-legacy"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

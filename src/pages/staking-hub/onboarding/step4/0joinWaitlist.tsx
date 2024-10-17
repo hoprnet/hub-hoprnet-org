@@ -113,7 +113,7 @@ export default function JoinWaitListStep() {
         <>
           If you have correctly funded your Safe, follow the steps below and we’ll onboard you to the HOPR network as soon as possible! For any additional information visit our{' '}
           <a
-            href="https://docs.hoprnet.org/node/waitlist-FAQ"
+            href="https://docs.hoprnet.org/node/frequently-asked-questions#waitlist-related-faq"
             target="_blank"
             rel="noreferrer"
             style={{ color: '#007bff', textDecoration: 'underline'}}
