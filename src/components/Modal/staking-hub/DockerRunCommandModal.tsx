@@ -75,7 +75,7 @@ export const DockerRunCommandModal = (props: DockerRunCommandModalProps) => {
           <span style={{fontWeight: 500}}>YOUR_SECURITY_TOKEN:</span> Fill in a password that you will be using when connecting to your node<br/><br/>
           <span style={{fontWeight: 500}}>YOUR_PUBLIC_IP:</span> Fill in the public IP of the machine on which the node will be reachable<br/><br/>
           <span style={{fontWeight: 500}}>CUSTOM_RPC_PROVIDER:</span> Fill in the custom RPC provider, please follow <a
-            href="https://docs.hoprnet.org/node/start-here#understanding-rpc-importance-and-setting-up-your-own-custom-rpc-provider"
+            href="https://docs.hoprnet.org/node/custom-rpc-provider#overview"
             target="_blank"
             rel="noreferrer"
             style={{color: '#007bff', textDecoration: 'underline'}}
