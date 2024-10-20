@@ -92,7 +92,7 @@ export default function AddNode(props?: { onDone?: Function, onBack?: Function, 
         <>
           Please enter and confirm your node address. This will initiate a transaction which you will need to sign. If you do not have your node address follow the instructions here for{' '}
           <a
-            href="https://docs.hoprnet.org/node/using-dappnode#2-link-your-node-to-your-safe"
+            href="https://docs.hoprnet.org/node/node-dappnode#3-link-your-node-to-your-safe-wallet"
             target="_blank"
             rel="noreferrer"
             style={{ color: '#007bff', textDecoration: 'underline' }}
@@ -101,7 +101,7 @@ export default function AddNode(props?: { onDone?: Function, onBack?: Function, 
           </a>
           {' '}or{' '}
           <a
-            href="https://docs.hoprnet.org/node/using-docker#4-link-your-node-to-your-safe"
+            href="https://docs.hoprnet.org/node/node-docker#5-link-your-node-to-your-safe-wallet"
             target="_blank"
             rel="noreferrer"
             style={{ color: '#007bff', textDecoration: 'underline' }}
