@@ -255,8 +255,9 @@ function WrapperPage() {
           >GIP-98 on Gnosis the official forum</a>.
         </span><br /><br />
 
-        {//!alreadySubmittedFetching && safeAddress && eligible  &&
+        {
           // false && // to turn off the gno announcement
+          !alreadySubmittedFetching && safeAddress && eligible &&
           <p
             style={{
               fontSize: '20px',
