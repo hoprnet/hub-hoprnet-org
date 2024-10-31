@@ -231,7 +231,7 @@ function WrapperPage() {
           height: 100,
         }}
         buttons={
-          //eligible && !alreadySubmitted && !alreadySubmittedFetching &&
+          eligible && !alreadySubmitted && !alreadySubmittedFetching &&
           // false && // to turn off the gno announcement
           <Button
             className="swap-button"
@@ -278,7 +278,7 @@ function WrapperPage() {
 
 
         {
-          //GNO2GET > 0 && !paidOut &&
+          GNO2GET > 0 && !paidOut &&
           // false && // to turn off the gno announcement
           <>
             <strong>How to claim</strong><br />
