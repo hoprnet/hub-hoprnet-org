@@ -228,11 +228,11 @@ function WrapperPage() {
         image={{
           src: '/assets/GNO_Airdrop.svg',
           alt: 'GNO Aridrop',
-          height: 120,
+          height: 100,
         }}
         buttons={
-          //eligible && !alreadySubmitted && !alreadySubmittedFetching &&
-          false &&
+          eligible && !alreadySubmitted && !alreadySubmittedFetching &&
+          // false && // to turn off the gno announcement
           <Button
             className="swap-button"
             onClick={() => { handleClick(address, message) }}
@@ -255,8 +255,9 @@ function WrapperPage() {
           >GIP-98 on Gnosis the official forum</a>.
         </span><br /><br />
 
-        {//!alreadySubmittedFetching && safeAddress && eligible  &&
-          false &&
+        {
+          // false && // to turn off the gno announcement
+          !alreadySubmittedFetching && safeAddress && eligible &&
           <p
             style={{
               fontSize: '20px',
@@ -277,8 +278,8 @@ function WrapperPage() {
 
 
         {
-          //GNO2GET > 0 && !paidOut &&
-          false &&
+          GNO2GET > 0 && !paidOut &&
+          // false && // to turn off the gno announcement
           <>
             <strong>How to claim</strong><br />
             <span
@@ -300,23 +301,23 @@ function WrapperPage() {
                 tutorial: how to generate deposits files
               </a>
               ).<br /><br />
-              You have until<strong>{` `}August 8th{` `}</strong>to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.
+              You have until<strong>{` `}November 15th{` `}</strong>to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.
               <br /><br />
             </span>
           </>
         }
 
-        <div
+        {/* <div
           style={{
             width: '100%',
             textAlign: 'center'
           }}
-        ><span style={{ color: 'darkgreen', fontSize: '20px' }}><br /><strong>We’re excited to announce the 2nd batch of $GNO distribution 💰<br /><br />New HOPR nodes that maintain 90%+ uptime from Oct 1st - 30th at 12:00 AM CET will be eligible to claim!</strong></span></div>
+        ><span style={{ color: 'darkgreen', fontSize: '20px' }}><br /><strong>We’re excited to announce the 2nd batch of $GNO distribution 💰<br /><br />New HOPR nodes that maintain 90%+ uptime from Oct 1st - 30th at 12:00 AM CET will be eligible to claim!</strong></span></div> */}
 
         <div
-          style={{
-            display: 'none'
-          }}
+          // style={{
+          //   display: 'none'
+          // }}  // to turn off the gno announcement
         >
 
 
@@ -325,7 +326,7 @@ function WrapperPage() {
           {web3Connected && !safeAddress && <span style={{}}><br /><strong>Connect safe to check if you are eligible.</strong></span>}
           {alreadySubmittedFetching && <span style={{}}><br /><strong>Loading...</strong></span>}
           {willNotGetGNO && <span style={{}}><br /><strong>Your safe is not eligible.</strong></span>}
-          {!alreadySubmittedFetching && alreadySubmitted && !paidOut && <span style={{ color: 'darkgreen' }}><br /><strong>Congratulations, you submitted your deposit file.<br />Airdrop will automatically be transferred to your validator before the end of August 2024.</strong></span>}
+          {!alreadySubmittedFetching && alreadySubmitted && !paidOut && <span style={{ color: 'darkgreen' }}><br /><strong>Congratulations, you submitted your deposit file.<br />Distribution will begin the week of November 18th.</strong></span>}
           {!alreadySubmittedFetching && paidOut && <div
             style={{
               width: '100%',
@@ -337,7 +338,7 @@ function WrapperPage() {
           {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
             <>
               <br />
-              Uploading deposit file disabled due to passed deadline {fileName && `(uploaded file '${fileName}')`}
+              Uploading deposit file { /* disabled due to passed deadline */ } {fileName && `(uploaded file '${fileName}')`}
               <IconButton
                 iconComponent={<FileUploadIcon />}
                 tooltipText={
@@ -348,7 +349,7 @@ function WrapperPage() {
                   </span>
                 }
                 onClick={handleImportClick}
-                disabled
+              //  disabled //disable after the deadline
               />
               <br />
               <input
