@@ -326,7 +326,7 @@ function WrapperPage() {
           {web3Connected && !safeAddress && <span style={{}}><br /><strong>Connect safe to check if you are eligible.</strong></span>}
           {alreadySubmittedFetching && <span style={{}}><br /><strong>Loading...</strong></span>}
           {willNotGetGNO && <span style={{}}><br /><strong>Your safe is not eligible.</strong></span>}
-          {!alreadySubmittedFetching && alreadySubmitted && !paidOut && <span style={{ color: 'darkgreen' }}><br /><strong>Congratulations, you submitted your deposit file.<br />Airdrop will automatically be transferred to your validator before the end of August 2024.</strong></span>}
+          {!alreadySubmittedFetching && alreadySubmitted && !paidOut && <span style={{ color: 'darkgreen' }}><br /><strong>Congratulations, you submitted your deposit file.<br />Distribution will begin the week of November 18th.</strong></span>}
           {!alreadySubmittedFetching && paidOut && <div
             style={{
               width: '100%',
