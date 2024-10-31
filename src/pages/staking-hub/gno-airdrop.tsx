@@ -228,11 +228,11 @@ function WrapperPage() {
         image={{
           src: '/assets/GNO_Airdrop.svg',
           alt: 'GNO Aridrop',
-          height: 120,
+          height: 100,
         }}
         buttons={
           //eligible && !alreadySubmitted && !alreadySubmittedFetching &&
-          false &&
+          // false && // to turn off the gno announcement
           <Button
             className="swap-button"
             onClick={() => { handleClick(address, message) }}
@@ -256,7 +256,7 @@ function WrapperPage() {
         </span><br /><br />
 
         {//!alreadySubmittedFetching && safeAddress && eligible  &&
-          false &&
+          // false && // to turn off the gno announcement
           <p
             style={{
               fontSize: '20px',
@@ -278,7 +278,7 @@ function WrapperPage() {
 
         {
           //GNO2GET > 0 && !paidOut &&
-          false &&
+          // false && // to turn off the gno announcement
           <>
             <strong>How to claim</strong><br />
             <span
@@ -300,23 +300,23 @@ function WrapperPage() {
                 tutorial: how to generate deposits files
               </a>
               ).<br /><br />
-              You have until<strong>{` `}August 8th{` `}</strong>to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.
+              You have until<strong>{` `}November 15th{` `}</strong>to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.
               <br /><br />
             </span>
           </>
         }
 
-        <div
+        {/* <div
           style={{
             width: '100%',
             textAlign: 'center'
           }}
-        ><span style={{ color: 'darkgreen', fontSize: '20px' }}><br /><strong>We’re excited to announce the 2nd batch of $GNO distribution 💰<br /><br />New HOPR nodes that maintain 90%+ uptime from Oct 1st - 30th at 12:00 AM CET will be eligible to claim!</strong></span></div>
+        ><span style={{ color: 'darkgreen', fontSize: '20px' }}><br /><strong>We’re excited to announce the 2nd batch of $GNO distribution 💰<br /><br />New HOPR nodes that maintain 90%+ uptime from Oct 1st - 30th at 12:00 AM CET will be eligible to claim!</strong></span></div> */}
 
         <div
-          style={{
-            display: 'none'
-          }}
+          // style={{
+          //   display: 'none'
+          // }}  // to turn off the gno announcement
         >
 
 
@@ -337,7 +337,7 @@ function WrapperPage() {
           {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
             <>
               <br />
-              Uploading deposit file disabled due to passed deadline {fileName && `(uploaded file '${fileName}')`}
+              Uploading deposit file { /* disabled due to passed deadline */ } {fileName && `(uploaded file '${fileName}')`}
               <IconButton
                 iconComponent={<FileUploadIcon />}
                 tooltipText={
@@ -348,7 +348,7 @@ function WrapperPage() {
                   </span>
                 }
                 onClick={handleImportClick}
-                disabled
+              //  disabled //disable after the deadline
               />
               <br />
               <input
