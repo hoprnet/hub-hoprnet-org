@@ -48,7 +48,7 @@ const hubFaq: FaqData = {
       id: 3,
       title: 'How to claim',
       content:
-        `You have until August 8th to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.`,
+        `You have until November 15t to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.`,
     },
     {
       id: 4,
