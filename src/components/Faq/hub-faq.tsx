@@ -15,12 +15,12 @@ const hubFaq: FaqData = {
         <span>
           We:
           <ul>
-            <li>Took a snapshot on 28 June 2024, 8AM UTC</li>
+            <li>Took a snapshot on 30 October 2024, 12:00 AM UTC</li>
             <li>Calculated the wxHOPR tokens in your Safe and channels at that time</li>
             <li>Divided it by the node minimum of 30,000 (or 10,000 if you're staking a Network Registry NFT)</li>
             <li>Rounded down to the nearest whole number</li>
           </ul>
-          We also checked how many of your HOPR nodes were running at 50% uptime for the previous two weeks<br />
+          We also checked how many of your HOPR nodes were running at 90% uptime between Oct 1st - 30th<br />
           Whichever number was smallest is your airdrop amount.
         </span>
       ),
