@@ -338,14 +338,14 @@ function WrapperPage() {
           {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
             <>
               <br />
-              Uploading deposit file { /* disabled due to passed deadline */ } {fileName && `(uploaded file '${fileName}')`}
+              Uploading deposit file { /* is disabled due to passed deadline */ } {fileName && `(uploaded file '${fileName}')`}
               <IconButton
                 iconComponent={<FileUploadIcon />}
                 tooltipText={
                   <span>
                     UPLOADING
                     <br />
-                    validator file disabled
+                    validator file {/* disabled*/}
                   </span>
                 }
                 onClick={handleImportClick}
