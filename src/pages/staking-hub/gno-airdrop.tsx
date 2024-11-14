@@ -301,7 +301,7 @@ function WrapperPage() {
                 tutorial: how to generate deposits files
               </a>
               ).<br /><br />
-              You have until<strong>{` `}November 15th{` `}</strong>to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.
+              You had until<strong>{` `}November 15th at 12:00 AM CET{` `}</strong>to submit your validator(s) file. If you miss this deadline, you will have to wait until future distributions, which are first come, first served.
               <br /><br />
             </span>
           </>
@@ -338,18 +338,18 @@ function WrapperPage() {
           {!alreadySubmittedFetching && safeAddress && eligible && !alreadySubmitted &&
             <>
               <br />
-              Uploading deposit file { /* is disabled due to passed deadline */ } {fileName && `(uploaded file '${fileName}')`}
+              Uploading deposit file is disabled due to passed deadline {fileName && `(uploaded file '${fileName}')`}
               <IconButton
                 iconComponent={<FileUploadIcon />}
                 tooltipText={
                   <span>
                     UPLOADING
                     <br />
-                    validator file {/* disabled*/}
+                    validator file is disabled {/* disabled*/}
                   </span>
                 }
                 onClick={handleImportClick}
-              //  disabled //disable after the deadline
+                disabled //disable after the deadline
               />
               <br />
               <input
