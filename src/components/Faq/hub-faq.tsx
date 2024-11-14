@@ -15,7 +15,7 @@ const hubFaq: FaqData = {
         <span>
           We:
           <ul>
-            <li>Took a snapshot on 30 October 2024, 12:00 AM UTC</li>
+            <li>Took a snapshot on 30 October 2024, 12:00 AM CET</li>
             <li>Calculated the wxHOPR tokens in your Safe and channels at that time</li>
             <li>Divided it by the node minimum of 30,000 (or 10,000 if you're staking a Network Registry NFT)</li>
             <li>Rounded down to the nearest whole number</li>
