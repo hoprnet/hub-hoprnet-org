@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi';
-import { parseUnits } from 'viem';
+import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import { parseUnits, parseEther } from 'viem';
 import { xHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS } from '../../../config'
 
 // Redux
@@ -128,19 +128,17 @@ type NumberLiteral = `${number}`;
 type TransactionLinkProps = {
   isSuccess: boolean;
   hash: `0x${string}` | undefined;
-  swapDirection: 'xHOPR_to_wxHOPR' | 'wxHOPR_to_xHOPR';
 };
 
 function TransactionLink({
   isSuccess,
   hash,
-  swapDirection,
 }: TransactionLinkProps) {
   if (!isSuccess) return null;
 
   return (
     <span>
-      Check your {swapDirection === 'xHOPR_to_wxHOPR' ? 'xHOPR to wxHOPR ' : 'wxHOPR to xHOPR '}
+      Check out your {' '}
       <GnosisLink
         href={`https://gnosisscan.io/tx/${hash}`}
         target="_blank"
@@ -156,6 +154,8 @@ function TransactionLink({
 function WrapperPage() {
   const [xhoprValue, set_xhoprValue] = useState('');
   const [wxhoprValue, set_wxhoprValue] = useState('');
+  const [showTxInfo, set_showTxInfo] = useState(false);
+  const [notEnoughBalance, set_notEnoughBalance] = useState(false);
   const [swapDirection, set_swapDirection] = useState<'xHOPR_to_wxHOPR' | 'wxHOPR_to_xHOPR'>('xHOPR_to_wxHOPR');
   const address = useAppSelector((store) => store.web3.account);
   const walletBalance = useAppSelector((store) => store.web3.balance);
@@ -164,6 +164,25 @@ function WrapperPage() {
     refecth1();
     refecth2();
   }, [address]);
+
+  useEffect(() => {
+    set_showTxInfo(false);
+  }, [xhoprValue, wxhoprValue]);
+
+  useEffect(() => {
+    if(!walletBalance.xHopr.value || !walletBalance.wxHopr.value) return;
+
+    const xhoprEther = parseEther(xhoprValue);
+    const wxhoprEther = parseEther(wxhoprValue);
+    const xhoprWalletEther = BigInt(walletBalance.xHopr.value);
+    const wxhoprWalletEther = BigInt(walletBalance.wxHopr.value);
+
+    if(swapDirection === 'xHOPR_to_wxHOPR' && xhoprEther > xhoprWalletEther) set_notEnoughBalance(true)
+    else if (swapDirection === 'xHOPR_to_wxHOPR') set_notEnoughBalance(false)
+    else if (swapDirection === 'wxHOPR_to_xHOPR' && wxhoprEther > wxhoprWalletEther) set_notEnoughBalance(true)
+    else if (swapDirection === 'wxHOPR_to_xHOPR') set_notEnoughBalance(false)
+
+  }, [swapDirection, xhoprValue, wxhoprValue, walletBalance.xHopr.value, walletBalance.xHopr.value]);
 
   // Prepare contract write configurations
   const { config: xHOPR_to_wxHOPR_config, refetch: refecth1 } = usePrepareContractWrite({
@@ -185,6 +204,7 @@ function WrapperPage() {
     data: xHOPR_to_wxHOPR_data,
     isLoading: is_xHOPR_to_wxHOPR_loading,
     isSuccess: is_xHOPR_to_wxHOPR_success,
+    isError: is_xHOPR_to_wxHOPR_error,
     write: write_xHOPR_to_wxHOPR,
   } = useContractWrite(xHOPR_to_wxHOPR_config);
 
@@ -192,8 +212,23 @@ function WrapperPage() {
     data: wxHOPR_to_xHOPR_data,
     isLoading: is_wxHOPR_to_xHOPR_loading,
     isSuccess: is_wxHOPR_to_xHOPR_success,
+    isError: is_wxHOPR_to_xHOPR_error,
     write: write_wxHOPR_to_xHOPR,
   } = useContractWrite(wxHOPR_to_xHOPR_config);
+
+  const hash =  xHOPR_to_wxHOPR_data?.hash || wxHOPR_to_xHOPR_data?.hash;
+  const walletLoading = is_xHOPR_to_wxHOPR_loading || is_wxHOPR_to_xHOPR_loading;
+  const txPending = is_xHOPR_to_wxHOPR_success || is_wxHOPR_to_xHOPR_success;
+  const txWillBeError = is_xHOPR_to_wxHOPR_error || is_wxHOPR_to_xHOPR_error;
+
+  const { data, isError, isLoading, isSuccess } = useWaitForTransaction({ hash })
+
+  useEffect(() => {
+    if(txPending || isSuccess){
+      set_showTxInfo(true);
+    }
+  }, [txPending, isSuccess]);
+
 
   const handleSwap = () => {
     if (swapDirection === 'xHOPR_to_wxHOPR') {
@@ -204,6 +239,7 @@ function WrapperPage() {
   };
 
   const handleClick = () => {
+    set_showTxInfo(false);
     if (swapDirection === 'xHOPR_to_wxHOPR') {
       write_xHOPR_to_wxHOPR?.();
     } else {
@@ -219,7 +255,7 @@ function WrapperPage() {
   };
 
   useEffect(() => {
-    if (is_xHOPR_to_wxHOPR_success || is_wxHOPR_to_xHOPR_success) {
+    if (isSuccess) {
       updateBalances();
     }
   }, [walletBalance.xHopr.formatted, walletBalance.wxHopr.formatted]);
@@ -272,9 +308,11 @@ function WrapperPage() {
             className="swap-button"
             disabled={
               (swapDirection === 'xHOPR_to_wxHOPR' && !write_xHOPR_to_wxHOPR) ||
-              (swapDirection === 'wxHOPR_to_xHOPR' && !write_wxHOPR_to_xHOPR)
+              (swapDirection === 'wxHOPR_to_xHOPR' && !write_wxHOPR_to_xHOPR) ||
+              notEnoughBalance
             }
             onClick={handleClick}
+            pending={walletLoading || isLoading}
           >
           SWAP
         </Button>
@@ -294,13 +332,13 @@ function WrapperPage() {
                 setMax_wxHOPR();
               }
             }}
-            disabled={!address || swapDirection === 'wxHOPR_to_xHOPR' || !write_xHOPR_to_wxHOPR}
+            disabled={!address || swapDirection === 'wxHOPR_to_xHOPR' || isLoading}
             fullWidth
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <MaxButton
-                    disabled={swapDirection === 'wxHOPR_to_xHOPR' || !write_xHOPR_to_wxHOPR}
+                    disabled={swapDirection === 'wxHOPR_to_xHOPR'}
                     onClick={setMax_xHOPR}
                   >
                     Max
@@ -328,13 +366,13 @@ function WrapperPage() {
                 setMax_xHOPR();
               }
             }}
-            disabled={!address || swapDirection === 'xHOPR_to_wxHOPR' || !write_wxHOPR_to_xHOPR}
+            disabled={!address || swapDirection === 'xHOPR_to_wxHOPR' || isLoading}
             fullWidth
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <MaxButton
-                    disabled={swapDirection === 'xHOPR_to_wxHOPR' || !write_wxHOPR_to_xHOPR}
+                    disabled={swapDirection === 'xHOPR_to_wxHOPR'}
                     onClick={setMax_wxHOPR}
                   >
                     Max
@@ -347,18 +385,13 @@ function WrapperPage() {
               },
             }}
           />
-          {(is_xHOPR_to_wxHOPR_loading || is_wxHOPR_to_xHOPR_loading) && <span>Check your Wallet...</span>}
+          {walletLoading && <span>Check your Wallet...</span>}
+          {notEnoughBalance && <span style={{color: 'red'}}>Not enough balance in your wallet</span>}
           {address && (
             <>
               <TransactionLink
-                isSuccess={is_xHOPR_to_wxHOPR_success}
-                hash={xHOPR_to_wxHOPR_data?.hash}
-                swapDirection={'xHOPR_to_wxHOPR'}
-              />
-              <TransactionLink
-                isSuccess={is_wxHOPR_to_xHOPR_success}
-                hash={wxHOPR_to_xHOPR_data?.hash}
-                swapDirection={'wxHOPR_to_xHOPR'}
+                isSuccess={showTxInfo}
+                hash={hash}
               />
             </>
           )}
