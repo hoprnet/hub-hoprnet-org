@@ -516,11 +516,12 @@ const getNodesDataThunk = createAsyncThunk<
     dispatch,
   }) => {
   //  dispatch(getNodeBalanceThunk(payload));
+    const nodes = payload.nodesAddresses.map(nodeAddress => getAddress(nodeAddress));
     const rez = await fetch(`https://network.hoprnet.org/api/getSomeNodes`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
-        nodes: payload.nodesAddresses
+        nodes
       }),
     });
     const json = await rez.json();

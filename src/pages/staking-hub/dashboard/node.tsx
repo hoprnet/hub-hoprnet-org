@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../../store';
 import { safeActionsAsync } from '../../../store/slices/safe';
 import { useEthersSigner } from '../../../hooks';
 import { rounder } from '../../../utils/functions';
+import { getAddress } from 'viem';
 
 
 import { Card, Chip, IconButton as MuiIconButton } from '@mui/material';
@@ -356,14 +357,15 @@ const NodeAdded = () => {
   const nodes = useAppSelector((store) => store.stakingHub.nodes.data);
   const delegates = useAppSelector((store) => store.safe.delegates.data);
 
-  const delegatesArray = delegates?.results?.map(elem => elem.delegate.toLocaleLowerCase()) || [];
+  const delegatesArray = delegates?.results?.map(elem => elem.delegate.toLowerCase()) || [];
   const nodesPeerIdArr = Object.keys(nodes);
 
   const parsedTableData = nodesPeerIdArr.map((node, index) => {
+    const nodeValidated = getAddress(node);
     const inNetworkRegistry = nodes[node]?.registeredNodesInNetworkRegistry;
     const inSafeRegistry = nodes[node]?.registeredNodesInSafeRegistry
     const isDelegate = delegatesArray.includes(node);
-    const includedInModule  = nodes[node]?.includedInModule;
+    const includedInModule = nodes[node]?.includedInModule;
     const lastSeen = nodes[node]?.lastseen;
     const version = nodes[node]?.version;
     const availability30d = nodes[node]?.availability30d;
@@ -372,7 +374,7 @@ const NodeAdded = () => {
 
     return {
       peerId: <>
-        {node}
+        {nodeValidated}
         <SquaredIconButton
           onClick={() => nodeHoprAddress && navigator.clipboard.writeText(node)}
         >
@@ -397,22 +399,22 @@ const NodeAdded = () => {
           <Tooltip
             title={`Is this node a delegate? (allowed to propose transactions to the safe owner)`}
           >
-          {isDelegate ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
+            {isDelegate ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
           </Tooltip>
           <Tooltip
             title={`Is this node included & configured in the Node Management Module?`}
           >
-          {includedInModule ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
+            {includedInModule ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
           </Tooltip>
           <Tooltip
-            title={<span>Has this node been successfully added to the Safe Registry?<br/>That will be done by the node after it starts and syncs.</span>}
+            title={<span>Has this node been successfully added to the Safe Registry?<br />That will be done by the node after it starts and syncs.</span>}
           >
-          {inSafeRegistry ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
+            {inSafeRegistry ? <CheckCircleRoundedIcon /> : <CancelRoundedIcon />}
           </Tooltip>
         </>,
-      inNetworkRegistry: inNetworkRegistry? 'Yes' : 'No',
+      inNetworkRegistry: inNetworkRegistry ? 'Yes' : 'No',
       lastSeen: lastSeen ? formatDate(lastSeen) : '-',
-      avability30d: <ProgressBar value={availability30d}/>,
+      avability30d: <ProgressBar value={availability30d} />,
       version: version || '-',
       id: node,
       balance: <Tooltip
