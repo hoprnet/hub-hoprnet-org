@@ -208,7 +208,7 @@ const stakingFaq: FaqData = {
       id: 1,
       title: 'How long do I have to wait to be approved?',
       content:
-        'We will be onboarding node runners at approximately 10 a week, you may have to wait several weeks to be added to the network.',
+        'Applications are manually collected every three weeks on Friday at 8 AM CET, after which the waitlist is updated and new slots are allocated later that same day. If you submit your application after 8 AM CET, it will be processed during the next three-week cycle.',
     },
     {
       id: 2,
