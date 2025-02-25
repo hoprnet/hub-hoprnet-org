@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import { useWriteContract, usePrepareContractWrite, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits, parseEther } from 'viem';
 import { xHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS } from '../../../config'
 
@@ -206,7 +206,7 @@ function WrapperPage() {
     isSuccess: is_xHOPR_to_wxHOPR_success,
     isError: is_xHOPR_to_wxHOPR_error,
     write: write_xHOPR_to_wxHOPR,
-  } = useContractWrite(xHOPR_to_wxHOPR_config);
+  } = useWriteContract(xHOPR_to_wxHOPR_config);
 
   const {
     data: wxHOPR_to_xHOPR_data,
@@ -214,14 +214,14 @@ function WrapperPage() {
     isSuccess: is_wxHOPR_to_xHOPR_success,
     isError: is_wxHOPR_to_xHOPR_error,
     write: write_wxHOPR_to_xHOPR,
-  } = useContractWrite(wxHOPR_to_xHOPR_config);
+  } = useWriteContract(wxHOPR_to_xHOPR_config);
 
   const hash =  xHOPR_to_wxHOPR_data?.hash || wxHOPR_to_xHOPR_data?.hash;
   const walletLoading = is_xHOPR_to_wxHOPR_loading || is_wxHOPR_to_xHOPR_loading;
   const txPending = is_xHOPR_to_wxHOPR_success || is_wxHOPR_to_xHOPR_success;
   const txWillBeError = is_xHOPR_to_wxHOPR_error || is_wxHOPR_to_xHOPR_error;
 
-  const { data, isError, isLoading, isSuccess } = useWaitForTransaction({ hash })
+  const { data, isError, isLoading, isSuccess } = useWaitForTransactionReceipt({ hash })
 
   useEffect(() => {
     if(txPending || isSuccess){

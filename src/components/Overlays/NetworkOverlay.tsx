@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { useNetwork, useSwitchNetwork } from 'wagmi'
+import { useNetwork, useSwitchChain } from 'wagmi'
 import 'wagmi/window';
 import { getNetworkName } from '../../utils/getNetworkName';
 

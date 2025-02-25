@@ -165,13 +165,13 @@ export const applicationMapStakingHub: ApplicationMapType = [
         loginNeeded: 'safe',
         inDrawer: false,
       },
-      {
-        path: 'gno-airdrop',
-        element: <GnoAirdrop />,
-        icon: <GnoAridropIcon />,
-        name: 'GNO Airdrop',
+      // {
+      //   path: 'gno-airdrop',
+      //   element: <GnoAirdrop />,
+      //   icon: <GnoAridropIcon />,
+      //   name: 'GNO Airdrop',
 
-      },
+      // },
       {
         path: 'dev',
         element: <SectionSafe />,

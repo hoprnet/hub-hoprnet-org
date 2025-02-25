@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Address, parseUnits } from 'viem';
-import { erc20ABI, useBalance, useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useBalance, useWriteContract, usePrepareContractWrite } from 'wagmi';
+import { erc20Abi } from 'viem';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
 
 //Store
@@ -30,7 +31,6 @@ const StakewxHOPR = () => {
   const { refetch: refetchWXHoprSafeBalance } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    watch: true,
     enabled: !!selectedSafeAddress,
   });
 
@@ -49,7 +49,7 @@ const StakewxHOPR = () => {
 
   const { config: wxHOPR_to_safe_config } = usePrepareContractWrite({
     address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: 'transfer',
     args: [selectedSafeAddress as Address, parseUnits(wxhoprValue, 18)],
   });
@@ -64,7 +64,7 @@ const StakewxHOPR = () => {
     isSuccess: is_wxHOPR_to_safe_success,
     isLoading: is_wxHOPR_to_safe_loading,
     write: write_wxHOPR_to_safe,
-  } = useContractWrite({
+  } = useWriteContract({
     ...wxHOPR_to_safe_config,
     onSuccess: (res) => {
       set_transactionHash(res.hash);

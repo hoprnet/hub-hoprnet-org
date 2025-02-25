@@ -1,7 +1,8 @@
 import { utils } from 'ethers';
 import { useEffect, useState } from 'react';
 import { Address, formatEther } from 'viem';
-import { erc20ABI, useContractRead, useWalletClient } from 'wagmi';
+import { useReadContract, useWalletClient, useBlockNumber } from 'wagmi';
+import { erc20Abi } from 'viem';
 import { web3 } from '@hoprnet/hopr-sdk';
 import { HOPR_CHANNELS_SMART_CONTRACT_ADDRESS, HOPR_NODE_SAFE_REGISTRY, HOPR_TOKEN_USED_CONTRACT_ADDRESS } from '../../../config';
 import { useEthersSigner } from '../../hooks';
@@ -52,24 +53,25 @@ function SafeSection() {
     (store) => store.app.configuration.notifications.pendingSafeTransaction,
   );
 
-  const { data: allowanceData } = useContractRead({
+  const { data: blockNumber } = useBlockNumber({ watch: true })
+
+  const { data: allowanceData } = useReadContract({
     address: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: 'allowance',
     args: [selectedSafeAddress, HOPR_CHANNELS_SMART_CONTRACT_ADDRESS],
     enabled: !!selectedSafeAddress,
   });
 
-  const { data: isNodeResponse } = useContractRead({
+  const { data: isNodeResponse, refetch: refetchIsNodeResponse } = useReadContract({
     address: safeModules ? (safeModules.at(0) as Address) : '0x',
     abi: web3.hoprNodeManagementModuleABI,
     functionName: 'isNode',
     args: [nodeAddress],
     enabled: !!safeModules?.at(0) && !!nodeAddress && !!includeNodeResponse,
-    watch: true,
   });
 
-  const { data: isNodeSafeRegistered } = useContractRead({
+  const { data: isNodeSafeRegistered, refetch: refetchIsNodeSafeRegistered } = useReadContract({
     address: HOPR_NODE_SAFE_REGISTRY,
     abi: web3.hoprNodeSafeRegistryABI,
     functionName: 'isNodeSafeRegistered',
@@ -80,12 +82,16 @@ function SafeSection() {
       },
     ],
     enabled: !!safeAddressForRegistry && !!nodeAddressForRegistry,
-    watch: true,
   });
 
   useEffect(() => {
     fetchInitialStateForSigner();
   }, [signer]);
+
+  useEffect(() => {
+    refetchIsNodeSafeRegistered();
+    refetchIsNodeResponse();
+  }, [blockNumber])
 
   const fetchInitialStateForSigner = async () => {
     if (signer) {

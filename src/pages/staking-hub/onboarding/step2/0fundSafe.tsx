@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Address, formatEther, parseEther, parseUnits } from 'viem';
 import {
-  erc20ABI,
   useBalance,
-  useContractWrite,
+  useWriteContract,
   usePrepareContractWrite,
   usePrepareSendTransaction,
-  useSendTransaction
+  useSendTransaction,
+  useBlockNumber
 } from 'wagmi';
+import { erc20Abi } from 'viem';
 import { MINIMUM_WXHOPR_TO_FUND, MINIMUM_WXHOPR_TO_FUND_NFT, MINIMUM_XDAI_TO_FUND, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../../../config'
 
 //Store
@@ -75,12 +76,13 @@ const FundsToSafe = () => {
   const [transactionHashFundXDai, set_transactionHashFundXDai] = useState<Address>();
   const [transactionHashFundWXHopr, set_transactionHashFundWXHopr] = useState<Address>();
 
+  const { data: blockNumber } = useBlockNumber({ watch: true })
+
   const {
     refetch: refetchXDaiSafeBalance,
     data: xDaiSafeBalance,
   } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
-    watch: true,
     enabled: !!selectedSafeAddress,
   });
 
@@ -90,22 +92,19 @@ const FundsToSafe = () => {
   } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    watch: true,
     enabled: !!selectedSafeAddress,
   });
+  useEffect(() => {
+    refetchXDaiSafeBalance();
+
+  }, [])
 
   useEffect(() => {
-    const fetchBalanceInterval = setInterval(() => {
-      if (selectedSafeAddress) {
-        refetchWXHoprSafeBalance();
-        refetchWXHoprSafeBalance();
-      }
-    }, 15_000);
-
-    return () => {
-      clearInterval(fetchBalanceInterval);
-    };
-  }, []);
+    if (selectedSafeAddress) {
+      refetchWXHoprSafeBalance();
+      refetchWXHoprSafeBalance();
+    }
+  }, [selectedSafeAddress, blockNumber]);
 
   useEffect(() => {
     if (communityNftIdInSafe) {
@@ -120,7 +119,7 @@ const FundsToSafe = () => {
 
   const { config: wxHOPR_to_safe_config } = usePrepareContractWrite({
     address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: 'transfer',
     args: [selectedSafeAddress as Address, parseUnits(wxhoprValue, 18)],
   });
@@ -145,7 +144,7 @@ const FundsToSafe = () => {
     isSuccess: is_wxHOPR_to_safe_success,
     isLoading: is_wxHOPR_to_safe_loading,
     write: write_wxHOPR_to_safe,
-  } = useContractWrite({
+  } = useWriteContract({
     ...wxHOPR_to_safe_config,
     onSuccess: (result) => {
       set_transactionHashFundWXHopr(result.hash);

@@ -13,13 +13,13 @@ export const HOPR_TOKEN_USED = 'wxHOPR';
 export const HOPR_TOKEN_USED_CONTRACT_ADDRESS = wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS;
 
 // Safe Contracts
-export const SAFE_SERVICE_URL = 'https://safe-transaction.prod.hoprnet.link';
-export const HOPR_NODE_STAKE_FACTORY = '0x098B275485c406573D042848D66eb9d63fca311C';
-export const HOPR_NODE_MANAGEMENT_MODULE = '0xB7397C218766eBe6A1A634df523A1a7e412e67eA';
-export const HOPR_NODE_SAFE_REGISTRY = '0xe15C24a0910311c83aC78B5930d771089E93077b';
-export const HOPR_NETWORK_REGISTRY = '0x582b4b586168621dAf83bEb2AeADb5fb20F8d50d';
-export const HOPR_CHANNELS_SMART_CONTRACT_ADDRESS = '0x693Bac5ce61c720dDC68533991Ceb41199D8F8ae';
-export const HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS = '0x619eabE23FD0E2291B50a507719aa633fE6069b8';
+export const SAFE_SERVICE_URL = import.meta.env.VITE_SAFE_SERVICE_URL;
+export const HOPR_NODE_STAKE_FACTORY = import.meta.env.VITE_HOPR_NODE_STAKE_FACTORY;
+export const HOPR_NODE_MANAGEMENT_MODULE = import.meta.env.VITE_HOPR_NODE_MANAGEMENT_MODULE;
+export const HOPR_NODE_SAFE_REGISTRY = import.meta.env.VITE_HOPR_NODE_SAFE_REGISTRY;
+export const HOPR_NETWORK_REGISTRY = import.meta.env.VITE_HOPR_NETWORK_REGISTRY;
+export const HOPR_CHANNELS_SMART_CONTRACT_ADDRESS = import.meta.env.VITE_HOPR_CHANNELS_SMART_CONTRACT_ADDRESS;
+export const HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS = import.meta.env.VITE_HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS;
 
 //API
 export const WEB_API = 'https://webapi.hoprnet.org/api';
@@ -29,7 +29,7 @@ export const STAKE_SUBGRAPH = 'https://webapi.hoprnet.org/api/hub/subgraph-allSe
 export const STAKING_V2_SUBGRAPH = 'https://webapi.hoprnet.org/api/hub/subgraph-dufour';
 
 // Wallet Connect
-export const VITE_WALLET_CONNECT_PROJECT_ID = 'efdce6b5c6b10913211ff1b40bc4d54d';
+export const VITE_WALLET_CONNECT_PROJECT_ID = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID;
 
 // Minimum to be funded
 export const MINIMUM_WXHOPR_TO_FUND = 30_000;

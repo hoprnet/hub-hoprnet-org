@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Address, formatEther, parseEther, parseUnits } from 'viem';
+import { formatEther, parseEther, parseUnits } from 'viem';
 import {
-  erc20ABI,
   useBalance,
-  useContractWrite,
-  usePrepareContractWrite,
   usePrepareSendTransaction,
-  useSendTransaction
+  useSendTransaction,
+  useBlockNumber
 } from 'wagmi';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, MINIMUM_XDAI_TO_FUND, MINIMUM_WXHOPR_TO_FUND } from '../../../config'
 
@@ -37,12 +35,13 @@ const StakexDai = () => {
   const walletBalance = useAppSelector((store) => store.web3.balance);
   const [xdaiValue, set_xdaiValue] = useState('');
 
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+
   const {
     refetch: refetchXDaiSafeBalance,
     data: xDaiSafeBalance,
   } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
-    watch: true,
     enabled: !!selectedSafeAddress,
   });
 
@@ -70,6 +69,10 @@ const StakexDai = () => {
       set_xdaiValue('');
     }
   }, [is_xDAI_to_safe_loading]);
+
+  useEffect(() => {
+    refetchXDaiSafeBalance()
+  }, [blockNumber])
 
   const handleFundxDai = () => {
     send_xDAI_to_safe?.();

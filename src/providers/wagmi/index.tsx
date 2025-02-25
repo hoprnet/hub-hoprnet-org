@@ -13,9 +13,10 @@ import { publicProvider } from 'wagmi/providers/public';
 //wagmi connectors
 import { createWalletClient, custom, publicActions } from 'viem';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { InjectedConnector } from 'wagmi/connectors/injected';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { injected } from 'wagmi/connectors'
+import { walletConnect } from 'wagmi/connectors'
 import { VITE_WALLET_CONNECT_PROJECT_ID } from '../../../config';
+import { http } from 'wagmi'
 
 // No way to tell what the ethereum request can be so has to be any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,16 +47,15 @@ export const browserClient = walletIsInBrowser
   : null;
 
 const config = createConfig({
-  autoConnect: true,
+//  autoConnect: true, // TODO: TEST OUT AFTER autoConnect was removed from v1 https://wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-suspense-property
   connectors: [
-    new MetaMaskConnector({ chains }),
-    new WalletConnectConnector({
-      chains,
-      options: { projectId: VITE_WALLET_CONNECT_PROJECT_ID },
+    injected({ target: 'metaMask' }),
+    walletConnect({
+      projectId: VITE_WALLET_CONNECT_PROJECT_ID ,
     }),
     // add localhost only to injected connector
     // because wallet connect fails with it
-    new InjectedConnector({ chains: [localhost, ...chains] }),
+    injected(),
   ],
 
   publicClient: (chain) => {

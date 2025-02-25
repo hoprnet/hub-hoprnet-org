@@ -1,4 +1,4 @@
-import { Address, useWaitForTransaction } from 'wagmi';
+import { Address, useWaitForTransactionReceipt } from 'wagmi';
 import { Loading } from './loading';
 import styled from '@emotion/styled';
 
@@ -39,7 +39,7 @@ export const FeedbackTransaction = ({
     error?: string;
   };
 }) => {
-  let { status } = useWaitForTransaction({
+  let { status } = useWaitForTransactionReceipt({
     confirmations,
     hash: transactionHash,
   });
