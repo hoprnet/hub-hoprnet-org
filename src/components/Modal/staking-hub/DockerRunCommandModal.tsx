@@ -79,7 +79,7 @@ export const DockerRunCommandModal = (props: DockerRunCommandModalProps) => {
             target="_blank"
             rel="noreferrer"
             style={{color: '#007bff', textDecoration: 'underline'}}
-          >the guideline in our docs</a>
+          >the guideline in our docs</a><br/><br/>
           <span style={{fontWeight: 500}}>configurationFilePath:</span> Copy the pre-configured file to your node folder. For more information, follow <a
             href="https://docs.hoprnet.org/node/manage-node-strategies#create-and-apply-configuration-file-to-your-node"
             target="_blank"
