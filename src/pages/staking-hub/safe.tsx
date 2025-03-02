@@ -60,7 +60,9 @@ function SafeSection() {
     abi: erc20Abi,
     functionName: 'allowance',
     args: [selectedSafeAddress, HOPR_CHANNELS_SMART_CONTRACT_ADDRESS],
-    enabled: !!selectedSafeAddress,
+    query: {
+      enabled: !!selectedSafeAddress,
+    }
   });
 
   const { data: isNodeResponse, refetch: refetchIsNodeResponse } = useReadContract({
@@ -68,7 +70,9 @@ function SafeSection() {
     abi: web3.hoprNodeManagementModuleABI,
     functionName: 'isNode',
     args: [nodeAddress],
-    enabled: !!safeModules?.at(0) && !!nodeAddress && !!includeNodeResponse,
+    query: {
+      enabled: !!safeModules?.at(0) && !!nodeAddress && !!includeNodeResponse,
+    }
   });
 
   const { data: isNodeSafeRegistered, refetch: refetchIsNodeSafeRegistered } = useReadContract({
@@ -81,7 +85,9 @@ function SafeSection() {
         nodeChainKeyAddress: nodeAddressForRegistry,
       },
     ],
-    enabled: !!safeAddressForRegistry && !!nodeAddressForRegistry,
+    query: {
+      enabled: !!safeAddressForRegistry && !!nodeAddressForRegistry,
+    }
   });
 
   useEffect(() => {

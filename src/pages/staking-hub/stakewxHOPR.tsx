@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Address, parseUnits } from 'viem';
-import { useBalance, useWriteContract, usePrepareContractWrite } from 'wagmi';
+import { useBalance, useWriteContract, useSimulateContract } from 'wagmi';
 import { erc20Abi } from 'viem';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
 
@@ -31,7 +31,9 @@ const StakewxHOPR = () => {
   const { refetch: refetchWXHoprSafeBalance } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    enabled: !!selectedSafeAddress,
+    query: {
+      enabled: !!selectedSafeAddress,
+    }
   });
 
   useEffect(() => {
@@ -47,7 +49,7 @@ const StakewxHOPR = () => {
     };
   }, []);
 
-  const { config: wxHOPR_to_safe_config } = usePrepareContractWrite({
+  const { data: wxHOPR_to_safe_config } = useSimulateContract({
     address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     abi: erc20Abi,
     functionName: 'transfer',
@@ -62,15 +64,9 @@ const StakewxHOPR = () => {
 
   const {
     isSuccess: is_wxHOPR_to_safe_success,
-    isLoading: is_wxHOPR_to_safe_loading,
-    write: write_wxHOPR_to_safe,
-  } = useWriteContract({
-    ...wxHOPR_to_safe_config,
-    onSuccess: (res) => {
-      set_transactionHash(res.hash);
-      refetchWXHoprSafeBalance();
-    },
-  });
+    isPending: is_wxHOPR_to_safe_loading,
+    writeContract: write_wxHOPR_to_safe,
+  } = useWriteContract();
 
   useEffect(() => {
     if (is_wxHOPR_to_safe_success) {
@@ -79,7 +75,13 @@ const StakewxHOPR = () => {
   }, [is_wxHOPR_to_safe_loading]);
 
   const handleFundwxHopr = () => {
-    write_wxHOPR_to_safe?.();
+    write_wxHOPR_to_safe?.({
+      ...wxHOPR_to_safe_config,
+      onSuccess: (res) => {
+        set_transactionHash(res.hash);
+        refetchWXHoprSafeBalance();
+      },
+    });
   };
 
   return (

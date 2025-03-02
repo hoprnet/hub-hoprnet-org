@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { useWriteContract, usePrepareContractWrite, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useSimulateContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits, parseEther } from 'viem';
 import { xHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS } from '../../../config'
 
@@ -185,14 +185,14 @@ function WrapperPage() {
   }, [swapDirection, xhoprValue, wxhoprValue, walletBalance.xHopr.value, walletBalance.xHopr.value]);
 
   // Prepare contract write configurations
-  const { config: xHOPR_to_wxHOPR_config, refetch: refecth1 } = usePrepareContractWrite({
+  const { data: xHOPR_to_wxHOPR_config, refetch: refecth1 } = useSimulateContract({
     address: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     abi: web3.wrapperABI,
     functionName: 'transferAndCall',
     args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(xhoprValue as NumberLiteral, 18), '0x'],
   });
 
-  const { config: wxHOPR_to_xHOPR_config, refetch: refecth2 } = usePrepareContractWrite({
+  const { data: wxHOPR_to_xHOPR_config, refetch: refecth2 } = useSimulateContract({
     address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     abi: web3.wrapperABI,
     functionName: 'transfer',
@@ -202,21 +202,21 @@ function WrapperPage() {
   // Perform contract writes and retrieve data.
   const {
     data: xHOPR_to_wxHOPR_data,
-    isLoading: is_xHOPR_to_wxHOPR_loading,
+    isPending: is_xHOPR_to_wxHOPR_loading,
     isSuccess: is_xHOPR_to_wxHOPR_success,
     isError: is_xHOPR_to_wxHOPR_error,
-    write: write_xHOPR_to_wxHOPR,
-  } = useWriteContract(xHOPR_to_wxHOPR_config);
+    writeContract: write_xHOPR_to_wxHOPR,
+  } = useWriteContract();
 
   const {
     data: wxHOPR_to_xHOPR_data,
-    isLoading: is_wxHOPR_to_xHOPR_loading,
+    isPending: is_wxHOPR_to_xHOPR_loading,
     isSuccess: is_wxHOPR_to_xHOPR_success,
     isError: is_wxHOPR_to_xHOPR_error,
-    write: write_wxHOPR_to_xHOPR,
-  } = useWriteContract(wxHOPR_to_xHOPR_config);
+    writeContract: write_wxHOPR_to_xHOPR,
+  } = useWriteContract();
 
-  const hash =  xHOPR_to_wxHOPR_data?.hash || wxHOPR_to_xHOPR_data?.hash;
+  const hash =  xHOPR_to_wxHOPR_data || wxHOPR_to_xHOPR_data;
   const walletLoading = is_xHOPR_to_wxHOPR_loading || is_wxHOPR_to_xHOPR_loading;
   const txPending = is_xHOPR_to_wxHOPR_success || is_wxHOPR_to_xHOPR_success;
   const txWillBeError = is_xHOPR_to_wxHOPR_error || is_wxHOPR_to_xHOPR_error;
@@ -241,9 +241,9 @@ function WrapperPage() {
   const handleClick = () => {
     set_showTxInfo(false);
     if (swapDirection === 'xHOPR_to_wxHOPR') {
-      write_xHOPR_to_wxHOPR?.();
+      write_xHOPR_to_wxHOPR?.(xHOPR_to_wxHOPR_config!.request);
     } else {
-      write_wxHOPR_to_xHOPR?.();
+      write_wxHOPR_to_xHOPR?.(wxHOPR_to_xHOPR_config!.request);
     }
   };
 

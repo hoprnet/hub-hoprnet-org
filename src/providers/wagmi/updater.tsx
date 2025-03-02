@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, xHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
 
 // wagmi
-import { useAccount, useBalance, useNetwork, useBlockNumber } from 'wagmi';
+import { useBalance, useAccount, useBlockNumber } from 'wagmi';
 import { watchAccount } from '@wagmi/core'
 import { useEthersSigner } from '../../hooks';
 
@@ -29,7 +29,7 @@ export default function WagmiUpdater() {
     connector
   } = useAccount();
 
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
 
   // **********************
   // Leaving for on-going testing of wagmi losing connection with wallet

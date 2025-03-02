@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { formatEther, parseEther, parseUnits } from 'viem';
 import {
   useBalance,
-  usePrepareSendTransaction,
   useSendTransaction,
-  useBlockNumber
+  useBlockNumber,
+  useEstimateGas
 } from 'wagmi';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, MINIMUM_XDAI_TO_FUND, MINIMUM_WXHOPR_TO_FUND } from '../../../config'
 
@@ -42,11 +42,13 @@ const StakexDai = () => {
     data: xDaiSafeBalance,
   } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
-    enabled: !!selectedSafeAddress,
+    query: {
+      enabled: !!selectedSafeAddress,
+    }
   });
 
-  const { config: xDAI_to_safe_config } = usePrepareSendTransaction({
-    to: selectedSafeAddress ?? undefined,
+  const { data: xDAI_to_safe_config } = useEstimateGas({
+    to: selectedSafeAddress as `0x${string}` ?? undefined,
     value: parseEther(xdaiValue),
   });
 
@@ -58,11 +60,9 @@ const StakexDai = () => {
 
   const {
     isSuccess: is_xDAI_to_safe_success,
-    isLoading: is_xDAI_to_safe_loading,
+    isPending: is_xDAI_to_safe_loading,
     sendTransaction: send_xDAI_to_safe,
-  } = useSendTransaction({
-    ...xDAI_to_safe_config, onSuccess: () => refetchXDaiSafeBalance(),
-  });
+  } = useSendTransaction();
 
   useEffect(() => {
     if (is_xDAI_to_safe_success) {
@@ -75,7 +75,12 @@ const StakexDai = () => {
   }, [blockNumber])
 
   const handleFundxDai = () => {
-    send_xDAI_to_safe?.();
+    send_xDAI_to_safe?.({
+      gas: xDAI_to_safe_config,
+      to: selectedSafeAddress as `0x${string}`,
+      value: parseEther(xdaiValue),
+      onSuccess: () => refetchXDaiSafeBalance(),
+    });
   };
 
   return (

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { useNetwork, useSwitchChain } from 'wagmi'
-import 'wagmi/window';
+import { useAccount, useSwitchChain } from 'wagmi'
 import { getNetworkName } from '../../utils/getNetworkName';
 
 // Store
@@ -72,7 +71,7 @@ export default function NetworkOverlay() {
   const isConnected = useAppSelector((store) => store.web3.status.connected);
   const loading = useAppSelector((store) => store.web3.status.loading);
 
-  const { chain } = useNetwork()
+  const { chain } = useAccount()
 
   const switchChain = async () => {
     if (!window.ethereum) return;

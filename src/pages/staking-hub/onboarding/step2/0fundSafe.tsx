@@ -3,10 +3,9 @@ import { Address, formatEther, parseEther, parseUnits } from 'viem';
 import {
   useBalance,
   useWriteContract,
-  usePrepareContractWrite,
-  usePrepareSendTransaction,
   useSendTransaction,
-  useBlockNumber
+  useBlockNumber,
+  useSimulateContract
 } from 'wagmi';
 import { erc20Abi } from 'viem';
 import { MINIMUM_WXHOPR_TO_FUND, MINIMUM_WXHOPR_TO_FUND_NFT, MINIMUM_XDAI_TO_FUND, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../../../config'
@@ -83,7 +82,9 @@ const FundsToSafe = () => {
     data: xDaiSafeBalance,
   } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
-    enabled: !!selectedSafeAddress,
+    query: {
+      enabled: !!selectedSafeAddress,
+    }
   });
 
   const {
@@ -92,7 +93,9 @@ const FundsToSafe = () => {
   } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    enabled: !!selectedSafeAddress,
+    query: {
+      enabled: !!selectedSafeAddress,
+    }
   });
   useEffect(() => {
     refetchXDaiSafeBalance();
@@ -112,12 +115,12 @@ const FundsToSafe = () => {
     }
   }, [communityNftIdInSafe]);
 
-  const { config: xDAI_to_safe_config } = usePrepareSendTransaction({
+  const { data: xDAI_to_safe_config } = useSimulateContract({
     to: selectedSafeAddress ?? undefined,
     value: parseEther(xdaiValue),
   });
 
-  const { config: wxHOPR_to_safe_config } = usePrepareContractWrite({
+  const { data: wxHOPR_to_safe_config } = useSimulateContract({
     address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     abi: erc20Abi,
     functionName: 'transfer',
@@ -142,15 +145,9 @@ const FundsToSafe = () => {
 
   const {
     isSuccess: is_wxHOPR_to_safe_success,
-    isLoading: is_wxHOPR_to_safe_loading,
-    write: write_wxHOPR_to_safe,
-  } = useWriteContract({
-    ...wxHOPR_to_safe_config,
-    onSuccess: (result) => {
-      set_transactionHashFundWXHopr(result.hash);
-      refetchWXHoprSafeBalance();
-    },
-  });
+    isPending: is_wxHOPR_to_safe_loading,
+    writeContract: write_wxHOPR_to_safe,
+  } = useWriteContract();
 
   useEffect(() => {
     if (is_wxHOPR_to_safe_success) {
@@ -160,7 +157,7 @@ const FundsToSafe = () => {
 
   const {
     isSuccess: is_xDAI_to_safe_success,
-    isLoading: is_xDAI_to_safe_loading,
+    isPending: is_xDAI_to_safe_loading,
     sendTransaction: send_xDAI_to_safe,
   } = useSendTransaction({
     ...xDAI_to_safe_config,
@@ -181,7 +178,13 @@ const FundsToSafe = () => {
   };
 
   const handleFundwxHopr = () => {
-    write_wxHOPR_to_safe?.();
+    write_wxHOPR_to_safe?.({
+      ...wxHOPR_to_safe_config,
+      onSuccess: (result) => {
+        set_transactionHashFundWXHopr(result.hash);
+        refetchWXHoprSafeBalance();
+      },
+    });
   };
 
   const xdaiEnoughBalance = (): boolean => {

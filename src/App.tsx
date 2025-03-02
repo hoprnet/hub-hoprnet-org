@@ -4,8 +4,7 @@ import { ThemeProvider } from '@mui/material';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
-import WagmiProvider from './providers/wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import WagmiProviderContainer from './providers/wagmi';
 import router from './router';
 import store from './store';
 import { ToastContainer } from 'react-toastify';
@@ -21,8 +20,6 @@ const VersionComponent = styled.div`
   font-size: 10px;
 `;
 
-const queryClient = new QueryClient();
-
 function App() {
   useEffect(() => {
     if (environment === 'node') {
@@ -34,18 +31,16 @@ function App() {
 
   return (
     <Provider store={store}>
-      <WagmiProvider>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider theme={theme}>
-            <ToastContainer
-              position="bottom-right"
-              limit={10}
-            />
-            <RouterProvider router={router} />
-            <VersionComponent>Version: {packageJson.version}</VersionComponent>
-          </ThemeProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
+      <WagmiProviderContainer>
+        <ThemeProvider theme={theme}>
+          <ToastContainer
+            position="bottom-right"
+            limit={10}
+          />
+          <RouterProvider router={router} />
+          <VersionComponent>Version: {packageJson.version}</VersionComponent>
+        </ThemeProvider>
+      </WagmiProviderContainer>
     </Provider>
   );
 }
