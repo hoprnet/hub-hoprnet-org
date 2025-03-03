@@ -77,7 +77,7 @@ const TransactionFeedbackText = ({
   status,
   feedbackTexts,
 }: {
-  status: 'error' | 'success' | 'idle' | 'loading';
+  status: 'error' | 'success' | 'idle' | 'pending';
   feedbackTexts: {
     loading: string;
     idle?: string;
@@ -85,7 +85,7 @@ const TransactionFeedbackText = ({
     error?: string;
   };
 }) => {
-  if (status === 'loading') {
+  if (status === 'pending') {
     return (
       <FeedbackContainer>
         <FeedbackLoading>

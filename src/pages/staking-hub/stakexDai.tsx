@@ -75,12 +75,16 @@ const StakexDai = () => {
   }, [blockNumber])
 
   const handleFundxDai = () => {
-    send_xDAI_to_safe?.({
-      gas: xDAI_to_safe_config,
-      to: selectedSafeAddress as `0x${string}`,
-      value: parseEther(xdaiValue),
-      onSuccess: () => refetchXDaiSafeBalance(),
-    });
+    send_xDAI_to_safe?.(
+      {
+        gas: xDAI_to_safe_config,
+        to: selectedSafeAddress as `0x${string}`,
+        value: parseEther(xdaiValue)
+      },
+      {
+        onSuccess: () => refetchXDaiSafeBalance(),
+      }
+    );
   };
 
   return (
@@ -89,52 +93,54 @@ const StakexDai = () => {
       fullHeightMin
       lightBlue
     >
-    <StepContainer
-      image={{
-        src: '/assets/funds-to-safe.svg',
-        alt: 'Funds to safe image',
-        height: 134,
-      }}
-      title="MOVE xDai TO SAFE"
-      description="You're about to fund a safe with xDAI."
-      buttons={
-        <ConfirmButton
-          onClick={handleFundxDai}
-          disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0'}
-          pending={is_xDAI_to_safe_loading}
-        >
-          FUND
-        </ConfirmButton>
-      }
-    >
-      <StyledForm>
-        <StyledInstructions>
-          <Text>
-            Move <Lowercase>x</Lowercase>DAI into safe
-          </Text>
-        </StyledInstructions>
-        <StyledInputGroup>
-          <StyledTextField
-            type="number"
-            variant="outlined"
-            placeholder="-"
-            size="small"
-            value={xdaiValue}
-            onChange={(e) => set_xdaiValue(e.target.value)}
-            InputProps={{ inputProps: {
-              style: { textAlign: 'right' },
-              min: 0,
-              pattern: '[0-9]*',
-            } }}
-          />
-          <StyledCoinLabel>
-           xDAI
-          </StyledCoinLabel>
-          <StyledGrayButton onClick={setMax_xDAI}>Max</StyledGrayButton>
-        </StyledInputGroup>
-      </StyledForm>
-      {is_xDAI_to_safe_loading && <span>Check your Wallet...</span>}
-    </StepContainer>
+      <StepContainer
+        image={{
+          src: '/assets/funds-to-safe.svg',
+          alt: 'Funds to safe image',
+          height: 134,
+        }}
+        title="MOVE xDai TO SAFE"
+        description="You're about to fund a safe with xDAI."
+        buttons={
+          <ConfirmButton
+            onClick={handleFundxDai}
+            disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0'}
+            pending={is_xDAI_to_safe_loading}
+          >
+            FUND
+          </ConfirmButton>
+        }
+      >
+        <StyledForm>
+          <StyledInstructions>
+            <Text>
+              Move <Lowercase>x</Lowercase>DAI into safe
+            </Text>
+          </StyledInstructions>
+          <StyledInputGroup>
+            <StyledTextField
+              type="number"
+              variant="outlined"
+              placeholder="-"
+              size="small"
+              value={xdaiValue}
+              onChange={(e) => set_xdaiValue(e.target.value)}
+              InputProps={{
+                inputProps: {
+                  style: { textAlign: 'right' },
+                  min: 0,
+                  pattern: '[0-9]*',
+                }
+              }}
+            />
+            <StyledCoinLabel>
+              xDAI
+            </StyledCoinLabel>
+            <StyledGrayButton onClick={setMax_xDAI}>Max</StyledGrayButton>
+          </StyledInputGroup>
+        </StyledForm>
+        {is_xDAI_to_safe_loading && <span>Check your Wallet...</span>}
+      </StepContainer>
     </Section>
   );
 };

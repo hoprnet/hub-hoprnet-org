@@ -75,13 +75,14 @@ const StakewxHOPR = () => {
   }, [is_wxHOPR_to_safe_loading]);
 
   const handleFundwxHopr = () => {
-    write_wxHOPR_to_safe?.({
-      ...wxHOPR_to_safe_config,
-      onSuccess: (res) => {
-        set_transactionHash(res.hash);
-        refetchWXHoprSafeBalance();
-      },
-    });
+    write_wxHOPR_to_safe?.(
+      wxHOPR_to_safe_config!.request,
+      {
+        onSuccess: (res) => {
+          set_transactionHash(res);
+          refetchWXHoprSafeBalance();
+        },
+      });
   };
 
   return (
@@ -122,11 +123,13 @@ const StakewxHOPR = () => {
               size="small"
               value={wxhoprValue}
               onChange={(e) => set_wxhoprValue(e.target.value)}
-              InputProps={{ inputProps: {
-                style: { textAlign: 'right' },
-                min: 0,
-                pattern: '[0-9]*',
-              } }}
+              InputProps={{
+                inputProps: {
+                  style: { textAlign: 'right' },
+                  min: 0,
+                  pattern: '[0-9]*',
+                }
+              }}
             />
             <StyledCoinLabel>wxHOPR</StyledCoinLabel>
             <StyledGrayButton onClick={setMax_wxHOPR}>Max</StyledGrayButton>
