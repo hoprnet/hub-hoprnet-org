@@ -496,6 +496,7 @@ function SafeWithdraw() {
                 pending: isWalletLoading,
                 disabled: !!getErrorsForExecuteButton().length || isWalletLoading,
                 tooltipText: isWalletLoading ? 'Executing transaction' : getErrorsForExecuteButton().at(0),
+                transactionHash
               }}
             />
           </StyledButtonGroup>

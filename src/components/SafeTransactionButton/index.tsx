@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { getUserCanSkipProposal } from '../../utils/safeTransactions';
 import styled from '@emotion/styled';
 import { Tooltip } from '@mui/material';
+import { Address } from 'viem';
+import { useWaitForTransactionReceipt } from 'wagmi';
 
 type SafeButtonProps = {
   // connected safe info that contains threshold
@@ -22,6 +24,7 @@ type SafeButtonProps = {
     disabled?: boolean;
     tooltipText?: string;
     buttonText?: string;
+    transactionHash?: Address;
     onClick: () => void;
   };
 };
@@ -44,13 +47,18 @@ export default function SafeTransactionButton(props: SafeButtonProps) {
     }
   }, [props.safeInfo]);
 
+  let { status } = useWaitForTransactionReceipt({
+    confirmations: 1,
+    hash: props.executeOptions?.transactionHash,
+  });
+
   if (userCanSkipProposal) {
     return (
       <Tooltip title={props.executeOptions.tooltipText}>
         <span>
           <Button
-            pending={!!props.executeOptions?.pending ?? false}
-            disabled={!!props.executeOptions?.disabled ?? false}
+            pending={!!props.executeOptions?.pending || status === "pending"}
+            disabled={!!props.executeOptions?.disabled || status === "pending"}
             onClick={props.executeOptions.onClick}
           >
             {props.executeOptions.buttonText ?? 'EXECUTE'}
@@ -75,8 +83,8 @@ export default function SafeTransactionButton(props: SafeButtonProps) {
       <Tooltip title={props.signOptions.tooltipText}>
         <span>
           <Button
-            pending={!!props.signOptions?.pending ?? false}
-            disabled={!!props.signOptions?.disabled ?? false}
+            pending={!!props.signOptions?.pending}
+            disabled={!!props.signOptions?.disabled}
             onClick={props.signOptions.onClick}
           >
             {props.signOptions.buttonText ?? 'SIGN'}
