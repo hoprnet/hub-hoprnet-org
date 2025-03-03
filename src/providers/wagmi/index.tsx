@@ -34,16 +34,7 @@ export const browserClient = walletIsInBrowser
 
 const config = createConfig({
   //  autoConnect: true, // TODO: TEST OUT AFTER autoConnect was removed from v1 https://wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-suspense-property
-  chains: [gnosis, localhost],
-  connectors: [
-    injected({ target: 'metaMask' }),
-    walletConnect({
-      projectId: VITE_WALLET_CONNECT_PROJECT_ID,
-    }),
-    // add localhost only to injected connector
-    // because wallet connect fails with it
-    injected(),
-  ],
+  chains: [gnosis],
   transports: {
     [gnosis.id]: http(),
   },

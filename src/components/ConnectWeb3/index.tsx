@@ -112,7 +112,7 @@ export default function ConnectWeb3({
     connect,
     error,
     reset,
-    pendingConnector,
+  //  pendingConnector,
   } = useConnect();
   const { connector } = useAccount();
   const { disconnect } = useDisconnect();
@@ -166,9 +166,9 @@ export default function ConnectWeb3({
       }
       // wallet connect modal can
       // cause errors if it is closed without connecting
-      if (pendingConnector?.id === 'walletConnect') {
-        reset()
-      }
+      // if (pendingConnector?.id === 'walletConnect') {
+      //   reset()
+      // }
     } else set_localError(false);
   }, [error]);
 

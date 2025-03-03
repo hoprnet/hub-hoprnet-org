@@ -1,4 +1,5 @@
-import { Address, useWaitForTransactionReceipt } from 'wagmi';
+import { useWaitForTransactionReceipt } from 'wagmi';
+import { Address } from 'viem';
 import { Loading } from './loading';
 import styled from '@emotion/styled';
 

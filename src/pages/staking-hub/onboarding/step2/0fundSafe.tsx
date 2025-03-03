@@ -5,6 +5,7 @@ import {
   useWriteContract,
   useSendTransaction,
   useBlockNumber,
+  useEstimateGas,
   useSimulateContract
 } from 'wagmi';
 import { erc20Abi } from 'viem';
@@ -115,8 +116,8 @@ const FundsToSafe = () => {
     }
   }, [communityNftIdInSafe]);
 
-  const { data: xDAI_to_safe_config } = useSimulateContract({
-    to: selectedSafeAddress ?? undefined,
+  const { data: xDAI_to_safe_config } = useEstimateGas({
+    to: selectedSafeAddress  as `0x{string}` ?? undefined,
     value: parseEther(xdaiValue),
   });
 
@@ -159,13 +160,7 @@ const FundsToSafe = () => {
     isSuccess: is_xDAI_to_safe_success,
     isPending: is_xDAI_to_safe_loading,
     sendTransaction: send_xDAI_to_safe,
-  } = useSendTransaction({
-    ...xDAI_to_safe_config,
-    onSuccess: (result) => {
-      set_transactionHashFundXDai(result.hash);
-      refetchXDaiSafeBalance();
-    },
-  });
+  } = useSendTransaction();
 
   useEffect(() => {
     if (is_xDAI_to_safe_success) {
@@ -174,7 +169,15 @@ const FundsToSafe = () => {
   }, [is_xDAI_to_safe_loading]);
 
   const handleFundxDai = () => {
-    send_xDAI_to_safe?.();
+    send_xDAI_to_safe({
+      gas: xDAI_to_safe_config,
+      to: selectedSafeAddress as `0x${string}`,
+      value: parseEther(xdaiValue),
+      onSuccess: (result) => {
+        set_transactionHashFundXDai(result.hash);
+        refetchXDaiSafeBalance();
+      },
+    });
   };
 
   const handleFundwxHopr = () => {
