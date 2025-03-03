@@ -7,7 +7,12 @@ import { web3Actions } from '../../store/slices/web3';
 
 // wagmi
 import { gnosis, localhost } from 'wagmi/chains';
-import { WagmiProvider, createConfig } from 'wagmi';
+import {
+   WagmiProvider,
+   createConfig,
+   fallback,
+   unstable_connector,
+  } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 //wagmi connectors
@@ -35,8 +40,12 @@ export const browserClient = walletIsInBrowser
 const config = createConfig({
   //  autoConnect: true, // TODO: TEST OUT AFTER autoConnect was removed from v1 https://wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-suspense-property
   chains: [gnosis],
+  connectors: [injected()],
   transports: {
-    [gnosis.id]: http(),
+    [gnosis.id]:// fallback([
+      unstable_connector(injected),
+   //   http('https://rpc.gnosischain.com/')
+   //? ])
   },
 });
 

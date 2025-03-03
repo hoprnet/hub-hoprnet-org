@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, xHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
+import { chainNames } from '../../utils/chainNames';
 
 // wagmi
 import { useBalance, useAccount, useBlockNumber } from 'wagmi';
@@ -29,7 +30,9 @@ export default function WagmiUpdater() {
     connector
   } = useAccount();
 
-  const { chain } = useAccount();
+  const { chainId } = useAccount();
+
+  const chainName : string | null = chainId ? chainNames[chainId] : null;
 
   // **********************
   // Leaving for on-going testing of wagmi losing connection with wallet
@@ -99,11 +102,11 @@ export default function WagmiUpdater() {
   }, [isConnected, addressInStore, address, web3Disconnecting]);
 
   useEffect(() => {
-    if (isConnected && chain) {
-      dispatch(web3Actions.setChain(chain.name));
-      dispatch(web3Actions.setChainId(chain.id));
+    if (isConnected && chainId) {
+      chainName && dispatch(web3Actions.setChain(chainName));
+      dispatch(web3Actions.setChainId(chainId));
     }
-  }, [isConnected, chain]);
+  }, [isConnected, chainName, chainId]);
 
   // Balances
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);

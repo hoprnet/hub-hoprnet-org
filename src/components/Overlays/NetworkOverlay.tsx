@@ -71,7 +71,7 @@ export default function NetworkOverlay() {
   const isConnected = useAppSelector((store) => store.web3.status.connected);
   const loading = useAppSelector((store) => store.web3.status.loading);
 
-  const { chain } = useAccount()
+  const { chain } = useAccount();
 
   const switchChain = async () => {
     if (!window.ethereum) return;
