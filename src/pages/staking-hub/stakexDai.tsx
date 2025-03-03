@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { formatEther, parseEther, parseUnits } from 'viem';
+import { Address, formatEther, parseEther, parseUnits } from 'viem';
 import {
   useBalance,
   useSendTransaction,
@@ -28,13 +28,14 @@ import {
 import { StepContainer, ConfirmButton } from './onboarding/components';
 import styled from '@emotion/styled';
 import Section from '../../future-hopr-lib-components/Section';
+import { FeedbackTransaction } from '../../components/FeedbackTransaction';
 
 const StakexDai = () => {
   const dispatch = useAppDispatch();
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const walletBalance = useAppSelector((store) => store.web3.balance);
   const [xdaiValue, set_xdaiValue] = useState('');
-
+  const [transactionHash, set_transactionHash] = useState<Address>();
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
   const {
@@ -82,7 +83,10 @@ const StakexDai = () => {
         value: parseEther(xdaiValue)
       },
       {
-        onSuccess: () => refetchXDaiSafeBalance(),
+        onSuccess: (result) => {
+          set_transactionHash(result);
+          refetchXDaiSafeBalance();
+        },
       }
     );
   };
@@ -139,7 +143,12 @@ const StakexDai = () => {
             <StyledGrayButton onClick={setMax_xDAI}>Max</StyledGrayButton>
           </StyledInputGroup>
         </StyledForm>
-        {is_xDAI_to_safe_loading && <span>Check your Wallet...</span>}
+        <FeedbackTransaction
+          confirmations={1}
+          isWalletLoading={is_xDAI_to_safe_loading}
+          transactionHash={transactionHash}
+          feedbackTexts={{ loading: 'Please wait while we confirm the transaction...' }}
+        />
       </StepContainer>
     </Section>
   );
