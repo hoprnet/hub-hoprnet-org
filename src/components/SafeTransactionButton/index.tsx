@@ -52,13 +52,15 @@ export default function SafeTransactionButton(props: SafeButtonProps) {
     hash: props.executeOptions?.transactionHash,
   });
 
+  const txInProgress =  props.executeOptions?.transactionHash && status === "pending";
+
   if (userCanSkipProposal) {
     return (
       <Tooltip title={props.executeOptions.tooltipText}>
         <span>
           <Button
-            pending={!!props.executeOptions?.pending || status === "pending"}
-            disabled={!!props.executeOptions?.disabled || status === "pending"}
+            pending={!!props.executeOptions?.pending || txInProgress}
+            disabled={!!props.executeOptions?.disabled || txInProgress}
             onClick={props.executeOptions.onClick}
           >
             {props.executeOptions.buttonText ?? 'EXECUTE'}
