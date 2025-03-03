@@ -32,8 +32,6 @@ export default function WagmiUpdater() {
 
   const { chainId } = useAccount();
 
-  const chainName : string | null = chainId ? chainNames[chainId] : null;
-
   // **********************
   // Leaving for on-going testing of wagmi losing connection with wallet
   useEffect(() => {
@@ -102,11 +100,11 @@ export default function WagmiUpdater() {
   }, [isConnected, addressInStore, address, web3Disconnecting]);
 
   useEffect(() => {
-    if (isConnected && chainId) {
-      chainName && dispatch(web3Actions.setChain(chainName));
-      dispatch(web3Actions.setChainId(chainId));
-    }
-  }, [isConnected, chainName, chainId]);
+    if (!isConnected || !chainId) return;
+    dispatch(web3Actions.setChainId(chainId));
+    const chainName : string | null = chainId ? chainNames[chainId] : null;
+    chainName && dispatch(web3Actions.setChain(chainName));
+  }, [isConnected, address, chainId]);
 
   // Balances
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
