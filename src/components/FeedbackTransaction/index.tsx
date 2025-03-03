@@ -56,6 +56,7 @@ export const FeedbackTransaction = ({
 
   return (
     <TransactionFeedbackText
+      transactionHash={transactionHash}
       status={status}
       feedbackTexts={feedbackTexts}
     />
@@ -75,9 +76,11 @@ const WalletFeedback = () => {
 
 const TransactionFeedbackText = ({
   status,
+  transactionHash,
   feedbackTexts,
 }: {
-  status: 'error' | 'success' | 'idle' | 'pending';
+  status: 'error' | 'success' | 'pending';
+  transactionHash?: Address;
   feedbackTexts: {
     loading: string;
     idle?: string;
@@ -85,7 +88,7 @@ const TransactionFeedbackText = ({
     error?: string;
   };
 }) => {
-  if (status === 'pending') {
+  if (status === 'pending' && transactionHash) {
     return (
       <FeedbackContainer>
         <FeedbackLoading>
