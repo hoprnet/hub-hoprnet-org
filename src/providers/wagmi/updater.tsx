@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, xHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
-import { chainNames } from '../../utils/chainNames';
+import { getChainName } from '../../utils/getChainName';
 
 // wagmi
 import { useBalance, useAccount, useBlockNumber } from 'wagmi';
@@ -102,7 +102,7 @@ export default function WagmiUpdater() {
   useEffect(() => {
     if (!isConnected || !chainId) return;
     dispatch(web3Actions.setChainId(chainId));
-    const chainName : string | null = chainId ? chainNames[chainId] : null;
+    const chainName : string | null = getChainName(chainId);
     chainName && dispatch(web3Actions.setChain(chainName));
   }, [isConnected, address, chainId]);
 

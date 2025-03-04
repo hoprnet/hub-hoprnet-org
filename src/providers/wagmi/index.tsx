@@ -42,10 +42,13 @@ const config = createConfig({
   chains: [gnosis],
   connectors: [injected()],
   transports: {
-    [gnosis.id]:// fallback([
+    [gnosis.id]: fallback([
       unstable_connector(injected),
-   //   http('https://rpc.gnosischain.com/')
-   //? ])
+      http('https://rpc.gnosischain.com/')
+    ], {
+      rank: false,
+      retryCount: 3,
+    })
   },
 });
 

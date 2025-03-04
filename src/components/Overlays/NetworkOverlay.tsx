@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { useAccount, useSwitchChain } from 'wagmi'
-import { getNetworkName } from '../../utils/getNetworkName';
+import { getChainName } from '../../utils/getChainName';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -68,10 +68,9 @@ const css = `
 export default function NetworkOverlay() {
   const dispatch = useAppDispatch();
   const chainId = useAppSelector((store) => store.web3.chainId);
+  const chainName = useAppSelector((store) => store.web3.chain);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
   const loading = useAppSelector((store) => store.web3.status.loading);
-
-  const { chain } = useAccount();
 
   const switchChain = async () => {
     if (!window.ethereum) return;
@@ -140,7 +139,7 @@ export default function NetworkOverlay() {
         className={'OverlayWrongNetwork'}
       >
         <style>{css}</style>
-        {chain && <div>You are connected to {getNetworkName(chainId)}</div>}
+        <div>You are connected to {chainName}</div>
         <div>Staking Hub is designed to work on <span className='bold'>GNOSIS Chain</span></div>
         <Button
           onClick={switchChain}

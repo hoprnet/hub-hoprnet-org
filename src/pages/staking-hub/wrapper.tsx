@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { useWriteContract, useSimulateContract, useWaitForTransactionReceipt } from 'wagmi';
+import {
+  useReadContract,
+  useWriteContract,
+  useSimulateContract,
+  useWaitForTransactionReceipt
+} from 'wagmi';
+import { multicall } from '@wagmi/core'
 import { parseUnits, parseEther } from 'viem';
-import { xHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS } from '../../../config'
+import {
+  xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+  wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+  wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS,
+  ERC1820_REGISTRY
+} from '../../../config'
 
 // Redux
 import { useAppSelector } from '../../store';
@@ -156,6 +167,7 @@ function WrapperPage() {
   const [wxhoprValue, set_wxhoprValue] = useState('');
   const [showTxInfo, set_showTxInfo] = useState(false);
   const [notEnoughBalance, set_notEnoughBalance] = useState(false);
+  const [handlerIsSet, set_handlerIsSet] = useState<boolean>();
   const [swapDirection, set_swapDirection] = useState<'xHOPR_to_wxHOPR' | 'wxHOPR_to_xHOPR'>('xHOPR_to_wxHOPR');
   const address = useAppSelector((store) => store.web3.account);
   const walletBalance = useAppSelector((store) => store.web3.balance);
@@ -184,7 +196,32 @@ function WrapperPage() {
 
   }, [swapDirection, xhoprValue, wxhoprValue, walletBalance.xHopr.value, walletBalance.xHopr.value]);
 
+  const { data: handlerData } = useReadContract({
+    address: ERC1820_REGISTRY,
+    abi: [
+      {"constant":true,"inputs":[{"name":"_addr","type":"address"},{"name":"_interfaceHash","type":"bytes32"}],"name":"getInterfaceImplementer","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}
+    ],
+    functionName: 'getInterfaceImplementer',
+    args: [
+      address as `0x${string}`,
+      '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b'
+    ],
+  });
+
+  useEffect(() => {
+    if(handlerData === `0x0000000000000000000000000000000000000000`) set_handlerIsSet(true);
+  }, [handlerData]);
+
   // Prepare contract write configurations
+  // wxHOPR -> xHOPR
+  const { data: wxHOPR_to_xHOPR_config, refetch: refecth2 } = useSimulateContract({
+    address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+    abi: web3.wrapperABI,
+    functionName: 'transfer',
+    args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(wxhoprValue as NumberLiteral, 18)],
+  });
+
+  // xHOPR -> wxHOPR if handlerData set
   const { data: xHOPR_to_wxHOPR_config, refetch: refecth1 } = useSimulateContract({
     address: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     abi: web3.wrapperABI,
@@ -192,12 +229,16 @@ function WrapperPage() {
     args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(xhoprValue as NumberLiteral, 18), '0x'],
   });
 
-  const { data: wxHOPR_to_xHOPR_config, refetch: refecth2 } = useSimulateContract({
-    address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+  // xHOPR -> wxHOPR multicall if handlerData not set
+  const wagmigotchiContract = {
+    address: ERC1820_REGISTRY,
+    abi: [{"constant":false,"inputs":[{"name":"_addr","type":"address"},{"name":"_interfaceHash","type":"bytes32"},{"name":"_implementer","type":"address"}],"name":"setInterfaceImplementer","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}],
+  } as const
+  const mlootContract = {
+    address: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     abi: web3.wrapperABI,
-    functionName: 'transfer',
-    args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(wxhoprValue as NumberLiteral, 18)],
-  });
+  } as const
+
 
   // Perform contract writes and retrieve data.
   const {
