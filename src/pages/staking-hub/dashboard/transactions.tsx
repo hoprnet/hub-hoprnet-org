@@ -31,7 +31,7 @@ import Button from '../../../future-hopr-lib-components/Button';
 // LIBS
 import styled from '@emotion/styled';
 import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
-import { erc20ABI } from 'wagmi';
+import { erc20Abi } from 'viem';
 
 // HOOKS
 import { ethers } from 'ethers';
@@ -452,7 +452,7 @@ const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisi
       const decodedData = decodeFunctionData({
         data: transaction.data as Address,
         // assuming it is a erc20 token because we want to get the value
-        abi: erc20ABI,
+        abi: erc20Abi,
       });
 
       const value = getValueFromERC20Functions(decodedData);
@@ -467,7 +467,7 @@ const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisi
   };
 
   const getValueFromERC20Functions = (
-    decodedData: ReturnType<typeof decodeFunctionData<typeof erc20ABI>>,
+    decodedData: ReturnType<typeof decodeFunctionData<typeof erc20Abi>>,
   ): string | null => {
     if (decodedData.functionName === 'transfer') {
       return formatEther(decodedData.args[1]);

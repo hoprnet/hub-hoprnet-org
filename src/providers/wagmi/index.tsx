@@ -6,34 +6,28 @@ import { useAppDispatch } from '../../store';
 import { web3Actions } from '../../store/slices/web3';
 
 // wagmi
-import { gnosis, localhost } from '@wagmi/core/chains';
-import { WagmiConfig, configureChains, createConfig } from 'wagmi';
-import { publicProvider } from 'wagmi/providers/public';
+import { gnosis, localhost } from 'wagmi/chains';
+import {
+   WagmiProvider,
+   createConfig,
+   fallback,
+   unstable_connector,
+  } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 //wagmi connectors
 import { createWalletClient, custom, publicActions } from 'viem';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { InjectedConnector } from 'wagmi/connectors/injected';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import {
+  injected,
+  walletConnect
+} from 'wagmi/connectors'
 import { VITE_WALLET_CONNECT_PROJECT_ID } from '../../../config';
+import { http } from 'wagmi'
 
 // No way to tell what the ethereum request can be so has to be any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EthereumProvider = { request(...args: any): Promise<any> };
 type WindowWithEthereum = { ethereum: EthereumProvider };
-
-const {
-  chains,
-  publicClient,
-} = configureChains(
-  [gnosis],
-  [publicProvider()],
-  {
-    pollingInterval: 30_000,
-    stallTimeout: 5_000,
-    rank: true,
-  },
-);
 
 const walletIsInBrowser =
   typeof window !== 'undefined' && typeof (window as unknown as WindowWithEthereum).ethereum !== 'undefined';
@@ -46,33 +40,28 @@ export const browserClient = walletIsInBrowser
   : null;
 
 const config = createConfig({
-  autoConnect: true,
+  //  autoConnect: true, // TODO: TEST OUT AFTER autoConnect was removed from v1 https://wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-suspense-property
+  chains: [gnosis],
   connectors: [
-    new MetaMaskConnector({ chains }),
-    new WalletConnectConnector({
-      chains,
-      options: { projectId: VITE_WALLET_CONNECT_PROJECT_ID },
+    injected(),
+    walletConnect({
+      projectId: VITE_WALLET_CONNECT_PROJECT_ID,
     }),
-    // add localhost only to injected connector
-    // because wallet connect fails with it
-    new InjectedConnector({ chains: [localhost, ...chains] }),
   ],
-
-  publicClient: (chain) => {
-    // this means even if connected through wallet connect
-    // the requests will go through the wallet client
-    if (walletIsInBrowser) {
-      // enforce this type because
-      // it is checked before
-      return browserClient!;
-    }
-
-    // no ethereum found in window
-    return publicClient(chain);
+  transports: {
+    [gnosis.id]: fallback([
+      unstable_connector(injected),
+      http('https://rpc.gnosischain.com/')
+    ], {
+      rank: false,
+      retryCount: 3,
+    })
   },
 });
 
-export default function WagmiProvider(props: React.PropsWithChildren) {
+const queryClient = new QueryClient();
+
+export default function WagmiProviderContainer(props: React.PropsWithChildren) {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -80,9 +69,11 @@ export default function WagmiProvider(props: React.PropsWithChildren) {
   }, [walletIsInBrowser]);
 
   return (
-    <WagmiConfig config={config}>
-      {props.children}
-      <Updater />
-    </WagmiConfig>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        {props.children}
+        <Updater />
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }

@@ -73,16 +73,16 @@ const SafeAddress = styled.div`
   text-transform: none;
 `;
 
-function handleSaveSelectedSafeInLocalStorage (safeObject: {safeAddress?: string | null, moduleAddress?: string | null}, owner?: string | null) {
+function handleSaveSelectedSafeInLocalStorage(safeObject: { safeAddress?: string | null, moduleAddress?: string | null }, owner?: string | null) {
   const safeAddress = safeObject.safeAddress;
   const moduleAddress = safeObject.moduleAddress;
-  if(safeAddress && moduleAddress && owner){
+  if (safeAddress && moduleAddress && owner) {
     let json = loadStateFromLocalStorage(`staking-hub-chosen-safe`);
-    if(json) {
+    if (json) {
       // @ts-ignore
       json[owner] = safeObject;
     } else {
-      json = {[owner]: safeObject}
+      json = { [owner]: safeObject }
     }
     saveStateToLocalStorage(`staking-hub-chosen-safe`, json)
   }
@@ -129,8 +129,8 @@ export default function ConnectSafe() {
 
   // If no selected safeAddress, choose 1st one
   useEffect(() => {
-    console.log({safeFromUrl, moduleFromUrl})
-    if(safeFromUrl && moduleFromUrl && !safeAddress) {
+    console.log({ safeFromUrl, moduleFromUrl })
+    if (safeFromUrl && moduleFromUrl && !safeAddress) {
       console.log('useSelectedSafe from url', safeFromUrl, moduleFromUrl)
       useSelectedSafe({
         safeAddress: getAddress(safeFromUrl),
@@ -138,17 +138,17 @@ export default function ConnectSafe() {
       });
     }
     else if (safes.length > 0 && !safeAddress && signer && ownerAddress) {
-      try{
+      try {
         //@ts-ignore
-        let localStorage: {[key: string]:{safeAddress: string, moduleAddress: string}} = loadStateFromLocalStorage(`staking-hub-chosen-safe`);
-        if(localStorage && localStorage[ownerAddress] && safes.filter(safe=>safe?.safeAddress === localStorage[ownerAddress]?.safeAddress).length > 0){
+        let localStorage: { [key: string]: { safeAddress: string, moduleAddress: string } } = loadStateFromLocalStorage(`staking-hub-chosen-safe`);
+        if (localStorage && localStorage[ownerAddress] && safes.filter(safe => safe?.safeAddress === localStorage[ownerAddress]?.safeAddress).length > 0) {
           useSelectedSafe(localStorage[ownerAddress]);
           console.log('useSelectedSafe from ls', localStorage[ownerAddress])
         } else {
           useSelectedSafe(safes[0]);
           console.log('useSelectedSafe [0]', safes[0])
         }
-      } catch(e){}
+      } catch (e) { }
     }
   }, [safes, safeAddress, signer, ownerAddress, safeFromUrl, moduleFromUrl]);
 
@@ -165,8 +165,8 @@ export default function ConnectSafe() {
     }
   }, [selectedSafe, browserClient]);
 
-  const useSelectedSafe = async (safeObject: {safeAddress?: string | null, moduleAddress?: string| null}) => {
-    if(!safeObject.safeAddress || !safeObject.moduleAddress) return;
+  const useSelectedSafe = async (safeObject: { safeAddress?: string | null, moduleAddress?: string | null }) => {
+    if (!safeObject.safeAddress || !safeObject.moduleAddress) return;
     console.log('useSelectedSafe in', safeObject, signer)
     const safeAddress = safeObject.safeAddress;
     const moduleAddress = safeObject.moduleAddress;
@@ -235,13 +235,14 @@ export default function ConnectSafe() {
     }
   };
 
+  const multipleSafes = safes.length > 1;
+
   return (
     <AppBarContainer
       onClick={handleSafeButtonClick}
       ref={menuRef}
-      disabled={!isConnected}
-      className={`safe-connect-btn ${safeAddress ? 'safe-connected' : 'safe-not-connected'} ${safes.length > 1 ? 'display' : 'display-none'
-        }`}
+      disabled={!isConnected || !multipleSafes}
+      className={`safe-connect-btn ${safeAddress ? 'safe-connected' : 'safe-not-connected'} display`}
     >
       <div className="image-container">
         <img
@@ -252,42 +253,45 @@ export default function ConnectSafe() {
       {isConnected ? (
         <>
           <SafeAddress>
-            {truncateEthereumAddress(safeAddress || '...') || '...'} <DropdownArrow src="/assets/dropdown-arrow.svg" />
+            {truncateEthereumAddress(safeAddress || '...') || '...'}  { multipleSafes && <DropdownArrow src="/assets/dropdown-arrow.svg" />}
           </SafeAddress>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleCloseMenu}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
-            }}
-            MenuListProps={{
-              'aria-labelledby': 'safe-menu-button',
-              className: 'safe-menu-list',
-            }}
-            disableScrollLock={true}
-          >
-            {safes.map((safe, index) => (
-              <MenuItem
-                key={`${safe.safeAddress}_${index}`}
-                className={`${safe.safeAddress === safeAddress ? 'selected-safe' : ''}`}
-                value={safe.safeAddress}
-                onClick={() => {
-                  useSelectedSafe(safe);
-                }}
-              >
+          {
+            multipleSafes &&
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleCloseMenu}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              MenuListProps={{
+                'aria-labelledby': 'safe-menu-button',
+                className: 'safe-menu-list',
+              }}
+              disableScrollLock={true}
+            >
+              {safes.map((safe, index) => (
+                <MenuItem
+                  key={`${safe.safeAddress}_${index}`}
+                  className={`${safe.safeAddress === safeAddress ? 'selected-safe' : ''}`}
+                  value={safe.safeAddress}
+                  onClick={() => {
+                    useSelectedSafe(safe);
+                  }}
+                >
                   0x{`${safe.safeAddress.substring(2, 6)}...${safe.safeAddress.substring(
                     safe.safeAddress.length - 8,
                     safe.safeAddress.length
                   )}`.toUpperCase()}
-              </MenuItem>
-            ))}
-          </Menu>
+                </MenuItem>
+              ))}
+            </Menu>
+          }
         </>
       ) : (
         <DisabledButton>Connect Wallet</DisabledButton>

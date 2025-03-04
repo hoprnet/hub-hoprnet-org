@@ -45,7 +45,7 @@ export default function Button(props: ButtonProps) {
     >
       <img src={props.src ? props.src : src()} />
       {props.wallet === 'viewMode' && <Typography>View mode</Typography>}
-      {props.wallet === 'injected' && <Typography>Injected</Typography>}
+      {props.wallet === 'injected' && <Typography>BROWSER WALLET</Typography>}
     </SButton>
   );
 }

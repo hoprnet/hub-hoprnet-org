@@ -7,7 +7,7 @@ import {
 } from '@safe-global/api-kit';
 import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
 import { Address, decodeFunctionData, formatEther, formatUnits } from 'viem';
-import { erc20ABI, erc4626ABI, erc721ABI } from 'wagmi';
+import { erc20Abi, erc4626Abi, erc721Abi } from 'viem';
 import { truncateEthereumAddress } from './blockchain';
 import { web3 } from '@hoprnet/hopr-sdk';
 
@@ -22,7 +22,7 @@ export const getRequestOfPendingTransaction = (transaction: SafeMultisigTransact
       const decodedData = decodeFunctionData({
         data: transaction.data as Address,
         // could be any sc so not sure on the abi
-        abi: [...erc20ABI, ...erc4626ABI, ...erc721ABI, ...web3.hoprSafeABI],
+        abi: [...erc20Abi, ...erc4626Abi, ...erc721Abi, ...web3.hoprSafeABI],
       });
       return decodedData.functionName;
     } catch (e) {
@@ -170,7 +170,7 @@ const getRequestFromHistoryMultisigTransaction = (transaction: SafeMultisigTrans
       const decodedData = decodeFunctionData({
         data: transaction.data as Address,
         // could be any sc so not sure on the abi
-        abi: [...erc20ABI, ...erc4626ABI, ...erc721ABI, ...web3.hoprSafeABI],
+        abi: [...erc20Abi, ...erc4626Abi, ...erc721Abi, ...web3.hoprSafeABI],
       });
       return decodedData.functionName;
     } catch (e) {
