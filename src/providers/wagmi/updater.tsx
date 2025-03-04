@@ -148,6 +148,8 @@ export default function WagmiUpdater() {
     refetch_safe_wxHopr_balance();
     refetch_safe_xHopr_balance();
     refetch_nodeLinkedToSafe_xDai_balance();
+    // TODO : fix block not updatating
+    console.log(blockNumber)
   }, [blockNumber]);
 
   useEffect(() => {

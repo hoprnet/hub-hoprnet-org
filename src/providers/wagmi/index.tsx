@@ -17,8 +17,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 //wagmi connectors
 import { createWalletClient, custom, publicActions } from 'viem';
-import { injected } from 'wagmi/connectors'
-import { walletConnect } from 'wagmi/connectors'
+import {
+  injected,
+  walletConnect
+} from 'wagmi/connectors'
 import { VITE_WALLET_CONNECT_PROJECT_ID } from '../../../config';
 import { http } from 'wagmi'
 
@@ -40,7 +42,12 @@ export const browserClient = walletIsInBrowser
 const config = createConfig({
   //  autoConnect: true, // TODO: TEST OUT AFTER autoConnect was removed from v1 https://wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-suspense-property
   chains: [gnosis],
-  connectors: [injected()],
+  connectors: [
+    injected(),
+    walletConnect({
+      projectId: VITE_WALLET_CONNECT_PROJECT_ID,
+    }),
+  ],
   transports: {
     [gnosis.id]: fallback([
       unstable_connector(injected),
