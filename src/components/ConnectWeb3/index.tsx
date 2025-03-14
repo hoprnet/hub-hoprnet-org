@@ -278,12 +278,14 @@ export default function ConnectWeb3({
           <ConnectWalletContent>
             {connectors.map((connector) => (
               <WalletButton
-                key={connector.id}
+                key={connector.uid}
+                connector={connector}
                 disabled={!connector.ready}
                 onClick={() => {
                   handleConnectToWallet(connector);
                 }}
                 wallet={connector.id}
+                walletName={connector.name}
               />
             ))}
             <p>
