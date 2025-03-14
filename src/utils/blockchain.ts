@@ -1,5 +1,5 @@
 import { Address, encodeFunctionData, encodePacked, getAddress } from 'viem';
-import { erc20ABI } from 'wagmi';
+import { erc20Abi } from 'viem';
 import { web3 } from '@hoprnet/hopr-sdk';
 
 // Maximum possible value for uint256
@@ -7,7 +7,7 @@ export const MAX_UINT256 = BigInt(2 ** 256) - BigInt(1);
 
 export const createApproveTransactionData = (spender: Address, value: bigint) => {
   const approveData = encodeFunctionData({
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: 'approve',
     args: [spender, value],
   });
@@ -27,7 +27,7 @@ export function truncateEthereumAddress(address: string) {
 
 export const createSendTokensTransactionData = (recipient: Address, amount: bigint) => {
   const transferData = encodeFunctionData({
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: 'transfer',
     args: [recipient, amount],
   });

@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
-import WagmiProvider from './providers/wagmi';
+import WagmiProviderContainer from './providers/wagmi';
 import router from './router';
 import store from './store';
 import { ToastContainer } from 'react-toastify';
@@ -31,7 +31,7 @@ function App() {
 
   return (
     <Provider store={store}>
-      <WagmiProvider>
+      <WagmiProviderContainer>
         <ThemeProvider theme={theme}>
           <ToastContainer
             position="bottom-right"
@@ -40,7 +40,7 @@ function App() {
           <RouterProvider router={router} />
           <VersionComponent>Version: {packageJson.version}</VersionComponent>
         </ThemeProvider>
-      </WagmiProvider>
+      </WagmiProviderContainer>
     </Provider>
   );
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import MuiButton from '@mui/material/Button';
 import Typography from '../Typography';
+import { Connector } from 'wagmi'
 
 const SButton = styled(MuiButton)`
   width: 100%;
@@ -18,8 +19,10 @@ const SButton = styled(MuiButton)`
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   React.PropsWithChildren & {
     wallet?: string;
+    walletName?: string;
     className?: string;
     src?: string;
+    connector: Connector
   };
 
 export default function Button(props: ButtonProps) {
@@ -45,7 +48,7 @@ export default function Button(props: ButtonProps) {
     >
       <img src={props.src ? props.src : src()} />
       {props.wallet === 'viewMode' && <Typography>View mode</Typography>}
-      {props.wallet === 'injected' && <Typography>Injected</Typography>}
+      {props.wallet === 'injected' && <Typography>BROWSER WALLET</Typography>}
     </SButton>
   );
 }

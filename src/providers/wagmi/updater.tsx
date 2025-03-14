@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, xHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
+import { getChainName } from '../../utils/getChainName';
 
 // wagmi
-import { useAccount, useBalance, useNetwork } from 'wagmi';
+import { useBalance, useAccount, useBlockNumber } from 'wagmi';
 import { watchAccount } from '@wagmi/core'
 import { useEthersSigner } from '../../hooks';
 
@@ -29,7 +30,7 @@ export default function WagmiUpdater() {
     connector
   } = useAccount();
 
-  const { chain } = useNetwork();
+  const { chainId } = useAccount();
 
   // **********************
   // Leaving for on-going testing of wagmi losing connection with wallet
@@ -99,50 +100,55 @@ export default function WagmiUpdater() {
   }, [isConnected, addressInStore, address, web3Disconnecting]);
 
   useEffect(() => {
-    if (isConnected && chain) {
-      dispatch(web3Actions.setChain(chain.name));
-      dispatch(web3Actions.setChainId(chain.id));
-    }
-  }, [isConnected, chain]);
+    if (!isConnected || !chainId) return;
+    dispatch(web3Actions.setChainId(chainId));
+    const chainName : string | null = getChainName(chainId);
+    chainName && dispatch(web3Actions.setChain(chainName));
+  }, [isConnected, address, chainId]);
 
   // Balances
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const account = useAppSelector((store) => store.web3.account) as `0x${string}`;
 
-  const { data: xDAI_balance } = useBalance({
+  const { data: xDAI_balance, refetch: refetch_xDAI_balance } = useBalance({
     address: account,
-    watch: true,
   });
-  const { data: wxHopr_balance } = useBalance({
+  const { data: wxHopr_balance, refetch: refetch_wxHopr_balance } = useBalance({
     address: account,
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    watch: true,
   });
-  const { data: xHopr_balance } = useBalance({
+  const { data: xHopr_balance, refetch: refetch_xHopr_balance } = useBalance({
     address: account,
     token: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    watch: true,
   });
 
-  const safe_xDAI_balance = useBalance({
+  const { data: safe_xDAI_balance, refetch: refetch_safe_xDAI_balance } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
-    watch: true,
-  }).data;
-  const safe_wxHopr_balance = useBalance({
+  });
+  const { data: safe_wxHopr_balance, refetch: refetch_safe_wxHopr_balance } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    watch: true,
-  }).data;
-  const safe_xHopr_balance = useBalance({
+  });
+  const { data: safe_xHopr_balance, refetch: refetch_safe_xHopr_balance } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     token: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    watch: true,
-  }).data;
+  });
 
-  const nodeLinkedToSafe_xDai_balance = useBalance({
+  const { data: nodeLinkedToSafe_xDai_balance, refetch: refetch_nodeLinkedToSafe_xDai_balance } = useBalance({
     address: nodeHoprAddress as `0x${string}`,
-    watch: true,
-  }).data;
+  });
+
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+
+  useEffect(() => {
+    refetch_xDAI_balance();
+    refetch_wxHopr_balance();
+    refetch_xHopr_balance();
+    refetch_safe_xDAI_balance();
+    refetch_safe_wxHopr_balance();
+    refetch_safe_xHopr_balance();
+    refetch_nodeLinkedToSafe_xDai_balance();
+  }, [blockNumber]);
 
   useEffect(() => {
     if (xDAI_balance)
