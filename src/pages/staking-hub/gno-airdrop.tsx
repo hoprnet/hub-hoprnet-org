@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 import { erc20ABI, useContractRead, useWalletClient } from 'wagmi';
 import { parseUnits } from 'viem';
-import { WEB_API } from '../../../config'
+import { WEBAPI_URL } from '../../../config'
 import { GNOeligible } from '../../utils/gno-airdrop';
 import { truncateEthereumAddress } from '../../utils/blockchain';
 
@@ -133,7 +133,7 @@ function WrapperPage() {
       // @ts-ignore
       const signature = await walletClient.signTypedData(payload)
 
-      const rez = await fetch(`${WEB_API}/hub/gno-airdrop`, {
+      const rez = await fetch(`${WEBAPI_URL}/hub/gno-airdrop`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
