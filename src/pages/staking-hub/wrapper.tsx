@@ -6,7 +6,7 @@ import {
   useSimulateContract,
   useWaitForTransactionReceipt
 } from 'wagmi';
-import { parseUnits, parseEther, toHex } from 'viem';
+import { parseUnits, parseEther, toHex, parseTransaction } from 'viem';
 import {
   xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
   wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
@@ -14,10 +14,12 @@ import {
   MULTISEND_CONTRACT_GNOSIS,
   ERC1820_REGISTRY
 } from '../../../config';
-import { MultiSendAbi } from '../../utils/MultiSendAbi';
-import { SafeProxyAbi } from '../../utils/SafeProxyAbi';
-import { parseTransaction } from 'viem'
 
+// Abis
+import { MultiSendAbi } from '../../utils/abis/MultiSendAbi';
+import { SafeProxyAbi } from '../../utils/abis/SafeProxyAbi';
+import { ERC1820RegistryAbi } from '../../utils/abis/ERC1820RegistryAbi';
+import { hoprSafeABI } from '@hoprnet/hopr-sdk/dist/ethereum/stakingV2/hoprSafeABI';
 
 // Redux
 import { useAppSelector } from '../../store';
@@ -26,17 +28,8 @@ import { useAppSelector } from '../../store';
 import Button from '../../future-hopr-lib-components/Button';
 import Section from '../../future-hopr-lib-components/Section';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
-
-import { ConfirmButton, StepContainer } from './onboarding/components';
-import {
-  Lowercase,
-  StyledCoinLabel,
-  StyledForm,
-  StyledGrayButton,
-  StyledInputGroup,
-  StyledInstructions,
-  Text
-} from './onboarding/styled';
+import { StepContainer } from './onboarding/components';
+import AddAddressToERC1820RegistryModal from '../../components/Modal/staking-hub/AddAddressToERC1820RegistryModal';
 
 // Mui
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -49,7 +42,7 @@ import {
   InputAdornment,
   Button as MuiButton
 } from '@mui/material'
-import { hoprSafeABI } from '@hoprnet/hopr-sdk/dist/ethereum/stakingV2/hoprSafeABI';
+
 
 const StyledPaper = styled(Paper)`
   padding: 2rem;
@@ -172,7 +165,8 @@ function WrapperPage() {
   const [wxhoprValue, set_wxhoprValue] = useState('');
   const [showTxInfo, set_showTxInfo] = useState(false);
   const [notEnoughBalance, set_notEnoughBalance] = useState(false);
-  const [handlerIsSet, set_handlerIsSet] = useState<boolean>();
+  const [handlerIsSet, set_handlerIsSet] = useState<boolean>(true);
+  const [AddAddressToERC1820RegistryModalOpen, set_AddAddressToERC1820RegistryModalOpen] = useState<boolean>(false);
   const [swapDirection, set_swapDirection] = useState<'xHOPR_to_wxHOPR' | 'wxHOPR_to_xHOPR'>('xHOPR_to_wxHOPR');
   const address = useAppSelector((store) => store.web3.account);
   const walletBalance = useAppSelector((store) => store.web3.balance);
@@ -180,7 +174,7 @@ function WrapperPage() {
   useEffect(() => {
     refetch1();
     refetch2();
-    refetch3();
+    refetchHandler();
   }, [address]);
 
   useEffect(() => {
@@ -188,24 +182,24 @@ function WrapperPage() {
   }, [xhoprValue, wxhoprValue]);
 
   useEffect(() => {
-    if(!walletBalance.xHopr.value || !walletBalance.wxHopr.value) return;
+    if (!walletBalance.xHopr.value || !walletBalance.wxHopr.value) return;
 
     const xhoprEther = parseEther(xhoprValue);
     const wxhoprEther = parseEther(wxhoprValue);
     const xhoprWalletEther = BigInt(walletBalance.xHopr.value);
     const wxhoprWalletEther = BigInt(walletBalance.wxHopr.value);
 
-    if(swapDirection === 'xHOPR_to_wxHOPR' && xhoprEther > xhoprWalletEther) set_notEnoughBalance(true)
+    if (swapDirection === 'xHOPR_to_wxHOPR' && xhoprEther > xhoprWalletEther) set_notEnoughBalance(true)
     else if (swapDirection === 'xHOPR_to_wxHOPR') set_notEnoughBalance(false)
     else if (swapDirection === 'wxHOPR_to_xHOPR' && wxhoprEther > wxhoprWalletEther) set_notEnoughBalance(true)
     else if (swapDirection === 'wxHOPR_to_xHOPR') set_notEnoughBalance(false)
 
   }, [swapDirection, xhoprValue, wxhoprValue, walletBalance.xHopr.value, walletBalance.xHopr.value]);
 
-  const { data: handlerData } = useReadContract({
+  const { data: handlerData, refetch: refetchHandler } = useReadContract({
     address: ERC1820_REGISTRY,
     abi: [
-      {"constant":true,"inputs":[{"name":"_addr","type":"address"},{"name":"_interfaceHash","type":"bytes32"}],"name":"getInterfaceImplementer","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}
+      { "constant": true, "inputs": [{ "name": "_addr", "type": "address" }, { "name": "_interfaceHash", "type": "bytes32" }], "name": "getInterfaceImplementer", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }
     ],
     functionName: 'getInterfaceImplementer',
     args: [
@@ -215,11 +209,12 @@ function WrapperPage() {
   });
 
   useEffect(() => {
-    if(handlerData === `0x0000000000000000000000000000000000000000`) set_handlerIsSet(true);
+    if (handlerData === `0x0000000000000000000000000000000000000000`) set_handlerIsSet(false);
+    console.log('handlerData', handlerData)
   }, [handlerData]);
 
   // Prepare contract write configurations
-  // wxHOPR -> xHOPR
+  // TX: wxHOPR -> xHOPR
   const { data: wxHOPR_to_xHOPR_config, refetch: refetch2 } = useSimulateContract({
     address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     abi: web3.wrapperABI,
@@ -227,121 +222,45 @@ function WrapperPage() {
     args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(wxhoprValue as NumberLiteral, 18)],
   });
 
-  // xHOPR -> wxHOPR if handlerData set
-  const { data: xHOPR_to_wxHOPR_config, refetch: refetch1 } = useSimulateContract({
+  // TX: xHOPR -> wxHOPR if handlerData set
+  const { data: xHOPR_to_wxHOPR_config, refetch: refetch1, failureReason } = useSimulateContract({
     address: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     abi: web3.wrapperABI,
     functionName: 'transferAndCall',
-    args: [address, parseUnits(xhoprValue as NumberLiteral, 18), '0x'],
+    args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(xhoprValue as NumberLiteral, 18), '0x'],
   });
 
+  /**  TODO: make it work at some point, probably signature issue
   // xHOPR -> wxHOPR multicall if handlerData not set
-  const addressWithout0x = address?.replace('0x','').toLocaleLowerCase() || '';
+
+  const addressWithout0x = address?.replace('0x', '').toLocaleLowerCase() || '';
   const setInterfaceImplementer = `29965a1d000000000000000000000000${addressWithout0x}b281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b000000000000000000000000e530e2f9decf24d7d42f011f54f1e9f8001e7619`;
 
-  const wrapHex = toHex(parseUnits(xhoprValue as NumberLiteral, 18)).replace('0x','');
-  const wrapHexWithZeros = '00000000000000000000000000000000000000000000000000000000000000000'.substring(0,64-wrapHex.length) + wrapHex;
-  const wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESSWithout0x = wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS?.replace('0x','').toLocaleLowerCase() || '';
+  const wrapHex = toHex(parseUnits(xhoprValue as NumberLiteral, 18)).replace('0x', '');
+  const wrapHexWithZeros = '00000000000000000000000000000000000000000000000000000000000000000'.substring(0, 64 - wrapHex.length) + wrapHex;
+  const wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESSWithout0x = wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS?.replace('0x', '').toLocaleLowerCase() || '';
   const xHOPR_to_wxHOPR = `4000aea0000000000000000000000000${wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESSWithout0x}${wrapHexWithZeros}00000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000`;
-
-  //const multiSendTx: `0x${string}`= `0x8d80ff0a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000192001820a4b7618bde71dce8cdc73aab6c95905fad2400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064${setInterfaceImplementer}00d057604a14982fe8d88c5fc25aac3267ea142a0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000084${xHOPR_to_wxHOPR}`;
-
-  const multiSendTx: `0x${string}`= `0x8d80ff0a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000192001820a4b7618bde71dce8cdc73aab6c95905fad240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006429965a1d00000000000000000000000044a5ece3f052c4e54ba3f05980899df0e6bb3798b281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b000000000000000000000000e530e2f9decf24d7d42f011f54f1e9f8001e761900d057604a14982fe8d88c5fc25aac3267ea142a08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000844000aea0000000000000000000000000097707143e01318734535676cfe2e5cf8b656ae80000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000`
-
-
-  // const transaction = parseTransaction(multiSendTx)
-
-  // console.log('multiSendTx', multiSendTx, transaction)
-
-  const SAFE_PRXY_ADDRESS = '0x44a5ece3f052c4e54ba3f05980899df0e6bb3798';
-  const MultiSendCallOnly = '0x9641d764fc13c8b624c04430c7356c1c7c8102e2';
-
-  // const { data: xHOPR_to_wxHOPR_config_multicall, refetch: refetch3, failureReason } = useSimulateContract({
-  //   address: MULTISEND_CONTRACT_GNOSIS,
-  //   abi: MultiSendAbi,
-  //   functionName: 'multiSend',
-  //   args: [multiSendTx],
-  // });
-
-  const { data: xHOPR_to_wxHOPR_config_multicall, refetch: refetch3, failureReason } = useSimulateContract({
-    address: SAFE_PRXY_ADDRESS,
+  const multiSendTx: `0x${string}` = `0x8d80ff0a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000192001820a4b7618bde71dce8cdc73aab6c95905fad2400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064${setInterfaceImplementer}00d057604a14982fe8d88c5fc25aac3267ea142a0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000084${xHOPR_to_wxHOPR}`;
+  const { data: xHOPR_to_wxHOPR_config_multicall, refetch: refetch4, failureReason } = useSimulateContract({
+    address: address as `0x${string}`,
     abi: SafeProxyAbi,
     functionName: 'execTransaction',
     args: [
       "0x9641d764fc13c8B624c04430C7356C1C7C8102e2",
       "0x00",
-      "0x8d80ff0a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000192001820a4b7618bde71dce8cdc73aab6c95905fad240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006429965a1d00000000000000000000000044a5ece3f052c4e54ba3f05980899df0e6bb3798b281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b000000000000000000000000e530e2f9decf24d7d42f011f54f1e9f8001e761900d057604a14982fe8d88c5fc25aac3267ea142a08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000844000aea0000000000000000000000000097707143e01318734535676cfe2e5cf8b656ae80000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "0x8d80ff0a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000192001820a4b7618bde71dce8cdc73aab6c95905fad240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006429965a1d00000000000000000000000044a5ece3f052c4e54ba3f05980899df0e6bb3798b281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b000000000000000000000000e530e2f9decf24d7d42f011f54f1e9f8001e761900d057604a14982fe8d88c5fc25aac3267ea142a08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000844000aea0000000000000000000000000097707143e01318734535676cfe2e5cf8b656ae80000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",  // multiSendTx
       1,
       "0x00",
       "0x00",
       "0x00",
-      "0000000000000000000000000000000000000000",
-      "0000000000000000000000000000000000000000","0x00000000000000000000000035a3e15a2e2c297686a4fac5999647312fddfa3f000000000000000000000000000000000000000000000000000000000000000001"
+      "0x0000000000000000000000000000000000000000",
+      "0x0000000000000000000000000000000000000000",
+      //TODO: signature FIX (?)
+      "0x00000000000000000000000035a3e15a2e2c297686a4fac5999647312fddfa3f000000000000000000000000000000000000000000000000000000000000000001"
     ],
   });
 
   console.log('xHOPR_to_wxHOPR_config_multicall', xHOPR_to_wxHOPR_config_multicall, failureReason)
-
-  /*
-  q:
-0x8d80ff0a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000192001820a4b7618bde71dce8cdc73aab6c95905fad240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006429965a1d00000000000000000000000044a5ece3f052c4e54ba3f05980899df0e6bb3798b281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b000000000000000000000000e530e2f9decf24d7d42f011f54f1e9f8001e761900d057604a14982fe8d88c5fc25aac3267ea142a08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000844000aea0000000000000000000000000097707143e01318734535676cfe2e5cf8b656ae80000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-
-tenderly:
-0x6a7612020000000000000000000000009641d764fc13c8b624c04430c7356c1c7c8102e200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036000000000000000000000000000000000000000000000000000000000000001e48d80ff0a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000192001820a4b7618bde71dce8cdc73aab6c95905fad240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006429965a1d00000000000000000000000044a5ece3f052c4e54ba3f05980899df0e6bb3798b281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b000000000000000000000000e530e2f9decf24d7d42f011f54f1e9f8001e761900d057604a14982fe8d88c5fc25aac3267ea142a08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000844000aea0000000000000000000000000097707143e01318734535676cfe2e5cf8b656ae8000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004100000000000000000000000035a3e15a2e2c297686a4fac5999647312fddfa3f00000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000
-
-// https://lab.miguelmota.com/ethereum-input-data-decoder/example/
-{
-  "method": "execTransaction",
-  "types": [
-    "address",
-    "uint256",
-    "bytes",
-    "uint8",
-    "uint256",
-    "uint256",
-    "uint256",
-    "address",
-    "address",
-    "bytes"
-  ],
-  "inputs": [
-    "9641d764fc13c8B624c04430C7356C1C7C8102e2",
-    {
-      "type": "BigNumber",
-      "hex": "0x00"
-    },
-    "0x8d80ff0a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000192001820a4b7618bde71dce8cdc73aab6c95905fad240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006429965a1d00000000000000000000000044a5ece3f052c4e54ba3f05980899df0e6bb3798b281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b000000000000000000000000e530e2f9decf24d7d42f011f54f1e9f8001e761900d057604a14982fe8d88c5fc25aac3267ea142a08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000844000aea0000000000000000000000000097707143e01318734535676cfe2e5cf8b656ae80000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    1,
-    {
-      "type": "BigNumber",
-      "hex": "0x00"
-    },
-    {
-      "type": "BigNumber",
-      "hex": "0x00"
-    },
-    {
-      "type": "BigNumber",
-      "hex": "0x00"
-    },
-    "0000000000000000000000000000000000000000",
-    "0000000000000000000000000000000000000000",
-    "0x00000000000000000000000035a3e15a2e2c297686a4fac5999647312fddfa3f000000000000000000000000000000000000000000000000000000000000000001"
-  ],
-  "names": [
-    "to",
-    "value",
-    "data",
-    "operation",
-    "safeTxGas",
-    "baseGas",
-    "gasPrice",
-    "gasToken",
-    "refundReceiver",
-    "signatures"
-  ]
-}
-
   */
 
   // Perform contract writes and retrieve data.
@@ -369,7 +288,7 @@ tenderly:
     writeContract: write_wxHOPR_to_xHOPR,
   } = useWriteContract();
 
-  const hash =  xHOPR_to_wxHOPR_data || wxHOPR_to_xHOPR_data || xHOPR_to_wxHOPR_data_multicall;
+  const hash = xHOPR_to_wxHOPR_data || wxHOPR_to_xHOPR_data || xHOPR_to_wxHOPR_data_multicall;
   const walletLoading = is_xHOPR_to_wxHOPR_loading || is_wxHOPR_to_xHOPR_loading || is_xHOPR_to_wxHOPR_loading_multicall;
   const txPending = is_xHOPR_to_wxHOPR_success || is_wxHOPR_to_xHOPR_success || is_xHOPR_to_wxHOPR_success_multicall;
   const txWillBeError = is_xHOPR_to_wxHOPR_error || is_wxHOPR_to_xHOPR_error || is_xHOPR_to_wxHOPR_error_multicall;
@@ -377,7 +296,7 @@ tenderly:
   const { data, isError, isLoading, isSuccess } = useWaitForTransactionReceipt({ hash })
 
   useEffect(() => {
-    if(txPending || isSuccess){
+    if (txPending || isSuccess) {
       set_showTxInfo(true);
     }
   }, [txPending, isSuccess]);
@@ -394,7 +313,8 @@ tenderly:
   const handleClick = () => {
     set_showTxInfo(false);
     if (swapDirection === 'xHOPR_to_wxHOPR') {
-      write_xHOPR_to_wxHOPR_multicall?.(xHOPR_to_wxHOPR_config_multicall!.request);
+      if(handlerIsSet) write_xHOPR_to_wxHOPR_multicall?.(xHOPR_to_wxHOPR_config!.request);
+      else set_AddAddressToERC1820RegistryModalOpen(true);
     } else {
       write_wxHOPR_to_xHOPR?.(wxHOPR_to_xHOPR_config!.request);
     }
@@ -442,6 +362,12 @@ tenderly:
     }
   };
 
+  const swapButtonDisabled = (
+    (swapDirection === 'xHOPR_to_wxHOPR' && BigInt(xhoprValue) <= BigInt(0) )
+    ||
+    (swapDirection === 'wxHOPR_to_xHOPR' && BigInt(wxhoprValue) <= BigInt(0) )
+  );
+
   return (
     <Section
       center
@@ -450,7 +376,7 @@ tenderly:
     >
       <StepContainer
         title="Wrapper"
-        description={<p>Utility to wrap (xHOPR &#8594; wxHOPR) and unwrap (wxHOPR &#8594; xHOPR) xHOPR tokens.<br/><br/>Funds source: Your wallet</p>}
+        description={<p>Utility to wrap (xHOPR &#8594; wxHOPR) and unwrap (wxHOPR &#8594; xHOPR) xHOPR tokens.<br /><br />Funds source: Your connected wallet</p>}
         image={{
           src: '/assets/wrapper-wallet-wallet.png',
           alt: 'Funds to safe image',
@@ -462,16 +388,17 @@ tenderly:
             disabled={
               (swapDirection === 'xHOPR_to_wxHOPR' && !write_xHOPR_to_wxHOPR) ||
               (swapDirection === 'wxHOPR_to_xHOPR' && !write_wxHOPR_to_xHOPR) ||
-              notEnoughBalance
+              notEnoughBalance ||
+              swapButtonDisabled
             }
             onClick={handleClick}
             pending={walletLoading || isLoading}
           >
-          SWAP
-        </Button>
+            SWAP
+          </Button>
         }
       >
-        <br/><br/><br/>
+        <br /><br /><br />
         <WrapperContainer>
           <StyledTextField
             label="xHOPR"
@@ -539,7 +466,7 @@ tenderly:
             }}
           />
           {walletLoading && <span>Check your Wallet...</span>}
-          {notEnoughBalance && <span style={{color: 'red'}}>Not enough balance in your wallet</span>}
+          {notEnoughBalance && <span style={{ color: 'red' }}>Not enough balance in your wallet</span>}
           {address && (
             <>
               <TransactionLink
@@ -548,6 +475,17 @@ tenderly:
               />
             </>
           )}
+          {
+            AddAddressToERC1820RegistryModalOpen &&
+            <AddAddressToERC1820RegistryModal
+              closeModal={
+                ()=>{
+                  set_AddAddressToERC1820RegistryModalOpen(false);
+                }
+              }
+              refetchHandler={refetchHandler}
+            />
+          }
         </WrapperContainer>
       </StepContainer>
       <NetworkOverlay />
