@@ -23,7 +23,7 @@ export const HOPR_CHANNELS_SMART_CONTRACT_ADDRESS = import.meta.env.VITE_HOPR_CH
 export const HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS = import.meta.env.VITE_HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS;
 
 //API
-export const WEB_API = 'https://webapi.hoprnet.org/api';
+export const WEBAPI_URL = 'https://webapi.hoprnet.org/api';
 
 //Subgraphs
 export const STAKE_SUBGRAPH = 'https://webapi.hoprnet.org/api/hub/subgraph-allSeasons';

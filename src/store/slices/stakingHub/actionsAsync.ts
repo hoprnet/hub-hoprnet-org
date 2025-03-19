@@ -9,11 +9,11 @@ import {
   MINIMUM_XDAI_TO_FUND_NODE,
   HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS,
   HOPR_CHANNELS_SMART_CONTRACT_ADDRESS,
-  wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS
+  wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+  WEBAPI_URL
 } from '../../../../config';
 import { web3 } from '@hoprnet/hopr-sdk';
 import { Address, PublicClient, WalletClient, parseEther, publicActions } from 'viem';
-import { gql } from 'graphql-request';
 import { stakingHubActions } from '.';
 import { safeActionsAsync } from '../safe';
 import { NodePayload } from './initialState';
@@ -34,30 +34,11 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
   }) => {
     dispatch(setHubSafesByOwnerFetching(true));
     try {
-      const ownerAddress = payload.toLocaleLowerCase();
 
-      const GET_THEGRAPH_QUERY = gql`{
-        safes(
-          where: {isCreatedByNodeStakeFactory: true, owners_: {owner: "${ownerAddress}"}}
-          first: 1000
-        ) {
-          id
-          addedModules {
-            module {
-              id
-            }
-          }
-        }
-      }`
-
-
-      // temporary
-      const resp = await Promise.all([
-        fetch(STAKING_V2_SUBGRAPH, {
+      const resp = await fetch(`${WEBAPI_URL}/hub/getHubSafesByOwner`, {
           method: 'POST',
-          body: GET_THEGRAPH_QUERY,
-        }),
-      ])
+          body: JSON.stringify({ownerAddress: payload}),
+      });
 
       const json: { safes: {
         id: string,
@@ -66,17 +47,17 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
             id: string
           }
         }[]
-      }[]} = await resp[0].json();
+      }[]} = await resp.json();
 
-      let mapped1 = json.safes.map((elem) => {
+      let mapped = json.safes.map((elem) => {
         return {
           moduleAddress: getAddress(elem.addedModules[0].module.id),
           safeAddress: getAddress(elem.id),
         };
       });
-      mapped1 = mapped1.filter(elem => elem.moduleAddress);
+      mapped = mapped.filter(elem => elem.moduleAddress);
 
-      return [...mapped1];
+      return [...mapped];
     } catch (e) {
       return rejectWithValue(e);
     }
@@ -142,91 +123,17 @@ const getSubgraphDataThunk = createAsyncThunk<
     rejectWithValue,
     dispatch,
   }) => {
-    safeAddress = safeAddress.toLocaleLowerCase();
-    moduleAddress = moduleAddress.toLocaleLowerCase();
-
-    const GET_THEGRAPH_QUERY = gql`{
-      safes(first: 1, where: {id: "${safeAddress}"}) {
-        id
-        balance {
-          mHoprBalance
-          wxHoprBalance
-          xHoprBalance
-        }
-        threshold
-        owners {
-          owner {
-            id
-          }
-        }
-        isCreatedByNodeStakeFactory
-        targetedModules {
-          id
-        }
-        allowance {
-          xHoprAllowance
-          wxHoprAllowance
-          mHoprAllowance
-          grantedToChannelsContract
-        }
-        addedModules {
-          module {
-            id
-          }
-        }
-        isEligibleOnNetworkRegistry
-        registeredNodesInSafeRegistry {
-          node {
-            id
-          }
-        }
-        registeredNodesInNetworkRegistry {
-          node {
-            id
-          }
-        }
-      }
-      nodeManagementModules(
-        first: 1
-        where: {id: "${moduleAddress}"}
-      ) {
-        id
-        implementation
-        includedNodes {
-          node {
-            id
-          }
-        }
-        multiSend
-        target {
-          id
-        }
-      }
-      balances(where: {id: "all_the_safes"}) {
-        mHoprBalance
-        wxHoprBalance
-        xHoprBalance
-      }
-      _meta {
-        hasIndexingErrors
-        deployment
-        block {
-          hash
-          timestamp
-        }
-      }
-    }`
-
     try {
-      // temporary
-      const resp = await Promise.all([
-        fetch(STAKING_V2_SUBGRAPH, {
-          method: 'POST',
-          body: GET_THEGRAPH_QUERY,
-        }),
-      ])
 
-      const json = await resp[0].json();
+      const resp = await fetch(`${WEBAPI_URL}/hub/getSafeInfo`, {
+          method: 'POST',
+          body: JSON.stringify({
+            safeAddress,
+            moduleAddress
+          }),
+        });
+
+      const json = await resp.json();
 
       console.log('SubgraphOutput', json);
 
