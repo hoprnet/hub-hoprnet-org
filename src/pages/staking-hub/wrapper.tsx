@@ -210,7 +210,6 @@ function WrapperPage() {
 
   useEffect(() => {
     if (handlerData === `0x0000000000000000000000000000000000000000`) set_handlerIsSet(false);
-    console.log('handlerData', handlerData)
   }, [handlerData]);
 
   // Prepare contract write configurations
