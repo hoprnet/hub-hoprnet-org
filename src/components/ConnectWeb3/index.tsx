@@ -112,7 +112,7 @@ export default function ConnectWeb3({
     connect,
     error,
     reset,
-  //  pendingConnector,
+    //  pendingConnector,
   } = useConnect();
   const { connector } = useAccount();
   const { disconnect } = useDisconnect();
@@ -154,15 +154,19 @@ export default function ConnectWeb3({
   }, [open]);
 
   useEffect(() => {
+    console.log({ connectors })
+  }, [connectors]);
+
+  useEffect(() => {
     if (error) {
       if (error instanceof UserRejectedRequestError) {
         let parsedError = error.shortMessage;
-        if(error.details && error.details !== error.shortMessage && error.details.length > 10) {
+        if (error.details && error.details !== error.shortMessage && error.details.length > 10) {
           parsedError = parsedError + '\n\n' + error.details;
         }
         set_localError(parsedError);
       } else {
-        set_localError( JSON.stringify(error))
+        set_localError(JSON.stringify(error))
       }
       // wallet connect modal can
       // cause errors if it is closed without connecting
@@ -276,22 +280,42 @@ export default function ConnectWeb3({
       >
         {!localError && (
           <ConnectWalletContent>
-            {connectors.map((connector) => (
-              <WalletButton
-                key={connector.uid}
-                connector={connector}
-                disabled={!connector.ready}
-                onClick={() => {
-                  handleConnectToWallet(connector);
-                }}
-                wallet={connector.id}
-                walletName={connector.name}
-              />
-            ))}
-            <p>
-              By connecting a wallet, you agree to HOPR’s Terms of Service and acknowledge that you have read and
-              understand the Disclaimer.
-            </p>
+            {connectors.map((connector) => {
+              if(['injected', 'walletConnect'].includes(connector.id)) return;
+              return (
+                <WalletButton
+                  key={connector.uid}
+                  connector={connector}
+                  disabled={!connector.ready}
+                  onClick={() => {
+                    handleConnectToWallet(connector);
+                  }}
+                  wallet={connector.id}
+                  walletName={connector.name}
+                  src={connector.icon}
+                />
+              )
+            })}
+            {connectors.map((connector) => {
+              if(['injected', 'walletConnect'].includes(connector.id))
+                return (
+                  <WalletButton
+                    key={connector.uid}
+                    connector={connector}
+                    disabled={!connector.ready}
+                    onClick={() => {
+                      handleConnectToWallet(connector);
+                    }}
+                    wallet={connector.id}
+                    walletName={connector.name}
+                    walletIcon={connector.icon}
+                  />
+                )
+            })}
+          <p>
+            By connecting a wallet, you agree to HOPR’s Terms of Service and acknowledge that you have read and
+            understand the Disclaimer.
+          </p>
           </ConnectWalletContent>
         )}
         <ErrorContent>

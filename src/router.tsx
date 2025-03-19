@@ -7,8 +7,6 @@ import { trackGoal } from 'fathom-client';
 
 // Store
 import { useAppDispatch, useAppSelector } from './store';
-import { authActions, authActionsAsync } from './store/slices/auth';
-import { nodeActions, nodeActionsAsync } from './store/slices/node';
 import { web3Actions } from './store/slices/web3';
 import { appActions } from './store/slices/app';
 import { safeActions } from './store/slices/safe';
