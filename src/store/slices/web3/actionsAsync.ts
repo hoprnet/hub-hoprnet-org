@@ -1,35 +1,19 @@
 import { ActionReducerMapBuilder, createAsyncThunk } from '@reduxjs/toolkit';
 import { WalletClient, publicActions } from 'viem';
 import { RootState } from '../..';
-import { GNOSIS_CHAIN_HOPR_BOOST_NFT, STAKE_SUBGRAPH } from '../../../../config';
+import { GNOSIS_CHAIN_HOPR_BOOST_NFT, WEBAPI_URL } from '../../../../config';
 import { initialState } from './initialState';
 import { web3Actions } from '.';
 import { safeActions } from '../safe';
-import { gql } from 'graphql-request';
 import { web3 } from '@hoprnet/hopr-sdk';
 
 const getCommunityNftsOwnedByWallet = createAsyncThunk(
   'web3/getCommunityNftsOwnedByWallet',
   async (payload: { account: string }, { rejectWithValue }) => {
     try {
-      const account = payload.account;
-      const GET_THEGRAPH_QUERY = gql`
-        query getSubGraphNFTsUserDataForWallet {
-          _meta {
-            block {
-              timestamp
-              number
-            }
-          }
-          boosts(first: 1, where: {owner: "${account.toLocaleLowerCase()}", uri_ends_with: "Network_registry/community"}) {
-            id
-          }
-        }
-      `;
-
-      const response = await fetch(STAKE_SUBGRAPH, {
+      const response = await fetch(`${WEBAPI_URL}/hub/getCommunityNftsByOwner`, {
         method: 'POST',
-        body: GET_THEGRAPH_QUERY
+        body: JSON.stringify({account: payload.account})
       });
       const responseJson: {
         boosts: { id: string }[];

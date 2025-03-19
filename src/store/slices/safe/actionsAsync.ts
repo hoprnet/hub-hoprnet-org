@@ -41,10 +41,8 @@ import {
   HOPR_NODE_MANAGEMENT_MODULE,
   HOPR_NODE_STAKE_FACTORY,
   SAFE_SERVICE_URL,
-  STAKE_SUBGRAPH,
-  WEB_API
+  WEBAPI_URL
 } from '../../../../config';
-import { gql } from 'graphql-request';
 import { web3 } from '@hoprnet/hopr-sdk';
 import {
   getCurrencyFromHistoryTransaction,
@@ -1215,23 +1213,11 @@ const createSafeWithConfigThunk = createAsyncThunk<
 const getCommunityNftsOwnedBySafeThunk = createAsyncThunk(
   'web3/getCommunityNftsOwnedBySafe',
   async (account: string, { rejectWithValue }) => {
-    const GET_THEGRAPH_QUERY = gql`
-      query getSubGraphNFTsUserDataForSafe {
-        _meta {
-          block {
-            timestamp
-            number
-          }
-        }
-        boosts(first: 20, where: {owner: "${account.toLocaleLowerCase()}", uri_ends_with: "Network_registry/community"}) {
-          id
-        }
-      }
-    `;
+
     try {
-      const response = await fetch(STAKE_SUBGRAPH, {
+      const response = await fetch(`${WEBAPI_URL}/hub/getCommunityNftsByOwner`, {
         method: 'POST',
-        body: GET_THEGRAPH_QUERY,
+        body: JSON.stringify({account: account})
       });
       const responseJson: {
         boosts: { id: string }[] | null;
@@ -1258,7 +1244,7 @@ const getGnoAidropThunk = createAsyncThunk(
   'web3/getGnoAidropThunk',
   async (safe: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${WEB_API}/hub/gno-airdrop-check`, {
+      const response = await fetch(`${WEBAPI_URL}/hub/gno-airdrop-check`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
