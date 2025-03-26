@@ -27,6 +27,7 @@ const AppBarContainer = styled(Button)`
   justify-content: center;
   width: 285px;
   border-radius: 0;
+  gap: 10px;
   .image-container {
     height: 50px;
     width: 50px;
@@ -123,6 +124,7 @@ export default function ConnectWeb3({
   const chain = useAppSelector((store) => store.web3.chain);
   const walletPresent = useAppSelector((store) => store.web3.status.walletPresent);
   const [localError, set_localError] = useState<false | string>(false);
+  const [walletIcon, set_walletIcon] = useState('/assets/wallets/MetaMask_Fox.svg');
   const containerRef = useRef<HTMLButtonElement>(null);
 
 
@@ -227,6 +229,26 @@ export default function ConnectWeb3({
     }
   };
 
+  useEffect(()=>{
+    console.log('connector', connector)
+    if(!connector?.id) {
+      set_walletIcon('/assets/wallets/MetaMask_Fox.svg');
+      return;
+    }
+
+    switch (connector.id) {
+      case 'com.brave.wallet':
+        set_walletIcon('/assets/wallets/Brave-wallet.png');
+        break;
+      case 'walletConnect':
+        set_walletIcon('/assets/wallets/WalletConnect-Icon.svg');
+        break;
+      default:
+        if(!connector.icon) set_walletIcon('/assets/wallets/MetaMask_Fox.svg');
+        else set_walletIcon(connector.icon);
+    }
+  }, [connector]);
+
   return (
     <>
       {inTheAppBar && (
@@ -236,13 +258,7 @@ export default function ConnectWeb3({
           className={`web3-connect-btn`}
         >
           <div className="image-container">
-            <img
-              src={
-                connector?.id === 'walletConnect'
-                  ? '/assets/wallets/WalletConnect-Icon.svg'
-                  : '/assets/wallets/MetaMask_Fox.svg'
-              }
-            />
+            <img src={walletIcon} />
           </div>
           {!isConnected ? (
             <Web3Button>Connect Wallet</Web3Button>
