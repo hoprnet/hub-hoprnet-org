@@ -1126,6 +1126,7 @@ const createSafeWithConfigThunk = createAsyncThunk<
   {
     walletClient: WalletClient;
     config: SafeAccountConfig;
+    doNotSwitch?: boolean
   },
   { state: RootState }
 >(
@@ -1176,12 +1177,21 @@ const createSafeWithConfigThunk = createAsyncThunk<
 
       const [moduleProxy, safeAddress] = result as [Address, Address];
 
-      dispatch(
-        stakingHubActions.addSafeAndUseItForOnboarding({
-          safeAddress,
-          moduleAddress: moduleProxy,
-        }),
-      );
+      if(!payload.doNotSwitch) {
+        dispatch(
+          stakingHubActions.addSafeAndUseItForOnboarding({
+            safeAddress,
+            moduleAddress: moduleProxy,
+          }),
+        );
+      } else {
+        dispatch(
+          stakingHubActions.addSafe({
+            safeAddress,
+            moduleAddress: moduleProxy,
+          }),
+        );
+      }
 
       return {
         transactionHash,
@@ -1264,8 +1274,11 @@ const getGnoAidropThunk = createAsyncThunk(
 
 export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initialState>) => {
   // CreateSafeWithConfig
+  builder.addCase(createSafeWithConfigThunk.pending, (state, action) => {
+    state.creatingNewSafePending = true;
+  });
   builder.addCase(createSafeWithConfigThunk.fulfilled, (state, action) => {
-    if (action.payload) {
+    if (action.payload && !action.meta.arg.doNotSwitch) {
       // reset other safe states
       state.allTransactions.data = null;
       state.communityNftIds.data = [];
@@ -1275,9 +1288,11 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.selectedSafe.data.safeAddress = getAddress(action.payload.safeAddress);
     }
     state.selectedSafe.isFetching = false;
+    state.creatingNewSafePending = false;
   });
   builder.addCase(createSafeWithConfigThunk.rejected, (state) => {
     state.selectedSafe.isFetching = false;
+    state.creatingNewSafePending = false;
   });
   // CreateVanillaSafeWithConfig
   builder.addCase(createVanillaSafeWithConfigThunk.fulfilled, (state, action) => {

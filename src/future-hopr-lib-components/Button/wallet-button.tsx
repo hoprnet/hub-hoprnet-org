@@ -41,7 +41,7 @@ export default function Button(props: ButtonProps) {
         set_walletIcon('/assets/wallets/Eye_open_font_awesome.svg');
         break;
     }
-  }, [props.wallet])
+  }, [props.wallet]);
 
   const walletsWithFullIcons = ['walletConnect'];
 
