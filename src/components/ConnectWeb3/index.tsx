@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 // UI
 import WalletButton from '../../future-hopr-lib-components/Button/wallet-button';
 import Modal from '../../future-hopr-lib-components/Modal';
-import { Button, Menu, MenuItem } from '@mui/material';
+import { Button, Menu, MenuItem, Tooltip } from '@mui/material';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -271,7 +271,14 @@ export default function ConnectWeb3({
                   <p className="chain">
                     {connector?.name ?? 'Metamask'} @ {chain}
                   </p>
-                  <p>{truncateEthereumAddress(account as string)}</p>
+                  <p>
+                    <Tooltip
+                      title={account}
+                    >
+                      <span> {truncateEthereumAddress(account as string)}</span>
+                    </Tooltip>
+
+                  </p>
                 </div>
                 <div className="dropdown-icon">
                   <DropdownArrow src="/assets/dropdown-arrow.svg" />
