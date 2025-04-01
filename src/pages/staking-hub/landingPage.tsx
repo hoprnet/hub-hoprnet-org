@@ -509,8 +509,8 @@ const StakingLandingPage = () => {
               </WhiteSideDescription>
             </div>
             <img
-              style={{ maxWidth: '100%' }}
-              src="/assets/staking-hub-example.svg"
+              style={{ maxWidth: '640px' }}
+              src="/assets/staking-hub-example.jpg"
             />
           </SideToSideContainer>
           <CardWithAccordionSteps />

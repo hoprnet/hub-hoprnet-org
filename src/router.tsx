@@ -92,7 +92,7 @@ export const applicationMapStakingHub: ApplicationMapType = [
         path: 'onboarding',
         icon: <TrainIcon />,
         element: <Onboarding />,
-        loginNeeded: 'web3',
+        loginNeeded: 'web3'
       },
       {
         name: 'Onboarding',
@@ -244,6 +244,8 @@ const LayoutEnhanced = () => {
   const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
   const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
 
+  const onboardingFinished = !(useAppSelector((store) => store.stakingHub.onboarding.notFinished));
+
   const numberForDrawer = {
     numberOfPeers,
     numberOfAliases,
@@ -308,6 +310,7 @@ const LayoutEnhanced = () => {
         node: nodeConnected,
         web3: web3Connected,
         safe: !!safeAddress && web3Connected,
+        onboardingFinished
       }}
       className={environment}
       drawerType={environment === 'web3' ? 'blue' : undefined}
