@@ -105,7 +105,6 @@ const FundsToSafe = () => {
   useEffect(() => {
     if (selectedSafeAddress) {
       refetchWXHoprSafeBalance();
-      refetchWXHoprSafeBalance();
     }
   }, [selectedSafeAddress, blockNumber]);
 
