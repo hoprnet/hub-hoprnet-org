@@ -232,7 +232,7 @@ export default function ConnectWeb3({
   };
 
   useEffect(()=>{
-    console.log('connector', connector)
+    console.log('connector', connector);
     if(!connector?.id) {
       set_walletIcon('/assets/wallets/MetaMask_Fox.svg');
       return;

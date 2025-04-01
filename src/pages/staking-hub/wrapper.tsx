@@ -4,7 +4,8 @@ import {
   useReadContract,
   useWriteContract,
   useSimulateContract,
-  useWaitForTransactionReceipt
+  useWaitForTransactionReceipt,
+  useAccount,
 } from 'wagmi';
 import { parseUnits, parseEther, toHex, parseTransaction } from 'viem';
 import {
@@ -164,6 +165,15 @@ function WrapperPage() {
   const [xhoprValue, set_xhoprValue] = useState('');
   const [wxhoprValue, set_wxhoprValue] = useState('');
   const [showTxInfo, set_showTxInfo] = useState(false);
+  const [safeTxOverwrite, set_safeTxOverwrite] = useState<{
+    wxHOPRBefore: string | null,
+    xHOPRBefore: string |null,
+    success: boolean
+  }>({
+    wxHOPRBefore: null,
+    xHOPRBefore: null,
+    success: false
+  });
   const [notEnoughBalance, set_notEnoughBalance] = useState(false);
   const [AddAddressToERC1820RegistryModalOpen, set_AddAddressToERC1820RegistryModalOpen] = useState<boolean>(false);
   const [swapDirection, set_swapDirection] = useState<'xHOPR_to_wxHOPR' | 'wxHOPR_to_xHOPR'>('xHOPR_to_wxHOPR');
@@ -187,7 +197,6 @@ function WrapperPage() {
     const wxhoprEther = parseEther(wxhoprValue);
     const xhoprWalletEther = parseEther(walletBalance.xHopr.value);
     const wxhoprWalletEther = parseEther(walletBalance.wxHopr.value);
-    console.log(wxhoprEther)
 
     if (swapDirection === 'xHOPR_to_wxHOPR' && xhoprEther > xhoprWalletEther) set_notEnoughBalance(true)
     else if (swapDirection === 'xHOPR_to_wxHOPR') set_notEnoughBalance(false)
@@ -214,9 +223,7 @@ function WrapperPage() {
     ],
   });
 
-  console.log('handlerData', handlerData);
   const handlerIsSet = handlerData !== `0x0000000000000000000000000000000000000000`;
-  console.log('handlerIsSet', handlerIsSet);
 
   // Prepare contract write configurations
   // TX: wxHOPR -> xHOPR
@@ -297,19 +304,39 @@ function WrapperPage() {
     writeContract: write_wxHOPR_to_xHOPR,
   } = useWriteContract();
 
-  const hash = xHOPR_to_wxHOPR_data || wxHOPR_to_xHOPR_data || xHOPR_to_wxHOPR_data_multicall;
+  let hash = xHOPR_to_wxHOPR_data || wxHOPR_to_xHOPR_data || xHOPR_to_wxHOPR_data_multicall;
   const walletLoading = is_xHOPR_to_wxHOPR_loading || is_wxHOPR_to_xHOPR_loading || is_xHOPR_to_wxHOPR_loading_multicall;
   const txPending = is_xHOPR_to_wxHOPR_success || is_wxHOPR_to_xHOPR_success || is_xHOPR_to_wxHOPR_success_multicall;
   const txWillBeError = is_xHOPR_to_wxHOPR_error || is_wxHOPR_to_xHOPR_error || is_xHOPR_to_wxHOPR_error_multicall;
 
-  const { data, isError, isLoading, isSuccess } = useWaitForTransactionReceipt({ hash })
+  const { data, isError, isLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
+
+  // In case Safe free TX is used and we never get a TX under the received hash
+  const { connector } = useAccount();
+  useEffect(() => {
+    if(
+      connector?.id === 'walletConnect' &&
+      hash &&
+      isLoading &&
+      walletBalance.xHopr.value !== safeTxOverwrite.xHOPRBefore &&
+      walletBalance.wxHopr.value !== safeTxOverwrite.wxHOPRBefore &&
+      safeTxOverwrite.success === false
+    ) {
+      console.log('in')
+      set_safeTxOverwrite({
+        xHOPRBefore: null,
+        wxHOPRBefore: null,
+        success: true
+      });
+    }
+    console.log('out')
+  }, [connector, hash, safeTxOverwrite, walletBalance, isLoading]);
 
   useEffect(() => {
     if (txPending || isSuccess) {
       set_showTxInfo(true);
     }
   }, [txPending, isSuccess]);
-
 
   const handleSwap = () => {
     if (swapDirection === 'xHOPR_to_wxHOPR') {
@@ -320,6 +347,16 @@ function WrapperPage() {
   };
 
   const handleClick = () => {
+    // In case Safe free TX is used and we never get a TX under the received hash
+    if(connector?.id === 'walletConnect') {
+      set_safeTxOverwrite({
+        xHOPRBefore: walletBalance.xHopr.value,
+        wxHOPRBefore: walletBalance.wxHopr.value,
+        success: false
+      })
+    }
+
+    // The real handle
     set_showTxInfo(false);
     if (swapDirection === 'xHOPR_to_wxHOPR') {
       if(handlerIsSet) write_xHOPR_to_wxHOPR_multicall?.(xHOPR_to_wxHOPR_config!.request);
@@ -395,7 +432,7 @@ function WrapperPage() {
               swapButtonDisabled
             }
             onClick={handleClick}
-            pending={walletLoading || isLoading}
+            pending={(walletLoading || isLoading) && !safeTxOverwrite.success}
           >
             SWAP
           </Button>
