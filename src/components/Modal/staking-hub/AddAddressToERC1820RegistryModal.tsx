@@ -183,7 +183,7 @@ const AddAddressToERC1820RegistryModal = ({
         </SIconButton>
       </STopBar>
       <Content>
-        <p>A one time, additional transaction must be done prior to the wrapping.<br />When a Safe wraps xHOPR to wxHOPR, it will fail due to lack of a callback handler. You need to set interface implementer in the{' '}
+        <p>A one time, additional transaction must be done prior to the wrapping.<br />Without it, the wrapping of xHOPR to wxHOPR in this account will fail due to the lack of a callback handler. You need to set interface implementer in the{' '}
           <a
             href="https://gnosisscan.io/address/0x1820a4b7618bde71dce8cdc73aab6c95905fad24#code"
             target="_blank"
