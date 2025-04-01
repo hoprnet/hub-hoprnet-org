@@ -4,6 +4,7 @@ import styled from '@emotion/styled';
 import { environment } from '../../../config';
 import { useWatcher } from '../../hooks';
 import { loadStateFromLocalStorage, saveStateToLocalStorage } from '../../utils/localStorage';
+import { Tooltip } from '@mui/material';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -59,18 +60,36 @@ const DisabledButton = styled.div`
   color: #969696;
 `;
 
-const SafeAddress = styled.div`
+const SafeAddressContainer = styled.div`
   font-family: 'Source Code Pro';
-  font-size: 18px;
   width: 170px;
   display: flex;
   align-items: flex-start;
-  flex-direction: row;
-  justify-content: space-evenly;
-  font-size: 14px;
-  gap: 10px;
+  justify-content: space-around;
   color: #414141;
   text-transform: none;
+  .typed {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    p {
+      margin-block-start: 0;
+      margin-block-end: 0;
+      margin-inline-start: 0;
+      margin-inline-end: 0;
+    }
+    .subtext {
+      color: #808080;
+      line-height: 12px;
+      font-size: 12px;
+    }
+    .address {
+      color: #414141;
+      font-size: 14px;
+      pointer-events: all;
+    }
+  }
 `;
 
 function handleSaveSelectedSafeInLocalStorage(safeObject: { safeAddress?: string | null, moduleAddress?: string | null }, owner?: string | null) {
@@ -212,9 +231,9 @@ export default function ConnectSafe() {
           options: { safeAddress },
         })
       );
-      dispatch(
-        safeActionsAsync.getGnoAidropThunk(safeAddress)
-      );
+      // dispatch(
+      //   safeActionsAsync.getGnoAidropThunk(safeAddress)
+      // );
     }
   };
 
@@ -252,9 +271,21 @@ export default function ConnectSafe() {
       </div>
       {isConnected ? (
         <>
-          <SafeAddress>
-            {truncateEthereumAddress(safeAddress || '...') || '...'}  { multipleSafes && <DropdownArrow src="/assets/dropdown-arrow.svg" />}
-          </SafeAddress>
+          <SafeAddressContainer>
+              <span className="typed">
+                <p className="subtext">
+                  Safe address:
+                </p>
+                <p className="address">
+                  <Tooltip
+                    title={safeAddress}
+                  >
+                    <span>{truncateEthereumAddress(safeAddress || '...') || '...'}</span>
+                  </Tooltip>
+                </p>
+              </span>
+              { multipleSafes && <DropdownArrow src="/assets/dropdown-arrow.svg" />}
+          </SafeAddressContainer>
           {
             multipleSafes &&
             <Menu

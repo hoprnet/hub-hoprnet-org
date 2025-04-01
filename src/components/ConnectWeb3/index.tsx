@@ -55,17 +55,19 @@ const Web3Button = styled.div`
   font-family: 'Source Code Pro';
   min-width: 150px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
+
   color: #414141;
   gap: 10px;
   text-transform: none;
   p {
     margin: 0;
-    font-size: 12px;
+    font-size: 14px;
   }
   .chain {
     color: #808080;
+    font-size: 12px;
     line-height: 12px;
   }
 `;
@@ -269,7 +271,7 @@ export default function ConnectWeb3({
                   <p className="chain">
                     {connector?.name ?? 'Metamask'} @ {chain}
                   </p>
-                  <p>eth: {truncateEthereumAddress(account as string)}</p>
+                  <p>{truncateEthereumAddress(account as string)}</p>
                 </div>
                 <div className="dropdown-icon">
                   <DropdownArrow src="/assets/dropdown-arrow.svg" />
