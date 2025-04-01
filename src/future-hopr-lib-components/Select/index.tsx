@@ -28,13 +28,13 @@ const SFormControl = styled(FormControl)`
   }
 `;
 
-interface Props extends SelectMuiProps {
+type Props = SelectMuiProps & {
   removeValue?: (value: number) => void;
   removeValueTooltip?: string;
   values?: {
     value: string | number;
     name: string | number | null;
-    disabled?: boolean 
+    disabled?: boolean
   }[];
   native?: boolean;
 }

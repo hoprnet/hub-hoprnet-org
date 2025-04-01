@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Address, parseUnits } from 'viem';
-import { erc20ABI, useBalance, useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useBalance, useWriteContract, useSimulateContract } from 'wagmi';
+import { erc20Abi } from 'viem';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
 
 //Store
@@ -30,8 +31,9 @@ const StakewxHOPR = () => {
   const { refetch: refetchWXHoprSafeBalance } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    watch: true,
-    enabled: !!selectedSafeAddress,
+    query: {
+      enabled: !!selectedSafeAddress,
+    }
   });
 
   useEffect(() => {
@@ -47,9 +49,9 @@ const StakewxHOPR = () => {
     };
   }, []);
 
-  const { config: wxHOPR_to_safe_config } = usePrepareContractWrite({
+  const { data: wxHOPR_to_safe_config } = useSimulateContract({
     address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: 'transfer',
     args: [selectedSafeAddress as Address, parseUnits(wxhoprValue, 18)],
   });
@@ -62,15 +64,9 @@ const StakewxHOPR = () => {
 
   const {
     isSuccess: is_wxHOPR_to_safe_success,
-    isLoading: is_wxHOPR_to_safe_loading,
-    write: write_wxHOPR_to_safe,
-  } = useContractWrite({
-    ...wxHOPR_to_safe_config,
-    onSuccess: (res) => {
-      set_transactionHash(res.hash);
-      refetchWXHoprSafeBalance();
-    },
-  });
+    isPending: is_wxHOPR_to_safe_loading,
+    writeContract: write_wxHOPR_to_safe,
+  } = useWriteContract();
 
   useEffect(() => {
     if (is_wxHOPR_to_safe_success) {
@@ -79,7 +75,14 @@ const StakewxHOPR = () => {
   }, [is_wxHOPR_to_safe_loading]);
 
   const handleFundwxHopr = () => {
-    write_wxHOPR_to_safe?.();
+    write_wxHOPR_to_safe?.(
+      wxHOPR_to_safe_config!.request,
+      {
+        onSuccess: (res) => {
+          set_transactionHash(res);
+          refetchWXHoprSafeBalance();
+        },
+      });
   };
 
   return (
@@ -120,11 +123,13 @@ const StakewxHOPR = () => {
               size="small"
               value={wxhoprValue}
               onChange={(e) => set_wxhoprValue(e.target.value)}
-              InputProps={{ inputProps: {
-                style: { textAlign: 'right' },
-                min: 0,
-                pattern: '[0-9]*',
-              } }}
+              InputProps={{
+                inputProps: {
+                  style: { textAlign: 'right' },
+                  min: 0,
+                  pattern: '[0-9]*',
+                }
+              }}
             />
             <StyledCoinLabel>wxHOPR</StyledCoinLabel>
             <StyledGrayButton onClick={setMax_wxHOPR}>Max</StyledGrayButton>

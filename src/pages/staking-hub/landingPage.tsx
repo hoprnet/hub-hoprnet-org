@@ -331,6 +331,7 @@ const StakingLandingPage = () => {
   const [expandedId, set_expandedId] = useState<number | false>(false);
   const status = useAppSelector((store) => store.web3.status);
   const onboardingStep = useAppSelector((store) => store.stakingHub.onboarding.step);
+  const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
 
   const handleAccordionClick = (id: number) => {
     set_expandedId((prevId) => {
@@ -360,17 +361,18 @@ const StakingLandingPage = () => {
             Earn $HOPR while providing web3 users with the data privacy and autonomy Web 2.0 never did. Create your HOPR
             Safe and start running a Node now!
           </Description>
-          {!status.connected && (
+          {(!status.connected || onboardingIsFetching) && (
             <StyledButton
               onClick={() => {
                 dispatch(web3Actions.setModalOpen(true));
               }}
               disabled={status.connected}
+              pending={status.connected && onboardingIsFetching}
             >
               CONNECT WALLET
             </StyledButton>
           )}
-          {status.connected && onboardingStep !== 16 && (
+          {status.connected && onboardingStep !== 16 && !onboardingIsFetching && (
             <StyledButton
               onClick={() => {
                 navigate('/staking/onboarding');
@@ -379,7 +381,7 @@ const StakingLandingPage = () => {
               GO TO ONBOARDING
             </StyledButton>
           )}
-          {status.connected && onboardingStep === 16 && (
+          {status.connected && onboardingStep === 16 && !onboardingIsFetching && (
             <StyledButton
               onClick={() => {
                 navigate('/staking/dashboard');
@@ -507,8 +509,8 @@ const StakingLandingPage = () => {
               </WhiteSideDescription>
             </div>
             <img
-              style={{ maxWidth: '100%' }}
-              src="/assets/staking-hub-example.svg"
+              style={{ maxWidth: '640px' }}
+              src="/assets/staking-hub-example.jpg"
             />
           </SideToSideContainer>
           <CardWithAccordionSteps />

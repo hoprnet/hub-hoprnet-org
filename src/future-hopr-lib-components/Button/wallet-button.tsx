@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import MuiButton from '@mui/material/Button';
 import Typography from '../Typography';
+import { Connector } from 'wagmi'
 
 const SButton = styled(MuiButton)`
   width: 100%;
@@ -18,34 +19,43 @@ const SButton = styled(MuiButton)`
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   React.PropsWithChildren & {
     wallet?: string;
+    walletName?: string;
+    walletIcon?: string;
     className?: string;
     src?: string;
+    connector: Connector
   };
 
 export default function Button(props: ButtonProps) {
-  function src() {
+  const [walletIcon, set_walletIcon] = useState(props.src)
+
+  useEffect(()=>{
     switch (props.wallet) {
-    case 'metaMask':
-      return '/assets/wallets/MetaMask-Emblem.svg';
-    case 'walletConnect':
-      return '/assets/wallets/WalletConnect-Login.png';
-    case 'injected':
-      return '';
-    case 'viewMode':
-      return '/assets/wallets/Eye_open_font_awesome.svg';
-    default:
-      return '';
+      case 'com.brave.wallet':
+        set_walletIcon('/assets/wallets/Brave-wallet.png');
+        break;
+      case 'walletConnect':
+        set_walletIcon('/assets/wallets/WalletConnect-Login.png');
+        break;
+      case 'viewMode':
+        set_walletIcon('/assets/wallets/Eye_open_font_awesome.svg');
+        break;
     }
-  }
+  }, [props.wallet]);
+
+  const walletsWithFullIcons = ['walletConnect'];
 
   return (
     <SButton
       className={props.className}
       onClick={props.onClick}
     >
-      <img src={props.src ? props.src : src()} />
-      {props.wallet === 'viewMode' && <Typography>View mode</Typography>}
-      {props.wallet === 'injected' && <Typography>Injected</Typography>}
+      <img src={walletIcon} />
+      {/* {props.wallet === 'viewMode' && <Typography>View mode</Typography>} */}
+      {
+        props.wallet && !walletsWithFullIcons.includes(props.wallet) &&
+        <Typography>{props.walletName}</Typography>
+      }
     </SButton>
   );
 }

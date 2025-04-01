@@ -106,6 +106,7 @@ function SafeDashboard() {
   const safeThreshold = useAppSelector((store) => store.stakingHub.safeInfo.data.threshold);
   const onboardingIsNotFinished = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
   const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
+  const creatingNewSafePending = useAppSelector((store) => store.safe.creatingNewSafePending);
   const [updating, set_updating] = useState(false);
 
   const onboardingIsFinished = !onboardingIsFetching && !onboardingIsNotFinished;
@@ -118,7 +119,7 @@ function SafeDashboard() {
       // GROUP 1 when target is false 1. addChannelsAndTokenTarget (0xa2450f89) in the module contract
       const newConfig = `0x693bac5ce61c720ddc68533991ceb41199d8f8ae010103030303030303030303`;
 
-      const addChannelsAndTokenTarget  = encodeFunctionData({
+      const addChannelsAndTokenTarget = encodeFunctionData({
         abi: web3.hoprNodeManagementModuleABI,
         functionName: 'addChannelsAndTokenTarget',
         args: [newConfig],
@@ -163,20 +164,20 @@ function SafeDashboard() {
           smartContractAddress: MULTISEND_CONTRACT_GNOSIS,
         }),
       )
-      .unwrap()
-      .then(() => {
-        dispatch(stakingHubActions.setConfigUpdated());
-      })
-      .finally(() => {
-        set_updating(false);
-      });
+        .unwrap()
+        .then(() => {
+          dispatch(stakingHubActions.setConfigUpdated());
+        })
+        .finally(() => {
+          set_updating(false);
+        });
     }
 
     else if (updateStrategy === 'configAnnounceOnly') {
       // GROUP 3 when announce target was not provided earlier
       const newConfig = `0x619eabE23FD0E2291B50a507719aa633fE6069b8010003000000000000000000`;
 
-      const scopeTargetToken  = encodeFunctionData({
+      const scopeTargetToken = encodeFunctionData({
         abi: web3.hoprNodeManagementModuleABI,
         functionName: 'scopeTargetToken',
         args: [newConfig],
@@ -262,7 +263,7 @@ function SafeDashboard() {
       // GROUP 3 when announce target was not provided earlier
       const newConfig = `0x619eabE23FD0E2291B50a507719aa633fE6069b8010003000000000000000000`;
 
-      const scopeTargetToken  = encodeFunctionData({
+      const scopeTargetToken = encodeFunctionData({
         abi: web3.hoprNodeManagementModuleABI,
         functionName: 'scopeTargetToken',
         args: [newConfig],
@@ -293,83 +294,119 @@ function SafeDashboard() {
 
   return (
     <Container className="SafeDashboard">
-        <GrayCard
-          id="safe-owners"
-          title="Safe Owners:"
-          buttons={[
+      <GrayCard
+        id="safe-owners"
+        title="Safe Owners:"
+        buttons={[
+          {
+            text: 'Edit',
+            link: '/staking/edit-owners',
+          },
+        ]
+        }
+      >
+        <ul>
+          {safeOwners?.map(owner => <li key={`safe_owner_${owner}`}>{owner}</li>)}
+        </ul>
+        <div className="inline"><h4 className="inline">Required confirmations:</h4> {safeThreshold} out of {safeOwners && safeOwners.length} owners.</div>
+      </GrayCard>
+      <GrayCard
+        id="Update-Node-Configuration"
+        title="Safe Configuration"
+        currency={needsUpdate && onboardingIsFinished ? <span style={{ color: 'red' }}>Update needed</span> : <span style={{ color: 'darkGreen' }}>Current version</span>}
+      >
+        {
+          needsUpdate && onboardingIsFinished &&
+          <SafeTransactionButton
+            executeOptions={{
+              pending: updating,
+              disabled: !(needsUpdate && onboardingIsFinished),
+              onClick: executeUpdateConfig,
+              buttonText: 'Update',
+            }}
+            signOptions={{
+              pending: updating,
+              disabled: !(needsUpdate && onboardingIsFinished),
+              onClick: signUpdateConfig,
+              buttonText: 'Sign update',
+            }}
+            safeInfo={safeInfo}
+          />
+        }
+
+      </GrayCard>
+      <GrayCard
+        id="transfer-nft"
+        buttons={
+          communityNftIdInSafe
+            ? [
               {
-                text: 'Edit',
-                link: '/staking/edit-owners',
+                text: 'Withdraw NFT from Safe',
+                link: '/staking/withdraw?token=nft',
               },
             ]
-          }
-        >
-          <ul>
-            {safeOwners?.map(owner => <li key={`safe_owner_${owner}`}>{owner}</li>)}
-          </ul>
-          <div className="inline"><h4 className="inline">Required confirmations:</h4> {safeThreshold} out of {safeOwners && safeOwners.length} owners.</div>
-        </GrayCard>
-        <GrayCard
-          id="Update-Node-Configuration"
-          title="Safe Configuration"
-          currency={needsUpdate && onboardingIsFinished ? <span style={{ color: 'red' }}>Update needed</span> : <span style={{ color: 'darkGreen' }}>Current version</span>}
-          >
-            {
-              needsUpdate && onboardingIsFinished &&
-              <SafeTransactionButton
-                executeOptions={{
-                  pending: updating,
-                  disabled: !(needsUpdate && onboardingIsFinished),
-                  onClick: executeUpdateConfig,
-                  buttonText: 'Update',
-                }}
-                signOptions={{
-                  pending: updating,
-                  disabled: !(needsUpdate && onboardingIsFinished),
-                  onClick: signUpdateConfig,
-                  buttonText: 'Sign update',
-                }}
-                safeInfo={safeInfo}
-              />
-            }
+            : [
+              {
+                disabled: communityNftIdInWallet === null || !!communityNftIdInSafe,
+                pending: sendingNFT,
+                text: 'Transfer NFT to Safe',
+                onClick: () => {
+                  if (!walletClient) return;
+                  if (walletAddress && selectedSafeAddress && communityNftIdInWallet !== null) {
+                    dispatch(
+                      web3ActionsAsync.sendNftToSafeThunk({
+                        walletAddress,
+                        safeAddress: selectedSafeAddress,
+                        walletClient,
+                        communityNftId: communityNftIdInWallet,
+                      }),
+                    );
+                  }
+                },
+              },
+            ]
+        }
+      >
+        <TransferNFT>
+          <img src={whichNFTimage()} />
+        </TransferNFT>
+      </GrayCard>
+      <GrayCard
+        id="Create-new-safe"
+        title="Create new Safe"
+        buttons={[
+          {
+            pending: creatingNewSafePending,
+            text: 'Create Safe',
+            onClick: async () => {
+              if (!walletClient) return;
 
-        </GrayCard>
-        <GrayCard
-          id="transfer-nft"
-          buttons={
-            communityNftIdInSafe
-              ? [
-                {
-                  text: 'Withdraw NFT from Safe',
-                  link: '/staking/withdraw?token=nft',
-                },
-              ]
-              : [
-                {
-                  disabled: communityNftIdInWallet === null || !!communityNftIdInSafe,
-                  pending: sendingNFT,
-                  text: 'Transfer NFT to Safe',
-                  onClick: () => {
-                    if (!walletClient) return;
-                    if (walletAddress && selectedSafeAddress && communityNftIdInWallet !== null) {
-                      dispatch(
-                        web3ActionsAsync.sendNftToSafeThunk({
-                          walletAddress,
-                          safeAddress: selectedSafeAddress,
-                          walletClient,
-                          communityNftId: communityNftIdInWallet,
-                        }),
-                      );
-                    }
-                  },
-                },
-              ]
+              const config = {
+                owners: [walletAddress as string],
+                threshold: 1,
+              };
+
+              try {
+              //  set_error('');
+                await dispatch(
+                  safeActionsAsync.createSafeWithConfigThunk({
+                    config,
+                    walletClient,
+                    doNotSwitch: true
+                  }),
+                ).unwrap();
+              } catch (error) {
+                // if (error instanceof Error) {
+                //   set_error(error.message);
+                // } else {
+                //   set_error(JSON.stringify(error, null, 2));
+                // }
+                //  set_step(0);
+              }
+            },
           }
-        >
-          <TransferNFT>
-            <img src={whichNFTimage()} />
-          </TransferNFT>
-        </GrayCard>
+        ]}
+      />
       <div id="extra-info">
         <p className="center">
           In order to adjust the settings of your safe or transfer assets that are not supported by the HOPR Staking Hub

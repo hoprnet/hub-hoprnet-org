@@ -7,27 +7,15 @@ import { trackGoal } from 'fathom-client';
 
 // Store
 import { useAppDispatch, useAppSelector } from './store';
-import { authActions, authActionsAsync } from './store/slices/auth';
-import { nodeActions, nodeActionsAsync } from './store/slices/node';
 import { web3Actions } from './store/slices/web3';
 import { appActions } from './store/slices/app';
 import { safeActions } from './store/slices/safe';
 import { stakingHubActions } from './store/slices/stakingHub';
 
 // Sections
-import NodeLandingPage from './pages/node/landingPage';
 import StakingLandingPage from './pages/staking-hub/landingPage';
 import SectionWeb3 from './pages/staking-hub/web3';
 import SectionSafe from './pages/staking-hub/safe';
-import AliasesPage from './pages/node/aliases';
-import InfoPage from './pages/node/info';
-import MessagesPage from './pages/node/messages';
-import PeersPage from './pages/node/peers';
-import TicketsPage from './pages/node/tickets';
-import ChannelsPageIncoming from './pages/node/channelsIncoming';
-import ChannelsPageOutgoing from './pages/node/channelsOutgoing';
-import MetricsPage from './pages/node/metrics';
-import ConfigurationPage from './pages/node/configuration';
 import WrapperPage from './pages/staking-hub/wrapper';
 import StakingScreen from './pages/staking-hub/dashboard/staking';
 import SafeWithdraw from './pages/staking-hub/safeWithdraw';
@@ -104,7 +92,7 @@ export const applicationMapStakingHub: ApplicationMapType = [
         path: 'onboarding',
         icon: <TrainIcon />,
         element: <Onboarding />,
-        loginNeeded: 'web3',
+        loginNeeded: 'web3'
       },
       {
         name: 'Onboarding',
@@ -165,13 +153,13 @@ export const applicationMapStakingHub: ApplicationMapType = [
         loginNeeded: 'safe',
         inDrawer: false,
       },
-      {
-        path: 'gno-airdrop',
-        element: <GnoAirdrop />,
-        icon: <GnoAridropIcon />,
-        name: 'GNO Airdrop',
+      // {
+      //   path: 'gno-airdrop',
+      //   element: <GnoAirdrop />,
+      //   icon: <GnoAridropIcon />,
+      //   name: 'GNO Airdrop',
 
-      },
+      // },
       {
         path: 'dev',
         element: <SectionSafe />,
@@ -247,10 +235,7 @@ const LayoutEnhanced = () => {
   const web3Connected = useAppSelector((store) => store.web3.status.connected);
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
-  const loginData = useAppSelector((store) => store.auth.loginData);
   const [searchParams] = useSearchParams();
-  const apiEndpoint = searchParams.get('apiEndpoint');
-  const apiToken = searchParams.get('apiToken');
   const HOPRdNodeAddressForOnboarding = searchParams.get('HOPRdNodeAddressForOnboarding'); //Address given in HOPRd: https://hub.hoprnet.org/staking/onboarding?HOPRdNodeAddressForOnboarding={my_address}
 
   const numberOfPeers = useAppSelector((store) => store.node.peers.data?.connected.length);
@@ -259,6 +244,8 @@ const LayoutEnhanced = () => {
   const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
   const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
 
+  const onboardingFinished = !(useAppSelector((store) => store.stakingHub.onboarding.notFinished));
+
   const numberForDrawer = {
     numberOfPeers,
     numberOfAliases,
@@ -266,119 +253,6 @@ const LayoutEnhanced = () => {
     numberOfChannelsIn,
     numberOfChannelsOut
   }
-
-  useEffect(() => {
-    if (environment === 'web3') {
-      document.title = 'HOPR | Staking Hub';
-    } else if (environment === 'node') {
-      document.title = 'HOPR | Node Admin';
-    }
-  }, []);
-
-  useEffect(() => {
-    console.log('useEffect(()', apiEndpoint, apiToken)
-    if (!apiEndpoint) return;
-    if (loginData.apiEndpoint === apiEndpoint && loginData.apiToken === apiToken) return;
-    const formattedApiEndpoint = parseAndFormatUrl(apiEndpoint);
-    dispatch(
-      authActions.useNodeData({
-        apiEndpoint,
-        apiToken: apiToken ? apiToken : '',
-      })
-    );
-    dispatch(
-      nodeActions.setApiEndpoint({
-        apiEndpoint: formattedApiEndpoint,
-      }),
-    );
-    const useNode = async () => {
-      try {
-        console.log('Node Admin login from router');
-        const loginInfo = await dispatch(
-          authActionsAsync.loginThunk({
-            apiEndpoint,
-            apiToken: apiToken ? apiToken : '',
-          })
-        ).unwrap();
-        if (loginInfo) {
-          // We do this after the loginInfo to make sure the login from url was successful
-          trackGoal('Y641EPNA', 1) // LOGIN_TO_NODE_BY_URL
-          dispatch(
-            nodeActionsAsync.isNodeReadyThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            }),
-          );
-          dispatch(
-            nodeActionsAsync.getInfoThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            })
-          );
-          dispatch(
-            nodeActionsAsync.getAddressesThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            })
-          );
-          dispatch(
-            nodeActionsAsync.getAliasesThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            })
-          );
-          dispatch(
-            nodeActionsAsync.getPeersThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            })
-          );
-          dispatch(
-            nodeActionsAsync.getBalancesThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            })
-          );
-          dispatch(
-            nodeActionsAsync.getMessagesThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-              firstLoad: true,
-            })
-          );
-          dispatch(
-            nodeActionsAsync.getChannelsThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            })
-          );
-          dispatch(
-            nodeActionsAsync.getTicketStatisticsThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            })
-          );
-          dispatch(
-            nodeActionsAsync.getPrometheusMetricsThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            })
-          );
-          dispatch(
-            nodeActionsAsync.getConfigurationThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            })
-          );
-        }
-      } catch (e) {
-        trackGoal('ZUIBL4M8', 1) // FAILED_CONNECT_TO_NODE_BY_URL
-        // error is handled on redux
-      }
-    };
-    useNode();
-
-  }, [apiEndpoint, apiToken]);
 
   useEffect(() => {
     if (!HOPRdNodeAddressForOnboarding) return;
@@ -436,6 +310,7 @@ const LayoutEnhanced = () => {
         node: nodeConnected,
         web3: web3Connected,
         safe: !!safeAddress && web3Connected,
+        onboardingFinished
       }}
       className={environment}
       drawerType={environment === 'web3' ? 'blue' : undefined}
@@ -471,17 +346,10 @@ var routes = [
 
 applicationMap.map((groups) => {
   groups.items.map((item) => {
-    if (environment === 'node') {
-      routes[0].children.push({
-        path: '/',
-        element: <NodeLandingPage />,
-      });
-    } else if (environment === 'web3' || environment === 'dev') {
-      routes[0].children.push({
-        path: '/',
-        element: <StakingLandingPage />,
-      });
-    }
+    routes[0].children.push({
+      path: '/',
+      element: <StakingLandingPage />,
+    });
     if (item.path && item.element) {
       routes[0].children.push({
         path: item.overwritePath ? item.overwritePath : groups.path + '/' + item.path,

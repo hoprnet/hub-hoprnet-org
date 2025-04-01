@@ -1,4 +1,5 @@
-import { Address, useWaitForTransaction } from 'wagmi';
+import { useWaitForTransactionReceipt } from 'wagmi';
+import { Address } from 'viem';
 import { Loading } from './loading';
 import styled from '@emotion/styled';
 
@@ -39,7 +40,7 @@ export const FeedbackTransaction = ({
     error?: string;
   };
 }) => {
-  let { status } = useWaitForTransaction({
+  let { status } = useWaitForTransactionReceipt({
     confirmations,
     hash: transactionHash,
   });
@@ -55,6 +56,7 @@ export const FeedbackTransaction = ({
 
   return (
     <TransactionFeedbackText
+      transactionHash={transactionHash}
       status={status}
       feedbackTexts={feedbackTexts}
     />
@@ -74,9 +76,11 @@ const WalletFeedback = () => {
 
 const TransactionFeedbackText = ({
   status,
+  transactionHash,
   feedbackTexts,
 }: {
-  status: 'error' | 'success' | 'idle' | 'loading';
+  status: 'error' | 'success' | 'pending';
+  transactionHash?: Address;
   feedbackTexts: {
     loading: string;
     idle?: string;
@@ -84,7 +88,7 @@ const TransactionFeedbackText = ({
     error?: string;
   };
 }) => {
-  if (status === 'loading') {
+  if (status === 'pending' && transactionHash) {
     return (
       <FeedbackContainer>
         <FeedbackLoading>

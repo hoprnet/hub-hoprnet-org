@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Address, formatEther, parseEther, parseUnits } from 'viem';
 import {
-  erc20ABI,
   useBalance,
-  useContractWrite,
-  usePrepareContractWrite,
-  usePrepareSendTransaction,
-  useSendTransaction
+  useWriteContract,
+  useSendTransaction,
+  useBlockNumber,
+  useEstimateGas,
+  useSimulateContract
 } from 'wagmi';
+import { erc20Abi } from 'viem';
 import { MINIMUM_WXHOPR_TO_FUND, MINIMUM_WXHOPR_TO_FUND_NFT, MINIMUM_XDAI_TO_FUND, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../../../config'
 
 //Store
@@ -75,13 +76,16 @@ const FundsToSafe = () => {
   const [transactionHashFundXDai, set_transactionHashFundXDai] = useState<Address>();
   const [transactionHashFundWXHopr, set_transactionHashFundWXHopr] = useState<Address>();
 
+  const { data: blockNumber } = useBlockNumber({ watch: true })
+
   const {
     refetch: refetchXDaiSafeBalance,
     data: xDaiSafeBalance,
   } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
-    watch: true,
-    enabled: !!selectedSafeAddress,
+    query: {
+      enabled: !!selectedSafeAddress,
+    }
   });
 
   const {
@@ -90,22 +94,19 @@ const FundsToSafe = () => {
   } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    watch: true,
-    enabled: !!selectedSafeAddress,
+    query: {
+      enabled: !!selectedSafeAddress,
+    }
   });
+  useEffect(() => {
+    refetchXDaiSafeBalance();
+  }, [])
 
   useEffect(() => {
-    const fetchBalanceInterval = setInterval(() => {
-      if (selectedSafeAddress) {
-        refetchWXHoprSafeBalance();
-        refetchWXHoprSafeBalance();
-      }
-    }, 15_000);
-
-    return () => {
-      clearInterval(fetchBalanceInterval);
-    };
-  }, []);
+    if (selectedSafeAddress) {
+      refetchWXHoprSafeBalance();
+    }
+  }, [selectedSafeAddress, blockNumber]);
 
   useEffect(() => {
     if (communityNftIdInSafe) {
@@ -113,14 +114,14 @@ const FundsToSafe = () => {
     }
   }, [communityNftIdInSafe]);
 
-  const { config: xDAI_to_safe_config } = usePrepareSendTransaction({
-    to: selectedSafeAddress ?? undefined,
+  const { data: xDAI_to_safe_config } = useEstimateGas({
+    to: selectedSafeAddress as `0x${string}` ?? undefined,
     value: parseEther(xdaiValue),
   });
 
-  const { config: wxHOPR_to_safe_config } = usePrepareContractWrite({
+  const { data: wxHOPR_to_safe_config } = useSimulateContract({
     address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: 'transfer',
     args: [selectedSafeAddress as Address, parseUnits(wxhoprValue, 18)],
   });
@@ -143,15 +144,9 @@ const FundsToSafe = () => {
 
   const {
     isSuccess: is_wxHOPR_to_safe_success,
-    isLoading: is_wxHOPR_to_safe_loading,
-    write: write_wxHOPR_to_safe,
-  } = useContractWrite({
-    ...wxHOPR_to_safe_config,
-    onSuccess: (result) => {
-      set_transactionHashFundWXHopr(result.hash);
-      refetchWXHoprSafeBalance();
-    },
-  });
+    isPending: is_wxHOPR_to_safe_loading,
+    writeContract: write_wxHOPR_to_safe,
+  } = useWriteContract();
 
   useEffect(() => {
     if (is_wxHOPR_to_safe_success) {
@@ -161,15 +156,9 @@ const FundsToSafe = () => {
 
   const {
     isSuccess: is_xDAI_to_safe_success,
-    isLoading: is_xDAI_to_safe_loading,
+    isPending: is_xDAI_to_safe_loading,
     sendTransaction: send_xDAI_to_safe,
-  } = useSendTransaction({
-    ...xDAI_to_safe_config,
-    onSuccess: (result) => {
-      set_transactionHashFundXDai(result.hash);
-      refetchXDaiSafeBalance();
-    },
-  });
+  } = useSendTransaction();
 
   useEffect(() => {
     if (is_xDAI_to_safe_success) {
@@ -178,11 +167,29 @@ const FundsToSafe = () => {
   }, [is_xDAI_to_safe_loading]);
 
   const handleFundxDai = () => {
-    send_xDAI_to_safe?.();
+    send_xDAI_to_safe(
+      {
+        gas: xDAI_to_safe_config,
+        to: selectedSafeAddress as `0x${string}`,
+        value: parseEther(xdaiValue),
+      },
+      {
+        onSuccess: (result) => {
+          set_transactionHashFundXDai(result);
+          refetchXDaiSafeBalance();
+        },
+      });
   };
 
   const handleFundwxHopr = () => {
-    write_wxHOPR_to_safe?.();
+    write_wxHOPR_to_safe(
+      wxHOPR_to_safe_config!.request,
+      {
+        onSuccess: (result) => {
+          set_transactionHashFundWXHopr(result);
+          refetchWXHoprSafeBalance();
+        },
+      });
   };
 
   const xdaiEnoughBalance = (): boolean => {
@@ -261,27 +268,27 @@ const FundsToSafe = () => {
           <StyledGrayButton onClick={setMin_xDAI}>Min</StyledGrayButton>
           {
             notEnoughxDaiInWallet ?
-            <Tooltip
-              title='You do not have enough xDai in your wallet'
-            >
-              <span>
-                <Button
-                  onClick={handleFundxDai}
-                  disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0' || notEnoughxDaiInWallet}
-                  pending={is_xDAI_to_safe_loading}
-                >
-                  Fund
-                </Button>
-              </span>
-            </Tooltip>
-            :
-            <Button
-              onClick={handleFundxDai}
-              disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0'}
-              pending={is_xDAI_to_safe_loading}
-            >
-              Fund
-            </Button>
+              <Tooltip
+                title='You do not have enough xDai in your wallet'
+              >
+                <span>
+                  <Button
+                    onClick={handleFundxDai}
+                    disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0' || notEnoughxDaiInWallet}
+                    pending={is_xDAI_to_safe_loading}
+                  >
+                    Fund
+                  </Button>
+                </span>
+              </Tooltip>
+              :
+              <Button
+                onClick={handleFundxDai}
+                disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0'}
+                pending={is_xDAI_to_safe_loading}
+              >
+                Fund
+              </Button>
           }
         </StyledInputGroup>
       </StyledForm>
@@ -318,27 +325,27 @@ const FundsToSafe = () => {
 
           {
             notEnoughwxHoprInWallet ?
-            <Tooltip
-              title='You do not have enough wxHopr in your wallet'
-            >
-              <span>
-                <Button
-                  onClick={handleFundwxHopr}
-                  disabled={!wxhoprValue || wxhoprValue === '' || wxhoprValue === '0' || notEnoughwxHoprInWallet}
-                  pending={is_wxHOPR_to_safe_loading}
-                >
-                  Fund
-                </Button>
-              </span>
-            </Tooltip>
-            :
-            <Button
-              onClick={handleFundwxHopr}
-              disabled={!wxhoprValue || wxhoprValue === '' || wxhoprValue === '0'}
-              pending={is_wxHOPR_to_safe_loading}
-            >
-              Fund
-            </Button>
+              <Tooltip
+                title='You do not have enough wxHopr in your wallet'
+              >
+                <span>
+                  <Button
+                    onClick={handleFundwxHopr}
+                    disabled={!wxhoprValue || wxhoprValue === '' || wxhoprValue === '0' || notEnoughwxHoprInWallet}
+                    pending={is_wxHOPR_to_safe_loading}
+                  >
+                    Fund
+                  </Button>
+                </span>
+              </Tooltip>
+              :
+              <Button
+                onClick={handleFundwxHopr}
+                disabled={!wxhoprValue || wxhoprValue === '' || wxhoprValue === '0'}
+                pending={is_wxHOPR_to_safe_loading}
+              >
+                Fund
+              </Button>
           }
         </StyledInputGroup>
       </StyledForm>

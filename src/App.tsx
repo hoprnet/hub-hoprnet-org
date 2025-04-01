@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
-import WagmiProvider from './providers/wagmi';
+import WagmiProviderContainer from './providers/wagmi';
 import router from './router';
 import store from './store';
 import { ToastContainer } from 'react-toastify';
@@ -22,16 +22,12 @@ const VersionComponent = styled.div`
 
 function App() {
   useEffect(() => {
-    if (environment === 'node') {
-      Fathom.load('MJISRYNH', { url: 'https://cdn-eu.usefathom.com/script.js', spa: 'auto', excludedDomains: ['localhost:5173'] });
-    } else if (environment === 'web3') {
-      Fathom.load('KBDXKTMO', { url: 'https://cdn-eu.usefathom.com/script.js', spa: 'auto', excludedDomains: ['localhost:5173']  });
-    }
+    Fathom.load('KBDXKTMO', { url: 'https://cdn-eu.usefathom.com/script.js', spa: 'auto', excludedDomains: ['localhost:5173']  });
   }, []);
 
   return (
     <Provider store={store}>
-      <WagmiProvider>
+      <WagmiProviderContainer>
         <ThemeProvider theme={theme}>
           <ToastContainer
             position="bottom-right"
@@ -40,7 +36,7 @@ function App() {
           <RouterProvider router={router} />
           <VersionComponent>Version: {packageJson.version}</VersionComponent>
         </ThemeProvider>
-      </WagmiProvider>
+      </WagmiProviderContainer>
     </Provider>
   );
 }

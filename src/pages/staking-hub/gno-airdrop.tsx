@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import styled from '@emotion/styled';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi';
-import { erc20ABI, useContractRead, useWalletClient } from 'wagmi';
+import { useReadContract, useWalletClient } from 'wagmi';
 import { parseUnits } from 'viem';
 import { WEBAPI_URL } from '../../../config'
 import { GNOeligible } from '../../utils/gno-airdrop';
