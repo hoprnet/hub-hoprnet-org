@@ -127,14 +127,23 @@ const AddAddressToERC1820RegistryModal = ({
   const startRefetchHandler = async () => {
     while(true) {
       await new Promise(r => setTimeout(r, 5_500));
-      console.log('refetchHandler timeout')
-      refetchHandler();
-      if(handlerData !== `0x0000000000000000000000000000000000000000`){
-        set_success(true);
-        break;
-      }
+
+
     }
   };
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | undefined;
+    if(handlerData !== `0x0000000000000000000000000000000000000000`){
+      set_success(true);
+      clearInterval(intervalId)
+    } else {
+      intervalId = setInterval(() => {
+        refetchHandler();
+      }, 5_500);
+    }
+    return () => clearInterval(intervalId);
+  }, [handlerData]);
 
   useEffect(() => {
     refetchHandler();
