@@ -165,7 +165,6 @@ function WrapperPage() {
   const [wxhoprValue, set_wxhoprValue] = useState('');
   const [showTxInfo, set_showTxInfo] = useState(false);
   const [notEnoughBalance, set_notEnoughBalance] = useState(false);
-  const [handlerIsSet, set_handlerIsSet] = useState<boolean>(true);
   const [AddAddressToERC1820RegistryModalOpen, set_AddAddressToERC1820RegistryModalOpen] = useState<boolean>(false);
   const [swapDirection, set_swapDirection] = useState<'xHOPR_to_wxHOPR' | 'wxHOPR_to_xHOPR'>('xHOPR_to_wxHOPR');
   const address = useAppSelector((store) => store.web3.account);
@@ -186,8 +185,9 @@ function WrapperPage() {
 
     const xhoprEther = parseEther(xhoprValue);
     const wxhoprEther = parseEther(wxhoprValue);
-    const xhoprWalletEther = BigInt(walletBalance.xHopr.value);
-    const wxhoprWalletEther = BigInt(walletBalance.wxHopr.value);
+    const xhoprWalletEther = parseEther(walletBalance.xHopr.value);
+    const wxhoprWalletEther = parseEther(walletBalance.wxHopr.value);
+    console.log(wxhoprEther)
 
     if (swapDirection === 'xHOPR_to_wxHOPR' && xhoprEther > xhoprWalletEther) set_notEnoughBalance(true)
     else if (swapDirection === 'xHOPR_to_wxHOPR') set_notEnoughBalance(false)
@@ -195,6 +195,12 @@ function WrapperPage() {
     else if (swapDirection === 'wxHOPR_to_xHOPR') set_notEnoughBalance(false)
 
   }, [swapDirection, xhoprValue, wxhoprValue, walletBalance.xHopr.value, walletBalance.xHopr.value]);
+
+  const swapButtonDisabled = (
+    (swapDirection === 'xHOPR_to_wxHOPR' && parseEther(xhoprValue) <= BigInt(0) )
+    ||
+    (swapDirection === 'wxHOPR_to_xHOPR' && parseEther(wxhoprValue) <= BigInt(0) )
+  );
 
   const { data: handlerData, refetch: refetchHandler } = useReadContract({
     address: ERC1820_REGISTRY,
@@ -208,9 +214,9 @@ function WrapperPage() {
     ],
   });
 
-  useEffect(() => {
-    if (handlerData === `0x0000000000000000000000000000000000000000`) set_handlerIsSet(false);
-  }, [handlerData]);
+  console.log('handlerData', handlerData);
+  const handlerIsSet = handlerData !== `0x0000000000000000000000000000000000000000`;
+  console.log('handlerIsSet', handlerIsSet);
 
   // Prepare contract write configurations
   // TX: wxHOPR -> xHOPR
@@ -228,6 +234,10 @@ function WrapperPage() {
     functionName: 'transferAndCall',
     args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(xhoprValue as NumberLiteral, 18), '0x'],
   });
+
+  useEffect(() => {
+    if(handlerIsSet) refetch1();
+  }, [handlerIsSet]);
 
   /**  TODO: make it work at some point, probably signature issue
   // xHOPR -> wxHOPR multicall if handlerData not set
@@ -361,12 +371,6 @@ function WrapperPage() {
     }
   };
 
-  const swapButtonDisabled = (
-    (swapDirection === 'xHOPR_to_wxHOPR' && BigInt(xhoprValue) <= BigInt(0) )
-    ||
-    (swapDirection === 'wxHOPR_to_xHOPR' && BigInt(wxhoprValue) <= BigInt(0) )
-  );
-
   return (
     <Section
       center
@@ -482,6 +486,7 @@ function WrapperPage() {
                   set_AddAddressToERC1820RegistryModalOpen(false);
                 }
               }
+              handlerData={handlerData}
               refetchHandler={refetchHandler}
             />
           }

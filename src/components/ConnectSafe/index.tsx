@@ -269,64 +269,58 @@ export default function ConnectSafe() {
           alt="Safe Icon"
         />
       </div>
-      {isConnected ? (
-        <>
-          <SafeAddressContainer>
-              <span className="typed">
-                <p className="subtext">
-                  Safe address:
-                </p>
-                <p className="address">
-                  <Tooltip
-                    title={safeAddress}
-                  >
-                    <span>{truncateEthereumAddress(safeAddress || '...') || '...'}</span>
-                  </Tooltip>
-                </p>
-              </span>
-              { multipleSafes && <DropdownArrow src="/assets/dropdown-arrow.svg" />}
-          </SafeAddressContainer>
-          {
-            multipleSafes &&
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleCloseMenu}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
+      <SafeAddressContainer>
+          <span className="typed">
+            <p className="subtext">
+              Safe address:
+            </p>
+            <p className="address">
+              <Tooltip
+                title={safeAddress}
+              >
+                <span>{truncateEthereumAddress(safeAddress || '...') || '...'}</span>
+              </Tooltip>
+            </p>
+          </span>
+          { multipleSafes && <DropdownArrow src="/assets/dropdown-arrow.svg" />}
+      </SafeAddressContainer>
+      {
+        multipleSafes &&
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleCloseMenu}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          MenuListProps={{
+            'aria-labelledby': 'safe-menu-button',
+            className: 'safe-menu-list',
+          }}
+          disableScrollLock={true}
+        >
+          {safes.map((safe, index) => (
+            <MenuItem
+              key={`${safe.safeAddress}_${index}`}
+              className={`${safe.safeAddress === safeAddress ? 'selected-safe' : ''}`}
+              value={safe.safeAddress}
+              onClick={() => {
+                useSelectedSafe(safe);
               }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              MenuListProps={{
-                'aria-labelledby': 'safe-menu-button',
-                className: 'safe-menu-list',
-              }}
-              disableScrollLock={true}
             >
-              {safes.map((safe, index) => (
-                <MenuItem
-                  key={`${safe.safeAddress}_${index}`}
-                  className={`${safe.safeAddress === safeAddress ? 'selected-safe' : ''}`}
-                  value={safe.safeAddress}
-                  onClick={() => {
-                    useSelectedSafe(safe);
-                  }}
-                >
-                  0x{`${safe.safeAddress.substring(2, 6)}...${safe.safeAddress.substring(
-                    safe.safeAddress.length - 8,
-                    safe.safeAddress.length
-                  )}`.toUpperCase()}
-                </MenuItem>
-              ))}
-            </Menu>
-          }
-        </>
-      ) : (
-        <DisabledButton>Connect Wallet</DisabledButton>
-      )}
+              0x{`${safe.safeAddress.substring(2, 6)}...${safe.safeAddress.substring(
+                safe.safeAddress.length - 8,
+                safe.safeAddress.length
+              )}`.toUpperCase()}
+            </MenuItem>
+          ))}
+        </Menu>
+      }
     </AppBarContainer>
   );
 }

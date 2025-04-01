@@ -59,11 +59,13 @@ const ModalOverlay = styled.div`
 type AddAddressToERC1820RegistryModalProps = {
   closeModal: Function,
   refetchHandler: Function
+  handlerData: `0x${string}` | undefined
 };
 
 const AddAddressToERC1820RegistryModal = ({
   closeModal,
-  refetchHandler
+  refetchHandler,
+  handlerData,
 }: AddAddressToERC1820RegistryModalProps) => {
   const [txStarted, set_txStarted] = useState<boolean>(false);
   const [success, set_success] = useState<boolean | null>(null);
@@ -72,12 +74,12 @@ const AddAddressToERC1820RegistryModal = ({
 
   useEffect(() => {
     if(!address) return;
-    refetch3();
-    startRefetchResult();
+    refetchSetter();
+    startRefetchHandler();
   }, [address]);
 
   // TX: handlerData
-  const { data, refetch: refetch3 } = useSimulateContract({
+  const { data, refetch: refetchSetter } = useSimulateContract({
     address: ERC1820_REGISTRY,
     abi: ERC1820RegistryAbi,
     functionName: 'setInterfaceImplementer',
@@ -98,8 +100,6 @@ const AddAddressToERC1820RegistryModal = ({
     failureReason
   } = useWriteContract();
 
-  const { data: hash2, isError: isError2, isLoading:isLoading2, isSuccess:isSuccess2 } = useWaitForTransactionReceipt({ hash });
-
   useEffect(()=>{
     if(isError) {
       set_txStarted(false);
@@ -108,18 +108,6 @@ const AddAddressToERC1820RegistryModal = ({
       }
     }
   }, [isError, failureReason]);
-
-  const { data: handlerData, refetch: refetchResult, isPending: refetchPending } = useReadContract({
-    address: ERC1820_REGISTRY,
-    abi: [
-      { "constant": true, "inputs": [{ "name": "_addr", "type": "address" }, { "name": "_interfaceHash", "type": "bytes32" }], "name": "getInterfaceImplementer", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }
-    ],
-    functionName: 'getInterfaceImplementer',
-    args: [
-      address as `0x${string}`,
-      '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b'
-    ],
-  });
 
   useEffect(() => {
     if(txStarted && handlerData !== `0x0000000000000000000000000000000000000000`){
@@ -136,10 +124,11 @@ const AddAddressToERC1820RegistryModal = ({
     closeModal();
   };
 
-  const startRefetchResult = async () => {
+  const startRefetchHandler = async () => {
     while(true) {
       await new Promise(r => setTimeout(r, 5_500));
-      refetchResult();
+      console.log('refetchHandler timeout')
+      refetchHandler();
       if(handlerData !== `0x0000000000000000000000000000000000000000`){
         set_success(true);
         break;
