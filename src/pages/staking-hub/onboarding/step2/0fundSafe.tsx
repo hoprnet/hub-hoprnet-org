@@ -115,8 +115,7 @@ const FundsToSafe = () => {
   }, [communityNftIdInSafe]);
 
   const { data: xDAI_to_safe_config } = useEstimateGas({
--    to: selectedSafeAddress as `0x{string}` ?? undefined,
-+    to: selectedSafeAddress as `0x${string}` ?? undefined,
+    to: selectedSafeAddress as `0x${string}` ?? undefined,
     value: parseEther(xdaiValue),
   });
 
