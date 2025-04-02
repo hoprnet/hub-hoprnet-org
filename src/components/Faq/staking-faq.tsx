@@ -379,7 +379,7 @@ const stakingFaq: FaqData = {
       id: 2,
       title: 'What is wrapping?',
       content:
-        'Wrapping a token allows it to be used on a non-native blockchain. Similar to switching a dollar for four quarters so you can use the machine that only takes quarters. You need to wxHOPR to fund payment channels in the HOPR network, but you can always swap the wxHOPR back for an equal amount of xHOPR ot HOPR.',
+        'Wrapping a token allows it to be used on a non-native blockchain. Similar to switching a dollar for four quarters so you can use the machine that only takes quarters. You need wxHOPR to fund payment channels in the HOPR network, but you can always swap the wxHOPR back for an equal amount of xHOPR or HOPR.',
     },
   ],
   '/staking/dashboard#staking': [
