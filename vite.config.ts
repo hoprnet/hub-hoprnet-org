@@ -7,6 +7,7 @@ import nodePolyfills from 'vite-plugin-node-stdlib-browser'
 // https://vitejs.dev/config/
 export default defineConfig(() => {
   return {
+    optimizeDeps: { include: ['@mui/material', '@emotion/react', '@emotion/styled'] },
     plugins: [
       // adds browser polyfills of Node.js built-in libraries
       nodePolyfills(),
@@ -31,6 +32,6 @@ export default defineConfig(() => {
         }
         warn(warning)
       } },
-    },  
+    },
   };
 });
