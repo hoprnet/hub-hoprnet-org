@@ -101,11 +101,7 @@ type ConnectWeb3Props = {
   onClose?: () => void;
 };
 
-export default function ConnectWeb3({
-  inTheAppBar,
-  open,
-  onClose,
-}: ConnectWeb3Props) {
+export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -128,7 +124,6 @@ export default function ConnectWeb3({
   const [localError, set_localError] = useState<false | string>(false);
   const [walletIcon, set_walletIcon] = useState('/assets/wallets/MetaMask_Fox.svg');
   const containerRef = useRef<HTMLButtonElement>(null);
-
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -158,7 +153,7 @@ export default function ConnectWeb3({
   }, [open]);
 
   useEffect(() => {
-    console.log({ connectors })
+    console.log({ connectors });
   }, [connectors]);
 
   useEffect(() => {
@@ -170,7 +165,7 @@ export default function ConnectWeb3({
         }
         set_localError(parsedError);
       } else {
-        set_localError(JSON.stringify(error))
+        set_localError(JSON.stringify(error));
       }
       // wallet connect modal can
       // cause errors if it is closed without connecting
@@ -203,7 +198,7 @@ export default function ConnectWeb3({
   };
 
   const handleDisconnectMM = () => {
-    console.log('handleDisconnectMM')
+    console.log('handleDisconnectMM');
     disconnect();
     dispatch(appActions.resetState());
     dispatch(web3Actions.resetState());
@@ -231,9 +226,9 @@ export default function ConnectWeb3({
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log('connector', connector);
-    if(!connector?.id) {
+    if (!connector?.id) {
       set_walletIcon('/assets/wallets/MetaMask_Fox.svg');
       return;
     }
@@ -246,7 +241,7 @@ export default function ConnectWeb3({
         set_walletIcon('/assets/wallets/WalletConnect-Icon.svg');
         break;
       default:
-        if(!connector.icon) set_walletIcon('/assets/wallets/MetaMask_Fox.svg');
+        if (!connector.icon) set_walletIcon('/assets/wallets/MetaMask_Fox.svg');
         else set_walletIcon(connector.icon);
     }
   }, [connector]);
@@ -272,12 +267,9 @@ export default function ConnectWeb3({
                     {connector?.name ?? 'Metamask'} @ {chain}
                   </p>
                   <p>
-                    <Tooltip
-                      title={account}
-                    >
+                    <Tooltip title={account}>
                       <span> {truncateEthereumAddress(account as string)}</span>
                     </Tooltip>
-
                   </p>
                 </div>
                 <div className="dropdown-icon">
@@ -306,7 +298,7 @@ export default function ConnectWeb3({
         {!localError && (
           <ConnectWalletContent>
             {connectors.map((connector) => {
-              if(['injected', 'walletConnect'].includes(connector.id)) return;
+              if (['injected', 'walletConnect'].includes(connector.id)) return;
               return (
                 <WalletButton
                   key={connector.uid}
@@ -319,10 +311,10 @@ export default function ConnectWeb3({
                   walletName={connector.name}
                   src={connector.icon}
                 />
-              )
+              );
             })}
             {connectors.map((connector) => {
-              if(['injected', 'walletConnect'].includes(connector.id))
+              if (['injected', 'walletConnect'].includes(connector.id))
                 return (
                   <WalletButton
                     key={connector.uid}
@@ -335,12 +327,12 @@ export default function ConnectWeb3({
                     walletName={connector.name}
                     walletIcon={connector.icon}
                   />
-                )
+                );
             })}
-          <p>
-            By connecting a wallet, you agree to HOPR’s Terms of Service and acknowledge that you have read and
-            understand the Disclaimer.
-          </p>
+            <p>
+              By connecting a wallet, you agree to HOPR’s Terms of Service and acknowledge that you have read and
+              understand the Disclaimer.
+            </p>
           </ConnectWalletContent>
         )}
         <ErrorContent>

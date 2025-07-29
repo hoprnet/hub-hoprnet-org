@@ -66,7 +66,7 @@ const SCodeContainer = styled.div`
   text-align: start;
   // text-transform: uppercase;
   code {
-    font-size: 12px!important;
+    font-size: 12px !important;
     line-height: 16px;
   }
 `;
@@ -76,32 +76,37 @@ const StyledGrayButton = styled(GrayButton)`
   height: 39px;
 `;
 
+const code = (moduleAddress?: string | null, safeAddress?: string | null) => {
+  return `docker run --pull always -d --restart on-failure -m 2g --security-opt seccomp=unconfined --platform linux/x86_64 --log-driver json-file --log-opt max-size=100M --log-opt max-file=5 -ti -v $HOME/YOUR_NODE_FOLDER:/app/hoprd-db --name hoprd -p 9091:9091/tcp -p 9091:9091/udp -p 3001:3001 -e RUST_LOG=info europe-west3-docker.pkg.dev/hoprassociation/docker-images/hoprd:stable --network dufour --init --api --identity /app/hoprd-db/.hopr-id-dufour --data /app/hoprd-db --password 'open-sesame-iTwnsPNg0hpagP+o6T0KOwiH9RQ0' --apiHost "0.0.0.0" --apiToken 'YOUR_SECURITY_TOKEN' --announce --safeAddress ${safeAddress} --moduleAddress ${moduleAddress} --host YOUR_PUBLIC_IP:9091 --provider CUSTOM_RPC_PROVIDER --configurationFilePath '/app/hoprd-db/hoprd-docker.cfg.yaml'`;
+};
 
-const code = (moduleAddress?: string | null, safeAddress?: string | null) => { return `docker run --pull always -d --restart on-failure -m 2g --security-opt seccomp=unconfined --platform linux/x86_64 --log-driver json-file --log-opt max-size=100M --log-opt max-file=5 -ti -v $HOME/YOUR_NODE_FOLDER:/app/hoprd-db --name hoprd -p 9091:9091/tcp -p 9091:9091/udp -p 3001:3001 -e RUST_LOG=info europe-west3-docker.pkg.dev/hoprassociation/docker-images/hoprd:stable --network dufour --init --api --identity /app/hoprd-db/.hopr-id-dufour --data /app/hoprd-db --password 'open-sesame-iTwnsPNg0hpagP+o6T0KOwiH9RQ0' --apiHost "0.0.0.0" --apiToken 'YOUR_SECURITY_TOKEN' --announce --safeAddress ${safeAddress} --moduleAddress ${moduleAddress} --host YOUR_PUBLIC_IP:9091 --provider CUSTOM_RPC_PROVIDER --configurationFilePath '/app/hoprd-db/hoprd-docker.cfg.yaml'`}
+const codeHTML = (moduleAddress?: string | null, safeAddress?: string | null) => {
+  return (
+    <>
+      {`docker run --pull always -d --restart on-failure -m 2g --security-opt seccomp=unconfined --platform linux/x86_64 --log-driver json-file --log-opt max-size=100M --log-opt max-file=5 -ti -v $HOME/`}
+      <span style={{ color: '#00fc00' }}>YOUR_NODE_FOLDER</span>
+      {`:/app/hoprd-db -p 9091:9091/tcp -p 9091:9091/udp -p 3001:3001 -e RUST_LOG=info europe-west3-docker.pkg.dev/hoprassociation/docker-images/hoprd:stable --network dufour --init --api --identity /app/hoprd-db/.hopr-id-dufour --data /app/hoprd-db --password 'open-sesame-iTwnsPNg0hpagP+o6T0KOwiH9RQ0' --apiHost "0.0.0.0" --apiToken '`}
+      <span style={{ color: '#00fc00' }}>YOUR_SECURITY_TOKEN</span>
+      {`' --announce --safeAddress ${safeAddress} --moduleAddress ${moduleAddress} --host `}
+      <span style={{ color: '#00fc00' }}>{`YOUR_PUBLIC_IP`}</span>
+      {`:9091 --provider `}
+      <span style={{ color: '#00fc00' }}>CUSTOM_RPC_PROVIDER</span>
+      {` --configurationFilePath '/app/hoprd-db/hoprd-docker.cfg.yaml'`}
+    </>
+  );
+};
 
-const codeHTML = (moduleAddress?: string | null, safeAddress?: string | null) => { return (
-  <>
-    {`docker run --pull always -d --restart on-failure -m 2g --security-opt seccomp=unconfined --platform linux/x86_64 --log-driver json-file --log-opt max-size=100M --log-opt max-file=5 -ti -v $HOME/`}
-    <span style={{color: '#00fc00'}}>YOUR_NODE_FOLDER</span>
-    {`:/app/hoprd-db -p 9091:9091/tcp -p 9091:9091/udp -p 3001:3001 -e RUST_LOG=info europe-west3-docker.pkg.dev/hoprassociation/docker-images/hoprd:stable --network dufour --init --api --identity /app/hoprd-db/.hopr-id-dufour --data /app/hoprd-db --password 'open-sesame-iTwnsPNg0hpagP+o6T0KOwiH9RQ0' --apiHost "0.0.0.0" --apiToken '`}
-    <span style={{color: '#00fc00'}}>YOUR_SECURITY_TOKEN</span>
-    {`' --announce --safeAddress ${safeAddress} --moduleAddress ${moduleAddress} --host `}
-    <span style={{color: '#00fc00'}}>{`YOUR_PUBLIC_IP`}</span>{`:9091 --provider `}
-    <span style={{color: '#00fc00'}}>CUSTOM_RPC_PROVIDER</span>{` --configurationFilePath '/app/hoprd-db/hoprd-docker.cfg.yaml'`}
-  </>
-)}
-
-export const CodeContainer = (props: {moduleAddress?: string | null, safeAddress?: string | null}) => {
-  return(
+export const CodeContainer = (props: { moduleAddress?: string | null; safeAddress?: string | null }) => {
+  return (
     <SCodeContainer>
       <span>INSTALL AND RUN HOPRd</span>
       <CodeCopyBox
-        code={<>{codeHTML(props.moduleAddress,props.safeAddress)}</>}
-        copy={code(props.moduleAddress,props.safeAddress)}
+        code={<>{codeHTML(props.moduleAddress, props.safeAddress)}</>}
+        copy={code(props.moduleAddress, props.safeAddress)}
       />
     </SCodeContainer>
-  )
-}
+  );
+};
 
 const Instruction = (props: { num: number; description?: string; children?: JSX.Element }) => {
   return (
@@ -124,32 +129,38 @@ export default function SetupNodeStep() {
       description={'Follow the instructions below to set up your HOPR node.'}
       buttons={
         <>
-        <StyledGrayButton
-          onClick={() => {
-            dispatch(stakingHubActions.setOnboardingStep(6));
-          }}
-        >
-          BACK
-        </StyledGrayButton>
-        <ConfirmButton
-          onClick={() => {
-            dispatch(stakingHubActions.setOnboardingStep(10));
-          }}
-        >
-          CONTINUE
-        </ConfirmButton>
-      </>
+          <StyledGrayButton
+            onClick={() => {
+              dispatch(stakingHubActions.setOnboardingStep(6));
+            }}
+          >
+            BACK
+          </StyledGrayButton>
+          <ConfirmButton
+            onClick={() => {
+              dispatch(stakingHubActions.setOnboardingStep(10));
+            }}
+          >
+            CONTINUE
+          </ConfirmButton>
+        </>
       }
     >
       <Content>
         <StepsContainer>
           <Instruction num={1}>
             <div>
-              <p>Copy the following command into your terminal and follow the instructions{' '}<StyledLink
-                to={`https://docs.hoprnet.org/node/node-docker` }
-                target="_blank"
-                rel="noopener noreferrer"
-              >here</StyledLink>.</p>
+              <p>
+                Copy the following command into your terminal and follow the instructions{' '}
+                <StyledLink
+                  to={`https://docs.hoprnet.org/node/node-docker`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  here
+                </StyledLink>
+                .
+              </p>
               <Content>
                 <CodeContainer
                   moduleAddress={moduleAddress}

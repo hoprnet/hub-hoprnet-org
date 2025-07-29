@@ -8,15 +8,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 
-import {
-  useReadContract,
-  useWriteContract,
-  useSimulateContract,
-  useWaitForTransactionReceipt
-} from 'wagmi';
-import {
-  ERC1820_REGISTRY
-} from '../../../../config';
+import { useReadContract, useWriteContract, useSimulateContract, useWaitForTransactionReceipt } from 'wagmi';
+import { ERC1820_REGISTRY } from '../../../../config';
 import { ERC1820RegistryAbi } from '../../../utils/abis/ERC1820RegistryAbi';
 
 const Content = styled(SDialogContent)`
@@ -30,7 +23,7 @@ const Content = styled(SDialogContent)`
       padding-inline: 2rem;
     }
   }
-  button.closeModalButton{
+  button.closeModalButton {
     z-index: 11;
   }
 `;
@@ -48,18 +41,18 @@ const ModalOverlay = styled.div`
   text-align: center;
   font-size: 22px;
   align-content: center;
-  svg[data-testid="CheckCircleRoundedIcon"]{
+  svg[data-testid='CheckCircleRoundedIcon'] {
     color: darkgreen;
   }
-  svg[data-testid="CancelRoundedIcon"]{
+  svg[data-testid='CancelRoundedIcon'] {
     color: red;
   }
-`
+`;
 
 type AddAddressToERC1820RegistryModalProps = {
-  closeModal: Function,
-  refetchHandler: Function
-  handlerData: `0x${string}` | undefined
+  closeModal: Function;
+  refetchHandler: Function;
+  handlerData: `0x${string}` | undefined;
 };
 
 const AddAddressToERC1820RegistryModal = ({
@@ -73,7 +66,7 @@ const AddAddressToERC1820RegistryModal = ({
   const address = useAppSelector((store) => store.web3.account);
 
   useEffect(() => {
-    if(!address) return;
+    if (!address) return;
     refetchSetter();
     startRefetchHandler();
   }, [address]);
@@ -86,31 +79,24 @@ const AddAddressToERC1820RegistryModal = ({
     args: [
       address,
       '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b',
-      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619'
+      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619',
     ],
   });
 
   // Perform contract writes and retrieve data.
-  const {
-    data: hash,
-    isPending,
-    isSuccess,
-    isError,
-    writeContract,
-    failureReason
-  } = useWriteContract();
+  const { data: hash, isPending, isSuccess, isError, writeContract, failureReason } = useWriteContract();
 
-  useEffect(()=>{
-    if(isError) {
+  useEffect(() => {
+    if (isError) {
       set_txStarted(false);
-      if(failureReason && 'details' in failureReason && failureReason.details) {
+      if (failureReason && 'details' in failureReason && failureReason.details) {
         set_error(failureReason.details);
       }
     }
   }, [isError, failureReason]);
 
   useEffect(() => {
-    if(txStarted && handlerData !== `0x0000000000000000000000000000000000000000`){
+    if (txStarted && handlerData !== `0x0000000000000000000000000000000000000000`) {
       set_success(true);
     }
   }, [txStarted, handlerData]);
@@ -125,18 +111,16 @@ const AddAddressToERC1820RegistryModal = ({
   };
 
   const startRefetchHandler = async () => {
-    while(true) {
-      await new Promise(r => setTimeout(r, 5_500));
-
-
+    while (true) {
+      await new Promise((r) => setTimeout(r, 5_500));
     }
   };
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | undefined;
-    if(handlerData !== `0x0000000000000000000000000000000000000000`){
+    if (handlerData !== `0x0000000000000000000000000000000000000000`) {
       set_success(true);
-      clearInterval(intervalId)
+      clearInterval(intervalId);
     } else {
       intervalId = setInterval(() => {
         refetchHandler();
@@ -154,46 +138,60 @@ const AddAddressToERC1820RegistryModal = ({
       open={true}
       disableScrollLock={true}
     >
-      {
-        (success || error) &&
+      {(success || error) && (
         <ModalOverlay>
-          {
-            success && <>
-              Success<br /><br />
+          {success && (
+            <>
+              Success
+              <br />
+              <br />
               <CheckCircleRoundedIcon />
             </>
-          }
-          {
-            error && <>
-              ERROR<br />
-              {error}<br /><br />
+          )}
+          {error && (
+            <>
+              ERROR
+              <br />
+              {error}
+              <br />
+              <br />
               <CancelRoundedIcon />
             </>
-          }
+          )}
         </ModalOverlay>
-      }
+      )}
       <STopBar>
         <DialogTitle>ADD YOUR ADDRESS TO ERC1820 REGISTRY</DialogTitle>
         <SIconButton
-          className='closeModalButton'
+          className="closeModalButton"
           aria-label="close modal"
-          onClick={() => { handleCloseModal() }}
+          onClick={() => {
+            handleCloseModal();
+          }}
         >
           <CloseIcon />
         </SIconButton>
       </STopBar>
       <Content>
-        <p>A one time, additional transaction must be done prior to the wrapping.<br />Without it, the wrapping of xHOPR to wxHOPR in this account will fail due to the lack of a callback handler. You need to set interface implementer in the{' '}
+        <p>
+          A one time, additional transaction must be done prior to the wrapping.
+          <br />
+          Without it, the wrapping of xHOPR to wxHOPR in this account will fail due to the lack of a callback handler.
+          You need to set interface implementer in the{' '}
           <a
             href="https://gnosisscan.io/address/0x1820a4b7618bde71dce8cdc73aab6c95905fad24#code"
             target="_blank"
             style={{ textDecoration: 'underline' }}
           >
             ERC1820 Registry
-          </a>{' '} to be able to continue with this transition.</p>
+          </a>{' '}
+          to be able to continue with this transition.
+        </p>
         <div>
           <Button
-            onClick={() => { handleCloseModal() }}
+            onClick={() => {
+              handleCloseModal();
+            }}
             outlined
           >
             NOT NOW

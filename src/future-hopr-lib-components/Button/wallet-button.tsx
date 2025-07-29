@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import MuiButton from '@mui/material/Button';
 import Typography from '../Typography';
-import { Connector } from 'wagmi'
+import { Connector } from 'wagmi';
 
 const SButton = styled(MuiButton)`
   width: 100%;
@@ -23,13 +23,13 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
     walletIcon?: string;
     className?: string;
     src?: string;
-    connector: Connector
+    connector: Connector;
   };
 
 export default function Button(props: ButtonProps) {
-  const [walletIcon, set_walletIcon] = useState(props.src)
+  const [walletIcon, set_walletIcon] = useState(props.src);
 
-  useEffect(()=>{
+  useEffect(() => {
     switch (props.wallet) {
       case 'com.brave.wallet':
         set_walletIcon('/assets/wallets/Brave-wallet.png');
@@ -52,10 +52,7 @@ export default function Button(props: ButtonProps) {
     >
       <img src={walletIcon} />
       {/* {props.wallet === 'viewMode' && <Typography>View mode</Typography>} */}
-      {
-        props.wallet && !walletsWithFullIcons.includes(props.wallet) &&
-        <Typography>{props.walletName}</Typography>
-      }
+      {props.wallet && !walletsWithFullIcons.includes(props.wallet) && <Typography>{props.walletName}</Typography>}
     </SButton>
   );
 }

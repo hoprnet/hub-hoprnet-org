@@ -19,7 +19,7 @@ import {
   StyledInputGroup,
   StyledInstructions,
   StyledTextField,
-  Text
+  Text,
 } from './onboarding/styled';
 
 const StakewxHOPR = () => {
@@ -33,7 +33,7 @@ const StakewxHOPR = () => {
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     query: {
       enabled: !!selectedSafeAddress,
-    }
+    },
   });
 
   useEffect(() => {
@@ -75,14 +75,12 @@ const StakewxHOPR = () => {
   }, [is_wxHOPR_to_safe_loading]);
 
   const handleFundwxHopr = () => {
-    write_wxHOPR_to_safe?.(
-      wxHOPR_to_safe_config!.request,
-      {
-        onSuccess: (res) => {
-          set_transactionHash(res);
-          refetchWXHoprSafeBalance();
-        },
-      });
+    write_wxHOPR_to_safe?.(wxHOPR_to_safe_config!.request, {
+      onSuccess: (res) => {
+        set_transactionHash(res);
+        refetchWXHoprSafeBalance();
+      },
+    });
   };
 
   return (
@@ -128,7 +126,7 @@ const StakewxHOPR = () => {
                   style: { textAlign: 'right' },
                   min: 0,
                   pattern: '[0-9]*',
-                }
+                },
               }}
             />
             <StyledCoinLabel>wxHOPR</StyledCoinLabel>

@@ -7,22 +7,14 @@ import { web3Actions } from '../../store/slices/web3';
 
 // wagmi
 import { gnosis, localhost } from 'wagmi/chains';
-import {
-   WagmiProvider,
-   createConfig,
-   fallback,
-   unstable_connector,
-  } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { WagmiProvider, createConfig, fallback, unstable_connector } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 //wagmi connectors
 import { createWalletClient, custom, publicActions } from 'viem';
-import {
-  injected,
-  walletConnect
-} from 'wagmi/connectors'
+import { injected, walletConnect } from 'wagmi/connectors';
 import { VITE_WALLET_CONNECT_PROJECT_ID } from '../../../config';
-import { http } from 'wagmi'
+import { http } from 'wagmi';
 
 // No way to tell what the ethereum request can be so has to be any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,9 +26,9 @@ const walletIsInBrowser =
 
 export const browserClient = walletIsInBrowser
   ? createWalletClient({
-    chain: gnosis,
-    transport: custom((window as unknown as WindowWithEthereum).ethereum),
-  }).extend(publicActions)
+      chain: gnosis,
+      transport: custom((window as unknown as WindowWithEthereum).ethereum),
+    }).extend(publicActions)
   : null;
 
 const config = createConfig({
@@ -49,13 +41,10 @@ const config = createConfig({
     }),
   ],
   transports: {
-    [gnosis.id]: fallback([
-      unstable_connector(injected),
-      http('https://rpc.gnosischain.com/')
-    ], {
+    [gnosis.id]: fallback([unstable_connector(injected), http('https://rpc.gnosischain.com/')], {
       rank: false,
       retryCount: 3,
-    })
+    }),
   },
 });
 

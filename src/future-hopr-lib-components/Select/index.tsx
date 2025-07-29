@@ -34,10 +34,10 @@ type Props = SelectMuiProps & {
   values?: {
     value: string | number;
     name: string | number | null;
-    disabled?: boolean
+    disabled?: boolean;
   }[];
   native?: boolean;
-}
+};
 
 const Select: React.FC<Props> = (props) => {
   return (

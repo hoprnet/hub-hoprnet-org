@@ -46,7 +46,7 @@ const ContinueOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
   };
 
   const whichContinueToShow = () => {
-    switch(onboardingStep){
+    switch (onboardingStep) {
       case 4:
       case 5:
       case 6:
@@ -54,18 +54,17 @@ const ContinueOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
       case 8:
       case 9:
       case 10:
-        return 'option2' // Option 2: Safe funded, no node on the waitlist
+        return 'option2'; // Option 2: Safe funded, no node on the waitlist
       case 11:
       case 12:
       case 13:
       case 14:
       case 15:
-        return 'option3' // Option 3: Whitelisted
+        return 'option3'; // Option 3: Whitelisted
       default:
-        return 'option1' // Option 1: Safe not funded
+        return 'option1'; // Option 1: Safe not funded
     }
   };
-
 
   return (
     <SDialog
@@ -84,8 +83,7 @@ const ContinueOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
         </SIconButton>
       </TopBar>
       <Content>
-        {
-          whichContinueToShow() === 'option1' &&
+        {whichContinueToShow() === 'option1' && (
           <>
             <p>It looks like you didn't finish your onboarding. Would you like to continue?</p>
             <div>
@@ -99,17 +97,19 @@ const ContinueOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
                 onClick={() => {
                   navigate(`/staking/onboarding`);
                 }}
-                style={{width: '160px'}}
+                style={{ width: '160px' }}
               >
                 YES
               </Button>
             </div>
           </>
-        }
-        {
-          whichContinueToShow() === 'option2' &&
+        )}
+        {whichContinueToShow() === 'option2' && (
           <>
-            <p>If you have already filled out a waitlist form, please await confirmation of your node's waitlisting. If you haven't filled out a waitlist form yet, please do so now.</p>
+            <p>
+              If you have already filled out a waitlist form, please await confirmation of your node's waitlisting. If
+              you haven't filled out a waitlist form yet, please do so now.
+            </p>
             <div>
               <Button
                 outlined
@@ -131,15 +131,14 @@ const ContinueOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
                 onClick={() => {
                   navigate(`/staking/dashboard`);
                 }}
-                style={{width: '160px'}}
+                style={{ width: '160px' }}
               >
                 DASHBOARD
               </Button>
             </div>
           </>
-        }
-        {
-          whichContinueToShow() === 'option3' &&
+        )}
+        {whichContinueToShow() === 'option3' && (
           <>
             <p>Congratulations! Your node has been waitlisted. You can now complete the onboarding page!</p>
             <div>
@@ -153,13 +152,13 @@ const ContinueOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
                 onClick={() => {
                   navigate(`/staking/onboarding`);
                 }}
-                style={{width: '160px'}}
+                style={{ width: '160px' }}
               >
                 PROCEED
               </Button>
             </div>
           </>
-        }
+        )}
       </Content>
     </SDialog>
   );

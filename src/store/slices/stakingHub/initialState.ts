@@ -15,14 +15,14 @@ type InitialState = {
         value: string | null;
         formatted: string | null;
       };
-    }
+    };
     safeAddress: string | null;
     notStarted: boolean | null;
     modalToSartOnboardingDismissed: boolean;
     moduleAddress: string | null;
     userIsInOnboarding: boolean;
     nodeXDaiBalance: string | null;
-    nodeAddressProvidedByMagicLink:  string | null;
+    nodeAddressProvidedByMagicLink: string | null;
     isFetching: boolean;
   };
   safeInfo: {
@@ -34,12 +34,12 @@ type InitialState = {
       data: boolean;
       strategy: string | null;
       isFetching: boolean;
-    }
-  },
+    };
+  };
   nodes: {
-    data: { [key: string]: NodePayload }
-    isFetching: boolean
-  }
+    data: { [key: string]: NodePayload };
+    isFetching: boolean;
+  };
 };
 
 export type NodePayload = {
@@ -61,13 +61,13 @@ export type NodePayload = {
   registeredNodesInNetworkRegistry?: boolean;
   registeredNodesInSafeRegistry?: boolean;
   includedInModule?: boolean;
-}
+};
 
 type Owner = {
   owner: {
     id: string | null;
   };
-}
+};
 
 export type SubgraphParsedOutput = {
   balance: {
@@ -155,7 +155,7 @@ export const initialState: InitialState = {
         value: null,
         formatted: null,
       },
-    }
+    },
   },
   safeInfo: {
     data: {
@@ -200,10 +200,10 @@ export const initialState: InitialState = {
       data: false,
       strategy: null,
       isFetching: false,
-    }
+    },
   },
   nodes: {
     data: {},
-    isFetching: false
+    isFetching: false,
   },
 };

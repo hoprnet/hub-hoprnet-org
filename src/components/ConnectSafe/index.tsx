@@ -92,7 +92,10 @@ const SafeAddressContainer = styled.div`
   }
 `;
 
-function handleSaveSelectedSafeInLocalStorage(safeObject: { safeAddress?: string | null, moduleAddress?: string | null }, owner?: string | null) {
+function handleSaveSelectedSafeInLocalStorage(
+  safeObject: { safeAddress?: string | null; moduleAddress?: string | null },
+  owner?: string | null
+) {
   const safeAddress = safeObject.safeAddress;
   const moduleAddress = safeObject.moduleAddress;
   if (safeAddress && moduleAddress && owner) {
@@ -101,9 +104,9 @@ function handleSaveSelectedSafeInLocalStorage(safeObject: { safeAddress?: string
       // @ts-ignore
       json[owner] = safeObject;
     } else {
-      json = { [owner]: safeObject }
+      json = { [owner]: safeObject };
     }
-    saveStateToLocalStorage(`staking-hub-chosen-safe`, json)
+    saveStateToLocalStorage(`staking-hub-chosen-safe`, json);
   }
 }
 
@@ -148,26 +151,30 @@ export default function ConnectSafe() {
 
   // If no selected safeAddress, choose 1st one
   useEffect(() => {
-    console.log({ safeFromUrl, moduleFromUrl })
+    console.log({ safeFromUrl, moduleFromUrl });
     if (safeFromUrl && moduleFromUrl && !safeAddress) {
-      console.log('useSelectedSafe from url', safeFromUrl, moduleFromUrl)
+      console.log('useSelectedSafe from url', safeFromUrl, moduleFromUrl);
       useSelectedSafe({
         safeAddress: getAddress(safeFromUrl),
-        moduleAddress: getAddress(moduleFromUrl)
+        moduleAddress: getAddress(moduleFromUrl),
       });
-    }
-    else if (safes.length > 0 && !safeAddress && signer && ownerAddress) {
+    } else if (safes.length > 0 && !safeAddress && signer && ownerAddress) {
       try {
         //@ts-ignore
-        let localStorage: { [key: string]: { safeAddress: string, moduleAddress: string } } = loadStateFromLocalStorage(`staking-hub-chosen-safe`);
-        if (localStorage && localStorage[ownerAddress] && safes.filter(safe => safe?.safeAddress === localStorage[ownerAddress]?.safeAddress).length > 0) {
+        let localStorage: { [key: string]: { safeAddress: string; moduleAddress: string } } =
+          loadStateFromLocalStorage(`staking-hub-chosen-safe`);
+        if (
+          localStorage &&
+          localStorage[ownerAddress] &&
+          safes.filter((safe) => safe?.safeAddress === localStorage[ownerAddress]?.safeAddress).length > 0
+        ) {
           useSelectedSafe(localStorage[ownerAddress]);
-          console.log('useSelectedSafe from ls', localStorage[ownerAddress])
+          console.log('useSelectedSafe from ls', localStorage[ownerAddress]);
         } else {
           useSelectedSafe(safes[0]);
-          console.log('useSelectedSafe [0]', safes[0])
+          console.log('useSelectedSafe [0]', safes[0]);
         }
-      } catch (e) { }
+      } catch (e) {}
     }
   }, [safes, safeAddress, signer, ownerAddress, safeFromUrl, moduleFromUrl]);
 
@@ -184,9 +191,9 @@ export default function ConnectSafe() {
     }
   }, [selectedSafe, browserClient]);
 
-  const useSelectedSafe = async (safeObject: { safeAddress?: string | null, moduleAddress?: string | null }) => {
+  const useSelectedSafe = async (safeObject: { safeAddress?: string | null; moduleAddress?: string | null }) => {
     if (!safeObject.safeAddress || !safeObject.moduleAddress) return;
-    console.log('useSelectedSafe in', safeObject, signer)
+    console.log('useSelectedSafe in', safeObject, signer);
     const safeAddress = safeObject.safeAddress;
     const moduleAddress = safeObject.moduleAddress;
     if (signer) {
@@ -194,10 +201,12 @@ export default function ConnectSafe() {
       dispatch(safeActions.resetStateWithoutSelectedSafe());
       dispatch(stakingHubActions.resetStateWithoutSafeList());
       handleSaveSelectedSafeInLocalStorage(safeObject, ownerAddress);
-      dispatch(safeActions.setSelectedSafe({
-        safeAddress,
-        moduleAddress
-      }));
+      dispatch(
+        safeActions.setSelectedSafe({
+          safeAddress,
+          moduleAddress,
+        })
+      );
       observePendingSafeTransactions({
         dispatch,
         active: activePendingSafeTransaction,
@@ -237,7 +246,6 @@ export default function ConnectSafe() {
     }
   };
 
-
   // New function to handle opening the menu
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -261,7 +269,9 @@ export default function ConnectSafe() {
       onClick={handleSafeButtonClick}
       ref={menuRef}
       disabled={!isConnected || !multipleSafes}
-      className={`safe-connect-btn ${safeAddress ? 'safe-connected' : 'safe-not-connected'} ${ safeAddress ? 'display' : ''}`}
+      className={`safe-connect-btn ${safeAddress ? 'safe-connected' : 'safe-not-connected'} ${
+        safeAddress ? 'display' : ''
+      }`}
     >
       <div className="image-container">
         <img
@@ -270,22 +280,17 @@ export default function ConnectSafe() {
         />
       </div>
       <SafeAddressContainer>
-          <span className="typed">
-            <p className="subtext">
-              Safe address:
-            </p>
-            <p className="address">
-              <Tooltip
-                title={safeAddress}
-              >
-                <span>{truncateEthereumAddress(safeAddress || '...') || '...'}</span>
-              </Tooltip>
-            </p>
-          </span>
-          { multipleSafes && <DropdownArrow src="/assets/dropdown-arrow.svg" />}
+        <span className="typed">
+          <p className="subtext">Safe address:</p>
+          <p className="address">
+            <Tooltip title={safeAddress}>
+              <span>{truncateEthereumAddress(safeAddress || '...') || '...'}</span>
+            </Tooltip>
+          </p>
+        </span>
+        {multipleSafes && <DropdownArrow src="/assets/dropdown-arrow.svg" />}
       </SafeAddressContainer>
-      {
-        multipleSafes &&
+      {multipleSafes && (
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
@@ -313,14 +318,15 @@ export default function ConnectSafe() {
                 useSelectedSafe(safe);
               }}
             >
-              0x{`${safe.safeAddress.substring(2, 6)}...${safe.safeAddress.substring(
+              0x
+              {`${safe.safeAddress.substring(2, 6)}...${safe.safeAddress.substring(
                 safe.safeAddress.length - 8,
                 safe.safeAddress.length
               )}`.toUpperCase()}
             </MenuItem>
           ))}
         </Menu>
-      }
+      )}
     </AppBarContainer>
   );
 }

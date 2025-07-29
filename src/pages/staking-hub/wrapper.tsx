@@ -13,7 +13,7 @@ import {
   wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
   wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS,
   MULTISEND_CONTRACT_GNOSIS,
-  ERC1820_REGISTRY
+  ERC1820_REGISTRY,
 } from '../../../config';
 
 // Abis
@@ -36,14 +36,7 @@ import AddAddressToERC1820RegistryModal from '../../components/Modal/staking-hub
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { web3 } from '@hoprnet/hopr-sdk';
-import {
-  IconButton,
-  Paper,
-  TextField,
-  InputAdornment,
-  Button as MuiButton
-} from '@mui/material'
-
+import { IconButton, Paper, TextField, InputAdornment, Button as MuiButton } from '@mui/material';
 
 const StyledPaper = styled(Paper)`
   padding: 2rem;
@@ -140,15 +133,12 @@ type TransactionLinkProps = {
   hash: `0x${string}` | undefined;
 };
 
-function TransactionLink({
-  isSuccess,
-  hash,
-}: TransactionLinkProps) {
+function TransactionLink({ isSuccess, hash }: TransactionLinkProps) {
   if (!isSuccess) return null;
 
   return (
     <span>
-      Check out your {' '}
+      Check out your{' '}
       <GnosisLink
         href={`https://gnosisscan.io/tx/${hash}`}
         target="_blank"
@@ -166,13 +156,13 @@ function WrapperPage() {
   const [wxhoprValue, set_wxhoprValue] = useState('');
   const [showTxInfo, set_showTxInfo] = useState(false);
   const [safeTxOverwrite, set_safeTxOverwrite] = useState<{
-    wxHOPRBefore: string | null,
-    xHOPRBefore: string |null,
-    success: boolean
+    wxHOPRBefore: string | null;
+    xHOPRBefore: string | null;
+    success: boolean;
   }>({
     wxHOPRBefore: null,
     xHOPRBefore: null,
-    success: false
+    success: false,
   });
   const [notEnoughBalance, set_notEnoughBalance] = useState(false);
   const [AddAddressToERC1820RegistryModalOpen, set_AddAddressToERC1820RegistryModalOpen] = useState<boolean>(false);
@@ -198,29 +188,34 @@ function WrapperPage() {
     const xhoprWalletEther = parseEther(walletBalance.xHopr.value);
     const wxhoprWalletEther = parseEther(walletBalance.wxHopr.value);
 
-    if (swapDirection === 'xHOPR_to_wxHOPR' && xhoprEther > xhoprWalletEther) set_notEnoughBalance(true)
-    else if (swapDirection === 'xHOPR_to_wxHOPR') set_notEnoughBalance(false)
-    else if (swapDirection === 'wxHOPR_to_xHOPR' && wxhoprEther > wxhoprWalletEther) set_notEnoughBalance(true)
-    else if (swapDirection === 'wxHOPR_to_xHOPR') set_notEnoughBalance(false)
-
+    if (swapDirection === 'xHOPR_to_wxHOPR' && xhoprEther > xhoprWalletEther) set_notEnoughBalance(true);
+    else if (swapDirection === 'xHOPR_to_wxHOPR') set_notEnoughBalance(false);
+    else if (swapDirection === 'wxHOPR_to_xHOPR' && wxhoprEther > wxhoprWalletEther) set_notEnoughBalance(true);
+    else if (swapDirection === 'wxHOPR_to_xHOPR') set_notEnoughBalance(false);
   }, [swapDirection, xhoprValue, wxhoprValue, walletBalance.xHopr.value, walletBalance.xHopr.value]);
 
-  const swapButtonDisabled = (
-    (swapDirection === 'xHOPR_to_wxHOPR' && parseEther(xhoprValue) <= BigInt(0) )
-    ||
-    (swapDirection === 'wxHOPR_to_xHOPR' && parseEther(wxhoprValue) <= BigInt(0) )
-  );
+  const swapButtonDisabled =
+    (swapDirection === 'xHOPR_to_wxHOPR' && parseEther(xhoprValue) <= BigInt(0)) ||
+    (swapDirection === 'wxHOPR_to_xHOPR' && parseEther(wxhoprValue) <= BigInt(0));
 
   const { data: handlerData, refetch: refetchHandler } = useReadContract({
     address: ERC1820_REGISTRY,
     abi: [
-      { "constant": true, "inputs": [{ "name": "_addr", "type": "address" }, { "name": "_interfaceHash", "type": "bytes32" }], "name": "getInterfaceImplementer", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }
+      {
+        constant: true,
+        inputs: [
+          { name: '_addr', type: 'address' },
+          { name: '_interfaceHash', type: 'bytes32' },
+        ],
+        name: 'getInterfaceImplementer',
+        outputs: [{ name: '', type: 'address' }],
+        payable: false,
+        stateMutability: 'view',
+        type: 'function',
+      },
     ],
     functionName: 'getInterfaceImplementer',
-    args: [
-      address as `0x${string}`,
-      '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b'
-    ],
+    args: [address as `0x${string}`, '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b'],
   });
 
   const handlerIsSet = handlerData !== `0x0000000000000000000000000000000000000000`;
@@ -235,7 +230,11 @@ function WrapperPage() {
   });
 
   // TX: xHOPR -> wxHOPR if handlerData set
-  const { data: xHOPR_to_wxHOPR_config, refetch: refetch1, failureReason } = useSimulateContract({
+  const {
+    data: xHOPR_to_wxHOPR_config,
+    refetch: refetch1,
+    failureReason,
+  } = useSimulateContract({
     address: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     abi: web3.wrapperABI,
     functionName: 'transferAndCall',
@@ -243,7 +242,7 @@ function WrapperPage() {
   });
 
   useEffect(() => {
-    if(handlerIsSet) refetch1();
+    if (handlerIsSet) refetch1();
   }, [handlerIsSet]);
 
   /**  TODO: make it work at some point, probably signature issue
@@ -305,7 +304,8 @@ function WrapperPage() {
   } = useWriteContract();
 
   let hash = xHOPR_to_wxHOPR_data || wxHOPR_to_xHOPR_data || xHOPR_to_wxHOPR_data_multicall;
-  const walletLoading = is_xHOPR_to_wxHOPR_loading || is_wxHOPR_to_xHOPR_loading || is_xHOPR_to_wxHOPR_loading_multicall;
+  const walletLoading =
+    is_xHOPR_to_wxHOPR_loading || is_wxHOPR_to_xHOPR_loading || is_xHOPR_to_wxHOPR_loading_multicall;
   const txPending = is_xHOPR_to_wxHOPR_success || is_wxHOPR_to_xHOPR_success || is_xHOPR_to_wxHOPR_success_multicall;
   const txWillBeError = is_xHOPR_to_wxHOPR_error || is_wxHOPR_to_xHOPR_error || is_xHOPR_to_wxHOPR_error_multicall;
 
@@ -314,7 +314,7 @@ function WrapperPage() {
   // In case Safe free TX is used and we never get a TX under the received hash
   const { connector } = useAccount();
   useEffect(() => {
-    if(
+    if (
       connector?.id === 'walletConnect' &&
       hash &&
       isLoading &&
@@ -322,14 +322,14 @@ function WrapperPage() {
       walletBalance.wxHopr.value !== safeTxOverwrite.wxHOPRBefore &&
       safeTxOverwrite.success === false
     ) {
-      console.log('in')
+      console.log('in');
       set_safeTxOverwrite({
         xHOPRBefore: null,
         wxHOPRBefore: null,
-        success: true
+        success: true,
       });
     }
-    console.log('out')
+    console.log('out');
   }, [connector, hash, safeTxOverwrite, walletBalance, isLoading]);
 
   useEffect(() => {
@@ -348,18 +348,18 @@ function WrapperPage() {
 
   const handleClick = () => {
     // In case Safe free TX is used and we never get a TX under the received hash
-    if(connector?.id === 'walletConnect') {
+    if (connector?.id === 'walletConnect') {
       set_safeTxOverwrite({
         xHOPRBefore: walletBalance.xHopr.value,
         wxHOPRBefore: walletBalance.wxHopr.value,
-        success: false
-      })
+        success: false,
+      });
     }
 
     // The real handle
     set_showTxInfo(false);
     if (swapDirection === 'xHOPR_to_wxHOPR') {
-      if(handlerIsSet) write_xHOPR_to_wxHOPR_multicall?.(xHOPR_to_wxHOPR_config!.request);
+      if (handlerIsSet) write_xHOPR_to_wxHOPR_multicall?.(xHOPR_to_wxHOPR_config!.request);
       else set_AddAddressToERC1820RegistryModalOpen(true);
     } else {
       write_wxHOPR_to_xHOPR?.(wxHOPR_to_xHOPR_config!.request);
@@ -389,11 +389,7 @@ function WrapperPage() {
       set_xhoprValue('');
       set_wxhoprValue('');
     }
-  }, [
-    address,
-    walletBalance.xHopr.formatted,
-    walletBalance.wxHopr.formatted,
-  ]);
+  }, [address, walletBalance.xHopr.formatted, walletBalance.wxHopr.formatted]);
 
   // Set the maximum value for xHOPR on input field.
   const setMax_xHOPR = () => {
@@ -416,7 +412,14 @@ function WrapperPage() {
     >
       <StepContainer
         title="Wrapper"
-        description={<p>Utility to wrap (xHOPR &#8594; wxHOPR) and unwrap (wxHOPR &#8594; xHOPR) xHOPR tokens.<br /><br />Funds source: Your connected wallet</p>}
+        description={
+          <p>
+            Utility to wrap (xHOPR &#8594; wxHOPR) and unwrap (wxHOPR &#8594; xHOPR) xHOPR tokens.
+            <br />
+            <br />
+            Funds source: Your connected wallet
+          </p>
+        }
         image={{
           src: '/assets/wrapper-wallet-wallet.png',
           alt: 'Funds to safe image',
@@ -438,7 +441,9 @@ function WrapperPage() {
           </Button>
         }
       >
-        <br /><br /><br />
+        <br />
+        <br />
+        <br />
         <WrapperContainer>
           <StyledTextField
             label="xHOPR"
@@ -515,18 +520,15 @@ function WrapperPage() {
               />
             </>
           )}
-          {
-            AddAddressToERC1820RegistryModalOpen &&
+          {AddAddressToERC1820RegistryModalOpen && (
             <AddAddressToERC1820RegistryModal
-              closeModal={
-                ()=>{
-                  set_AddAddressToERC1820RegistryModalOpen(false);
-                }
-              }
+              closeModal={() => {
+                set_AddAddressToERC1820RegistryModalOpen(false);
+              }}
               handlerData={handlerData}
               refetchHandler={refetchHandler}
             />
-          }
+          )}
         </WrapperContainer>
       </StepContainer>
       <NetworkOverlay />

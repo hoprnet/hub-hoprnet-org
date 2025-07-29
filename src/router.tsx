@@ -1,5 +1,12 @@
 import { useEffect } from 'react';
-import { createBrowserRouter, RouteObject, useSearchParams, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouteObject,
+  useSearchParams,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { environment } from '../config';
 import { useDisconnect } from 'wagmi';
 import { parseAndFormatUrl } from './utils/parseAndFormatUrl';
@@ -30,7 +37,7 @@ import StakexDAI from './pages/staking-hub/stakexDai';
 import SetAllowance from './pages/staking-hub/setAllowance';
 import FundNode from './pages/staking-hub/fundNode';
 import EditOwners from './pages/staking-hub/editOwners';
-import GnoAirdrop from './pages/staking-hub/gno-airdrop'
+import GnoAirdrop from './pages/staking-hub/gno-airdrop';
 
 // Layout
 import Layout from './future-hopr-lib-components/Layout';
@@ -92,7 +99,7 @@ export const applicationMapStakingHub: ApplicationMapType = [
         path: 'onboarding',
         icon: <TrainIcon />,
         element: <Onboarding />,
-        loginNeeded: 'web3'
+        loginNeeded: 'web3',
       },
       {
         name: 'Onboarding',
@@ -239,7 +246,9 @@ const LayoutEnhanced = () => {
   const HOPRdNodeAddressForOnboarding = searchParams.get('HOPRdNodeAddressForOnboarding'); //Address given in HOPRd: https://hub.hoprnet.org/staking/onboarding?HOPRdNodeAddressForOnboarding={my_address}
 
   const numberOfPeers = useAppSelector((store) => store.node.peers.data?.connected.length);
-  const numberOfAliases = useAppSelector((store) => store.node.aliases?.data && Object.keys(store.node.aliases?.data).length);
+  const numberOfAliases = useAppSelector(
+    (store) => store.node.aliases?.data && Object.keys(store.node.aliases?.data).length
+  );
   const numberOfMessagesReceived = useAppSelector((store) => store.node.messages.data.length);
   const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
   const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
@@ -254,8 +263,8 @@ const LayoutEnhanced = () => {
     numberOfAliases,
     numberOfMessagesReceived,
     numberOfChannelsIn,
-    numberOfChannelsOut
-  }
+    numberOfChannelsOut,
+  };
 
   useEffect(() => {
     if (!HOPRdNodeAddressForOnboarding) return;
@@ -313,7 +322,7 @@ const LayoutEnhanced = () => {
         node: nodeConnected,
         web3: web3Connected,
         safe: !!safeAddress && web3Connected,
-        onboardingFinished
+        onboardingFinished,
       }}
       className={environment}
       drawerType={environment === 'web3' ? 'blue' : undefined}
