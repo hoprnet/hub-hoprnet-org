@@ -2,6 +2,7 @@ import { ReactNode, useState } from 'react';
 import { useAppSelector } from '../../../store';
 import styled from '@emotion/styled';
 import { rounder } from '../../../utils/functions';
+import numbro from 'numbro';
 
 import Chart from 'react-apexcharts';
 import { Card, Chip, IconButton } from '@mui/material';
@@ -116,12 +117,67 @@ const ColumnChart = () => {
   );
 };
 
+function shrinkNumber(value?: string | number | undefined | null): string {
+  if (value === undefined || value === null) {
+    return '-';
+  }
+  let originalValue;
+  if (typeof value === 'string') {
+    originalValue = parseFloat(value);
+    if (value.includes('.')) {
+      const parts = value.split('.');
+      value = parts[0] + '.' + parts[1].slice(0, 6);
+    }
+    value = parseFloat(value);
+  } else {
+    originalValue = value;
+  }
+  if (originalValue === 0) {
+    return '0';
+  }
+  if (value < 10000) {
+    let shrank = numbro(value).format({
+      roundingFunction: Math.floor,
+      trimMantissa: true,
+      optionalMantissa: true,
+      mantissa: 4,
+      thousandSeparated: true,
+    });
+    console.log('shrank', shrank, 'originalValue', originalValue);
+    if (shrank === '0' && originalValue > 0) {
+      shrank = '~' + shrank;
+    }
+    return shrank;
+  }
+  if (value >= 1000000) {
+    return numbro(value).format({
+      roundingFunction: Math.floor,
+      trimMantissa: true,
+      optionalMantissa: true,
+      mantissa: 2,
+      totalLength: 3,
+      thousandSeparated: true,
+    });
+  }
+  return numbro(value).format({
+    roundingFunction: Math.floor,
+    trimMantissa: true,
+    optionalMantissa: true,
+    mantissa: 2,
+    thousandSeparated: true,
+  });
+}
+
 const StakingScreen = () => {
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as `0x${string}`;
   const moduleAddress = useAppSelector((store) => store.safe.selectedSafe.data.moduleAddress) as `0x${string}`;
   const safeBalance = useAppSelector((store) => store.safe.balance.data);
   const wxHoprAllowance = useAppSelector((store) => store.stakingHub.safeInfo.data.allowance.wxHoprAllowance);
   const [openBuyModal, set_openBuyModal] = useState(false);
+
+  const safeBalancewxHoprShrunk = shrinkNumber(safeBalance.wxHopr.formatted);
+  const safeBalancexDaiShrunk = shrinkNumber(safeBalance.xDai.formatted);
+  const wxHoprAllowanceShrunk = shrinkNumber(wxHoprAllowance);
 
   return (
     <Container>
@@ -171,7 +227,7 @@ const StakingScreen = () => {
         <GrayCard
           id="wxhopr-total-stake"
           title="wxHOPR Total Stake"
-          value={rounder(safeBalance.wxHopr.formatted, 6) ?? '-'}
+          value={safeBalancewxHoprShrunk}
           valueTooltip={safeBalance.wxHopr.formatted || '-'}
           currency={'wxHOPR'}
           // chip={{
@@ -202,7 +258,7 @@ const StakingScreen = () => {
         <GrayCard
           id="xdai-in-safe"
           title="xDAI in Safe"
-          value={rounder(safeBalance.xDai.formatted, 6) ?? '-'}
+          value={safeBalancexDaiShrunk}
           valueTooltip={safeBalance.xDai.formatted || '-'}
           currency={'xDAI'}
           buttons={[
@@ -245,7 +301,7 @@ const StakingScreen = () => {
           id="remaining-wxhopr-allowance"
           title="Remaining wxHOPR Allowance
           to Channels"
-          value={wxHoprAllowance ? rounder(wxHoprAllowance) : '-'}
+          value={wxHoprAllowanceShrunk}
           valueTooltip={wxHoprAllowance || '-'}
           currency="wxHOPR"
           buttons={[

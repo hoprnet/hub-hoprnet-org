@@ -2,6 +2,7 @@ import { useAppSelector } from '../../store';
 import styled from '@emotion/styled';
 import { formatEther } from 'viem';
 import Tooltip from '@mui/material/Tooltip';
+import numbro from 'numbro';
 
 interface Props {
   style?: object;
@@ -112,42 +113,36 @@ export const ColorStatus = styled.span`
   }
 `;
 
-// TODO: make batter to work with balances
-const truncateBalanceto5charsWhenNoDecimals = (value: string | number | undefined | null) => {
-  try {
-    if (value && BigInt(value)) {
-      if (BigInt(value) > BigInt(1e9)) {
-        return '1e9+';
-      } else if (BigInt(value) >= BigInt(1e6)) {
-        // @ts-ignore
-        const tmp = (parseInt(value) / 1e6).toString();
-        if (tmp.includes('.')) {
-          const [before, after] = tmp.split('.');
-          if (before.length === 3) return before + 'm';
-          return `${before}.${after.substring(0, 1)}m`;
-        } else {
-          if (tmp.length === 3) return `${tmp}3m`;
-          return `${tmp}.0m`;
-        }
-      } else if (BigInt(value) > BigInt(99999)) {
-        // @ts-ignore
-        const tmp = (parseInt(value) / 1e3).toString();
-        if (tmp.includes('.')) {
-          const [before, after] = tmp.split('.');
-          if (before.length === 3) return before + 'k';
-          return `${before}.${after.substring(0, 1)}k`;
-        } else {
-          if (tmp.length === 3) return `${tmp}k`;
-          return `${tmp}.0k`;
-        }
-      }
-      return value;
-    }
-  } catch (e) {
-    console.warn('Error while paring data to BigInt for InfoBar');
+function shrinkNumber(value?: string | number | undefined | null): string {
+  if (value === undefined || value === null) {
+    return '-';
   }
-  return value;
-};
+  let originalValue;
+  if (typeof value === 'string') {
+    originalValue = parseFloat(value);
+    if (value.includes('.')) {
+      const parts = value.split('.');
+      value = parts[0] + '.' + parts[1].slice(0, 6);
+    }
+    value = parseFloat(value);
+  } else {
+    originalValue = value;
+  }
+  if (originalValue === 0) {
+    return '0';
+  }
+  let shrank = numbro(value).format({
+    roundingFunction: Math.floor,
+    trimMantissa: true,
+    optionalMantissa: true,
+    thousandSeparated: true,
+    totalLength: 3,
+  });
+  if (shrank === '0' && originalValue > 0) {
+    shrank = '~' + shrank;
+  }
+  return shrank;
+}
 
 export default function Details(props: Props) {
   const channels = useAppSelector((store) => store.node.channels.data);
@@ -216,7 +211,7 @@ export default function Details(props: Props) {
                     : null
                 }
               >
-                <p>{safeBalance.wxHopr.formatted ?? '-'}</p>
+                <p>{shrinkNumber(safeBalance.wxHopr.formatted)}</p>
               </Tooltip>
               <Tooltip
                 title={
@@ -225,14 +220,14 @@ export default function Details(props: Props) {
                     : null
                 }
               >
-                <p>{safeBalance.xHopr.formatted ?? '-'}</p>
+                <p>{shrinkNumber(safeBalance.xHopr.formatted)}</p>
               </Tooltip>
               <Tooltip
                 title={
                   safeBalance.xDai.formatted && safeBalance.xDai.formatted !== '0' ? safeBalance.xDai.formatted : null
                 }
               >
-                <p>{safeBalance.xDai.formatted ?? '-'}</p>
+                <p>{shrinkNumber(safeBalance.xDai.formatted)}</p>
               </Tooltip>
             </Data>
           </>
@@ -248,7 +243,7 @@ export default function Details(props: Props) {
                 : null
             }
           >
-            <p>{walletBalance.wxHopr.formatted ?? '-'}</p>
+            <p>{shrinkNumber(walletBalance.wxHopr.formatted)}</p>
           </Tooltip>
           <Tooltip
             title={
@@ -257,14 +252,14 @@ export default function Details(props: Props) {
                 : null
             }
           >
-            <p>{walletBalance.xHopr.formatted ?? '-'}</p>
+            <p>{shrinkNumber(walletBalance.xHopr.formatted)}</p>
           </Tooltip>
           <Tooltip
             title={
               walletBalance.xDai.formatted && walletBalance.xDai.formatted !== '0' ? walletBalance.xDai.formatted : null
             }
           >
-            <p>{walletBalance.xDai.formatted ?? '-'}</p>
+            <p>{shrinkNumber(walletBalance.xDai.formatted)}</p>
           </Tooltip>
         </Data>
       </DataColumn>

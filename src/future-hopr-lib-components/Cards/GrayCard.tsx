@@ -8,7 +8,7 @@ import Tooltip from '@mui/material/Tooltip';
 export type GrayCardProps = {
   id: string;
   title?: string;
-  value?: string;
+  value?: string | number;
   valueTooltip?: string;
   currency?: string | ReactNode;
   chip?: {
@@ -50,6 +50,7 @@ const CardValue = styled.h5`
   font-size: 2rem;
   font-weight: 500;
   margin: 0;
+  overflow-wrap: anywhere;
 `;
 
 const CardCurrency = styled.p`

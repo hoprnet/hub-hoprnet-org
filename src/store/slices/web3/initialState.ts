@@ -17,14 +17,17 @@ export const initialState = {
     xDai: {
       value: null as string | null,
       formatted: null as string | null,
+      shrunk: null as string | null,
     },
     xHopr: {
       value: null as string | null,
       formatted: null as string | null,
+      shrunk: null as string | null,
     },
     wxHopr: {
       value: null as string | null,
       formatted: null as string | null,
+      shrunk: null as string | null,
     },
     isFetching: false,
   },
