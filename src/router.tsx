@@ -246,7 +246,8 @@ const LayoutEnhanced = () => {
 
   const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
   const onboardingNotFinished = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
-  const onboardingFinished = onboardingIsFetching ? null : !onboardingNotFinished;
+  const onboardingNotStarted = useAppSelector((store) => store.stakingHub.onboarding.notStarted);
+  const onboardingFinished = onboardingIsFetching || onboardingNotStarted ? null : !onboardingNotFinished;
 
   const numberForDrawer = {
     numberOfPeers,

@@ -14,7 +14,7 @@ import OnboardingIsFetching from './isFetching';
 import WhatYouWillNeedPage from './step0/0whatYouWillNeed';
 import CreateSafe from './step0/1createSafe';
 import SafeIsReady from './step0/2safeIsReady';
-import OptionalNftTransfer from './step1/0optionalNftTransfer';
+// import OptionalNftTransfer from './step1/0optionalNftTransfer.tsx_';
 import XdaiToSafe from './step2/0fundSafe';
 import SafeIsFunded from './step2/1safeIsFunded';
 import SelectNodeType from './step3/0selectNodeType';
