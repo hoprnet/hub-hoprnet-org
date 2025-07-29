@@ -117,7 +117,7 @@ const SideToSideContainer = styled.div`
   margin-bottom: 2rem;
   align-items: center;
   width: 100%;
-  justify-content: space-between;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 32px;
   &.evenSplit {
@@ -697,7 +697,7 @@ const faq: FaqData = [
     id: 3,
     title: 'How much do I need to stake to earn money?',
     content:
-      'You need to stake a minimum of 30,000 wxHOPR to join the network (or 10,000 if you are a returning Node runner with an access NFT). All Node runners with reachable, connected Nodes will earn wxHOPR tokens based on their stake.',
+      'You need to stake a minimum of 30,000 wxHOPR to join the network. All Node runners with reachable, connected Nodes will earn wxHOPR tokens based on their stake.',
   },
   {
     id: 4,

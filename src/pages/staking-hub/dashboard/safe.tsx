@@ -335,7 +335,7 @@ function SafeDashboard() {
         }
 
       </GrayCard>
-      <GrayCard
+      {/* <GrayCard
         id="transfer-nft"
         buttons={
           communityNftIdInSafe
@@ -370,7 +370,7 @@ function SafeDashboard() {
         <TransferNFT>
           <img src={whichNFTimage()} />
         </TransferNFT>
-      </GrayCard>
+      </GrayCard> */}
       <GrayCard
         id="Create-new-safe"
         title="Create new Safe"

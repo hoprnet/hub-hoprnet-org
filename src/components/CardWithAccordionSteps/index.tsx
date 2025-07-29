@@ -16,6 +16,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Card } from "@mui/materi
 const SafeSideToSideContainer = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: center;
   background-color: #e8f6fa;
   &.reverse {
     flex-direction: row-reverse;

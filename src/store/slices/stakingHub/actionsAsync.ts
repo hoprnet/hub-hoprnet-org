@@ -368,7 +368,7 @@ const getOnboardingDataThunk = createAsyncThunk<
   dispatch,
 }) => {
   dispatch(stakingHubActions.onboardingIsFetching(true));
-  await dispatch(safeActionsAsync.getCommunityNftsOwnedBySafeThunk(payload.safeAddress)).unwrap();
+ // await dispatch(safeActionsAsync.getCommunityNftsOwnedBySafeThunk(payload.safeAddress)).unwrap();
   const moduleAddress = payload.moduleAddress;
 
   if (!moduleAddress) {

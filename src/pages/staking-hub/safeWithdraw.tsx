@@ -107,11 +107,11 @@ const SUPPORTED_TOKENS = {
     value: 'xhopr',
     smartContract: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
   },
-  nft: {
-    name: 'NFT',
-    value: 'nft',
-    smartContract: GNOSIS_CHAIN_HOPR_BOOST_NFT,
-  },
+  // nft: {
+  //   name: 'NFT',
+  //   value: 'nft',
+  //   smartContract: GNOSIS_CHAIN_HOPR_BOOST_NFT,
+  // },
 } as const;
 
 function SafeWithdraw() {
@@ -256,28 +256,29 @@ function SafeWithdraw() {
             set_isWalletLoading(false);
           });
       }
-      if (token === 'nft') {
-        const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
+      // if (token === 'nft') {
+      //   const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
 
-        await dispatch(
-          safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
-            data: createSendNftTransactionData(getAddress(selectedSafeAddress) as Address, getAddress(receiver) as Address, Number(nftId)),
-            signer,
-            safeAddress: getAddress(selectedSafeAddress),
-            smartContractAddress,
-          }),
-        )
-          .unwrap()
-          .then((transactionResponse) => {
-            browserClient?.waitForTransactionReceipt({ hash: transactionResponse as Address }).then(() => {
-              dispatch(safeActions.removeCommunityNftsOwnedBySafe(nftId));
-            });
-            set_proposedTxHash(transactionResponse);
-          })
-          .finally(() => {
-            set_isWalletLoading(false);
-          });
-      } else {
+      //   await dispatch(
+      //     safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
+      //       data: createSendNftTransactionData(getAddress(selectedSafeAddress) as Address, getAddress(receiver) as Address, Number(nftId)),
+      //       signer,
+      //       safeAddress: getAddress(selectedSafeAddress),
+      //       smartContractAddress,
+      //     }),
+      //   )
+      //     .unwrap()
+      //     .then((transactionResponse) => {
+      //       browserClient?.waitForTransactionReceipt({ hash: transactionResponse as Address }).then(() => {
+      //         dispatch(safeActions.removeCommunityNftsOwnedBySafe(nftId));
+      //       });
+      //       set_proposedTxHash(transactionResponse);
+      //     })
+      //     .finally(() => {
+      //       set_isWalletLoading(false);
+      //     });
+      // }
+       else {
         const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
         const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
         return dispatch(

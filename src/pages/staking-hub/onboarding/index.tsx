@@ -103,27 +103,25 @@ function Onboarding() {
 
   function whatIsCurrentStep(page: number) {
     switch (page) {
-      case ONBOARDING_PAGES.OPTIONAL_NFT_TRANSFER:
-        return 1;
       case ONBOARDING_PAGES.XDAI_TO_SAFE:
       case ONBOARDING_PAGES.SAFE_IS_FUNDED:
-        return 2;
+        return 1;
       case ONBOARDING_PAGES.SELECT_NODE_TYPE:
       case ONBOARDING_PAGES.SETUP_NODE:
       case ONBOARDING_PAGES.SETUP_DAPP_NODE:
-        return 3;
+        return 2;
       case ONBOARDING_PAGES.JOIN_WAITLIST:
       case ONBOARDING_PAGES.ADDED_TO_WHITELIST:
-        return 4;
+        return 3;
       case ONBOARDING_PAGES.ADD_NODE:
-        return 5;
+        return 4;
       case ONBOARDING_PAGES.CONFIGURE_NODE:
-        return 6;
+        return 5;
       case ONBOARDING_PAGES.FUND_NODE:
-        return 7;
+        return 6;
       case ONBOARDING_PAGES.SET_ALLOWANCE:
       case ONBOARDING_PAGES.NODE_IS_READY:
-        return 8;
+        return 7;
 
       default:
         return 0;
@@ -138,7 +136,7 @@ function Onboarding() {
         style={{ flex: '1 1 10%' }}
         steps={[
           { name: 'CREATE SAFE' },
-          { name: 'NFT TRANSFER (OPTIONAL)' },
+          // { name: 'NFT TRANSFER (OPTIONAL)' },
           { name: 'FUND SAFE' },
           { name: 'CHOOSE YOUR NODE SETUP' },
           { name: 'WAITLIST' },
@@ -157,7 +155,7 @@ function Onboarding() {
             {onboardingStep === ONBOARDING_PAGES.WHAT_YOU_WILL_NEED && <WhatYouWillNeedPage />}
             {onboardingStep === ONBOARDING_PAGES.CREATE_SAFE && <CreateSafe />}
             {onboardingStep === ONBOARDING_PAGES.SAFE_IS_READY && <SafeIsReady />}
-            {onboardingStep === ONBOARDING_PAGES.OPTIONAL_NFT_TRANSFER && <OptionalNftTransfer />}
+            {/* {onboardingStep === ONBOARDING_PAGES.OPTIONAL_NFT_TRANSFER && <OptionalNftTransfer />} */}
             {onboardingStep === ONBOARDING_PAGES.XDAI_TO_SAFE && <XdaiToSafe />}
             {onboardingStep === ONBOARDING_PAGES.SAFE_IS_FUNDED && <SafeIsFunded />}
             {onboardingStep === ONBOARDING_PAGES.SELECT_NODE_TYPE && <SelectNodeType />}

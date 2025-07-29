@@ -90,7 +90,7 @@ export default function WagmiUpdater() {
       //fill the store
       dispatch(web3Actions.setAccount(address));
       dispatch(web3Actions.setConnected(isConnected));
-      dispatch(web3ActionsAsync.getCommunityNftsOwnedByWallet({ account: address }));
+      // dispatch(web3ActionsAsync.getCommunityNftsOwnedByWallet({ account: address }));
       dispatch(stakingHubActionsAsync.getHubSafesByOwnerThunk(address));
     }
     if(!isConnected) {
