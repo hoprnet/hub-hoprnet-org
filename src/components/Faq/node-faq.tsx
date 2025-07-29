@@ -133,7 +133,8 @@ const nodeFaq: FaqData = {
     {
       id: 3,
       title: 'Tickets values are different?',
-      content: 'The table of the Incomming Channels shows the value of tickets counted from last reset of your node, and the Tickets subpage shows the ticket number from the last reset of the node databse.',
+      content:
+        'The table of the Incomming Channels shows the value of tickets counted from last reset of your node, and the Tickets subpage shows the ticket number from the last reset of the node databse.',
     },
     // {
     //   id: 3,
@@ -283,7 +284,8 @@ const nodeFaq: FaqData = {
     {
       id: 2,
       title: 'Tickets values are different?',
-      content: 'The table of the Incomming Channels shows the value of tickets counted from last reset of your node, and the Tickets subpage shows the ticket number from the last reset of the node databse.',
+      content:
+        'The table of the Incomming Channels shows the value of tickets counted from last reset of your node, and the Tickets subpage shows the ticket number from the last reset of the node databse.',
     },
   ],
   '/networking/channels': [

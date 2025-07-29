@@ -127,7 +127,8 @@ const CloseOverlayIconButton = styled(IconButton)`
   top: 16px;
 `;
 
-const loginAnywaysWarning = "Your node did not start properly and might not be fully functioning. Some features might be offline and not working. By clicking on the \"Login anyways\" button, you are only troubleshooting issues. It should not be used when your node is in the syncing process or has not been properly started.";
+const loginAnywaysWarning =
+  'Your node did not start properly and might not be fully functioning. Some features might be offline and not working. By clicking on the "Login anyways" button, you are only troubleshooting issues. It should not be used when your node is in the syncing process or has not been properly started.';
 const defaultProps = { open: false };
 
 function ConnectNodeModal(props: ConnectNodeModalProps) {
@@ -188,7 +189,7 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
     }
     // If have have saved the node with the same apiToken, we check the saveApiToken checkbox
     const existingItemIndex = nodesSavedLocally.findIndex(
-      (item) => item.apiEndpoint === loginData.apiEndpoint && item.apiToken === loginData.apiToken,
+      (item) => item.apiEndpoint === loginData.apiEndpoint && item.apiToken === loginData.apiToken
     );
 
     if (
@@ -202,7 +203,7 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
 
   useEffect(() => {
     if (errorMessage) {
-      if(!apiToken || apiToken === '') navigate(`/?apiEndpoint=${encodeURIComponent(apiEndpoint)}`);
+      if (!apiToken || apiToken === '') navigate(`/?apiEndpoint=${encodeURIComponent(apiEndpoint)}`);
       else navigate(`/?apiToken=${encodeURIComponent(apiToken)}&apiEndpoint=${encodeURIComponent(apiEndpoint)}`);
     }
   }, [errorMessage]);
@@ -210,29 +211,29 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
   const saveNode = () => {
     const formattedApiEndpoint = parseAndFormatUrl(apiEndpoint);
     if (!formattedApiEndpoint) {
-      set_apiEndpointError('API Endpoint was incorrectly formatted')
+      set_apiEndpointError('API Endpoint was incorrectly formatted');
       return;
     } else {
-      set_apiEndpointError(null)
+      set_apiEndpointError(null);
     }
     dispatch(
       authActions.addNodeData({
         apiEndpoint: formattedApiEndpoint,
         apiToken: saveApiToken ? apiToken : '',
         localName: localName ? localName : '',
-      }),
+      })
     );
   };
 
   const useNode = async ({ force }: { force?: boolean }) => {
     const formattedApiEndpoint = parseAndFormatUrl(apiEndpoint);
     if (!formattedApiEndpoint) {
-      set_apiEndpointError('API Endpoint was incorrectly formatted')
+      set_apiEndpointError('API Endpoint was incorrectly formatted');
       return;
     } else {
-      set_apiEndpointError(null)
+      set_apiEndpointError(null);
     }
-    if(!apiToken || apiToken === '') {
+    if (!apiToken || apiToken === '') {
       set_searchParams({
         apiEndpoint: formattedApiEndpoint,
       });
@@ -253,12 +254,12 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
           apiEndpoint: formattedApiEndpoint,
           apiToken,
           force,
-        }),
+        })
       ).unwrap();
       dispatch(
         nodeActions.setApiEndpoint({
           apiEndpoint: formattedApiEndpoint,
-        }),
+        })
       );
       if (loginInfo) {
         dispatch(
@@ -266,32 +267,32 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
             apiEndpoint: formattedApiEndpoint,
             apiToken,
             localName,
-          }),
+          })
         );
         dispatch(
           nodeActionsAsync.isNodeReadyThunk({
             apiToken,
             apiEndpoint: formattedApiEndpoint,
-          }),
+          })
         );
         dispatch(
           nodeActionsAsync.getAddressesThunk({
             apiToken,
             apiEndpoint: formattedApiEndpoint,
-          }),
+          })
         );
         dispatch(
           nodeActionsAsync.getAliasesThunk({
             apiToken,
             apiEndpoint: formattedApiEndpoint,
-          }),
+          })
         );
         dispatch(
           nodeActionsAsync.getMessagesThunk({
             apiToken,
             apiEndpoint: formattedApiEndpoint,
             firstLoad: true,
-          }),
+          })
         );
         dispatch(
           nodeActionsAsync.getPrometheusMetricsThunk({
@@ -306,10 +307,9 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
           })
         );
         dispatch(nodeActions.setInfo(loginInfo));
-        if(!apiToken || apiToken === '') {
+        if (!apiToken || apiToken === '') {
           navigate(`/node/info?apiEndpoint=${formattedApiEndpoint}`);
-        }
-        else {
+        } else {
           navigate(`/node/info?apiToken=${encodeURIComponent(apiToken)}&apiEndpoint=${formattedApiEndpoint}`);
         }
         trackGoal('IZUWDE9K', 1);
@@ -425,11 +425,7 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
             }}
           />
           <Tooltip title={'Save node credentials in browser local storage'}>
-            <Button
-              onClick={saveNode}
-            >
-              Save
-            </Button>
+            <Button onClick={saveNode}>Save</Button>
           </Tooltip>
         </SaveTokenContainer>
 
@@ -459,10 +455,13 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
                 {errorMessage}
               </div>
 
-              {errorMessage !== 'UNAUTHORIZED' &&
-                <div style={{
-                  textAlign: 'center', marginTop: '32px',
-                }}>
+              {errorMessage !== 'UNAUTHORIZED' && (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '32px',
+                  }}
+                >
                   <Tooltip title={loginAnywaysWarning}>
                     <ForceLoginButton
                       onClick={() => set_forceLogin(true)}
@@ -471,11 +470,11 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
                       Login anyways
                     </ForceLoginButton>
                   </Tooltip>
-                </div>}
+                </div>
+              )}
             </div>
           </Overlay>
         )}
-
       </SModal>
 
       <Modal
@@ -507,11 +506,15 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
         disableScrollLock={true}
         title="WARNING"
       >
-
         <SirenImage src="/assets/police-siren-siren.gif" />
         <p>{loginAnywaysWarning}</p>
         <ButtonGroupContainer>
-          <Button outlined onClick={() => set_forceLogin(false)}>BACK</Button>
+          <Button
+            outlined
+            onClick={() => set_forceLogin(false)}
+          >
+            BACK
+          </Button>
           <ForceLoginButton
             onClick={() => {
               set_forceLogin(false);

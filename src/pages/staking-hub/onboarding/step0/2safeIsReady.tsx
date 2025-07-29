@@ -25,14 +25,12 @@ export default function safeIsReady() {
       buttons={
         <ConfirmButton
           onClick={() => {
-            dispatch(stakingHubActions.setOnboardingStep(3));
+            dispatch(stakingHubActions.setOnboardingStep(4));
           }}
         >
           CONTINUE
         </ConfirmButton>
       }
-    >
-
-    </StepContainer>
+    ></StepContainer>
   );
 }

@@ -76,7 +76,7 @@ export default function InfoBar(props: Props) {
   const currentRoute = useLocation().pathname;
   const currentHash = window.location.hash;
 
-  const completeHubFaq = Object.assign(hubFaq, stakingInfoData)
+  const completeHubFaq = Object.assign(hubFaq, stakingInfoData);
 
   const pageHasNodeFAQ = () => {
     if (nodeInfoData[currentRoute]) return true;

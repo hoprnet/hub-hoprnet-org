@@ -3,7 +3,11 @@ import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-type
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Address, parseUnits, getAddress } from 'viem';
-import { GNOSIS_CHAIN_HOPR_BOOST_NFT, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, xHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config'
+import {
+  GNOSIS_CHAIN_HOPR_BOOST_NFT,
+  wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+  xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+} from '../../../config';
 import { useEthersSigner } from '../../hooks';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { safeActions, safeActionsAsync } from '../../store/slices/safe';
@@ -107,11 +111,11 @@ const SUPPORTED_TOKENS = {
     value: 'xhopr',
     smartContract: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
   },
-  nft: {
-    name: 'NFT',
-    value: 'nft',
-    smartContract: GNOSIS_CHAIN_HOPR_BOOST_NFT,
-  },
+  // nft: {
+  //   name: 'NFT',
+  //   value: 'nft',
+  //   smartContract: GNOSIS_CHAIN_HOPR_BOOST_NFT,
+  // },
 } as const;
 
 function SafeWithdraw() {
@@ -136,7 +140,7 @@ function SafeWithdraw() {
   const [transactionHash, set_transactionHash] = useState<Address>();
   const [error, set_error] = useState<string | null>(null);
   const [token, set_token] = useState<keyof typeof SUPPORTED_TOKENS>(
-    tokenParam && tokenParam in SUPPORTED_TOKENS ? (tokenParam as keyof typeof SUPPORTED_TOKENS) : 'xdai',
+    tokenParam && tokenParam in SUPPORTED_TOKENS ? (tokenParam as keyof typeof SUPPORTED_TOKENS) : 'xdai'
   );
   const [proposedTxHash, set_proposedTxHash] = useState<string>();
   const [proposedTx, set_proposedTx] = useState<SafeMultisigTransactionResponse>();
@@ -167,7 +171,7 @@ function SafeWithdraw() {
               value: parsedValue as string,
               data: '0x',
             },
-          }),
+          })
         )
           .unwrap()
           .then((safeTxHash) => {
@@ -175,36 +179,42 @@ function SafeWithdraw() {
             navigate('/staking/dashboard#transactions');
           })
           .catch((e) => {
-            if(e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`)
-            else set_error(`ERROR: ${JSON.stringify(e)}`)
+            if (e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`);
+            else set_error(`ERROR: ${JSON.stringify(e)}`);
           })
           .finally(() => {
             set_isWalletLoading(false);
           });
       }
-      if (token === 'nft') {
-        const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
-        return dispatch(
-          safeActionsAsync.createSafeContractTransactionThunk({
-            data: createSendNftTransactionData(getAddress(selectedSafeAddress) as Address, getAddress(receiver) as Address, Number(nftId)),
-            signer,
-            safeAddress: getAddress(selectedSafeAddress),
-            smartContractAddress,
-          }),
-        )
-          .unwrap()
-          .then((transactionResponse) => {
-            set_proposedTxHash(transactionResponse);
-            navigate('/staking/dashboard#transactions');
-          })
-          .catch((e) => {
-            if(e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`)
-            else set_error(`ERROR: ${JSON.stringify(e)}`)
-          })
-          .finally(() => {
-            set_isWalletLoading(false);
-          });
-      } else {
+
+      // if (token === 'nft') {
+      //   const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
+      //   return dispatch(
+      //     safeActionsAsync.createSafeContractTransactionThunk({
+      //       data: createSendNftTransactionData(
+      //         getAddress(selectedSafeAddress) as Address,
+      //         getAddress(receiver) as Address,
+      //         Number(nftId)
+      //       ),
+      //       signer,
+      //       safeAddress: getAddress(selectedSafeAddress),
+      //       smartContractAddress,
+      //     })
+      //   )
+      //     .unwrap()
+      //     .then((transactionResponse) => {
+      //       set_proposedTxHash(transactionResponse);
+      //       navigate('/staking/dashboard#transactions');
+      //     })
+      //     .catch((e) => {
+      //       if (e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`);
+      //       else set_error(`ERROR: ${JSON.stringify(e)}`);
+      //     })
+      //     .finally(() => {
+      //       set_isWalletLoading(false);
+      //     });
+      // }
+      // else {
         const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
         const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
         return dispatch(
@@ -213,7 +223,7 @@ function SafeWithdraw() {
             signer,
             safeAddress: getAddress(selectedSafeAddress),
             smartContractAddress,
-          }),
+          })
         )
           .unwrap()
           .then((safeTxHash) => {
@@ -221,13 +231,13 @@ function SafeWithdraw() {
             navigate('/staking/dashboard#transactions');
           })
           .catch((e) => {
-            if(e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`)
-            else set_error(`ERROR: ${JSON.stringify(e)}`)
+            if (e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`);
+            else set_error(`ERROR: ${JSON.stringify(e)}`);
           })
           .finally(() => {
             set_isWalletLoading(false);
           });
-      }
+      //}
     }
   };
 
@@ -246,7 +256,7 @@ function SafeWithdraw() {
               value: parsedValue as string,
               data: '0x',
             },
-          }),
+          })
         )
           .unwrap()
           .then((transactionResponse) => {
@@ -256,28 +266,29 @@ function SafeWithdraw() {
             set_isWalletLoading(false);
           });
       }
-      if (token === 'nft') {
-        const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
+      // if (token === 'nft') {
+      //   const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
 
-        await dispatch(
-          safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
-            data: createSendNftTransactionData(getAddress(selectedSafeAddress) as Address, getAddress(receiver) as Address, Number(nftId)),
-            signer,
-            safeAddress: getAddress(selectedSafeAddress),
-            smartContractAddress,
-          }),
-        )
-          .unwrap()
-          .then((transactionResponse) => {
-            browserClient?.waitForTransactionReceipt({ hash: transactionResponse as Address }).then(() => {
-              dispatch(safeActions.removeCommunityNftsOwnedBySafe(nftId));
-            });
-            set_proposedTxHash(transactionResponse);
-          })
-          .finally(() => {
-            set_isWalletLoading(false);
-          });
-      } else {
+      //   await dispatch(
+      //     safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
+      //       data: createSendNftTransactionData(getAddress(selectedSafeAddress) as Address, getAddress(receiver) as Address, Number(nftId)),
+      //       signer,
+      //       safeAddress: getAddress(selectedSafeAddress),
+      //       smartContractAddress,
+      //     }),
+      //   )
+      //     .unwrap()
+      //     .then((transactionResponse) => {
+      //       browserClient?.waitForTransactionReceipt({ hash: transactionResponse as Address }).then(() => {
+      //         dispatch(safeActions.removeCommunityNftsOwnedBySafe(nftId));
+      //       });
+      //       set_proposedTxHash(transactionResponse);
+      //     })
+      //     .finally(() => {
+      //       set_isWalletLoading(false);
+      //     });
+      // }
+     // else {
         const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
         const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
         return dispatch(
@@ -286,7 +297,7 @@ function SafeWithdraw() {
             signer,
             safeAddress: getAddress(selectedSafeAddress),
             smartContractAddress,
-          }),
+          })
         )
           .unwrap()
           .then((transactionResponse) => {
@@ -295,7 +306,7 @@ function SafeWithdraw() {
           .finally(() => {
             set_isWalletLoading(false);
           });
-      }
+     // }
     }
   };
 
@@ -316,13 +327,17 @@ function SafeWithdraw() {
 
     // only require xDai value if there
     // is no proposed tx
-    if (!ethValue && !proposedTx && token !== 'nft') {
+    if (
+      !ethValue &&
+      !proposedTx
+    //  && token !== 'nft'
+    ) {
       errors.push('xDai value is required');
     }
 
-    if (token === 'nft' && !nftId) {
-      errors.push('NFT required');
-    }
+    // if (token === 'nft' && !nftId) {
+    //   errors.push('NFT required');
+    // }
 
     if (customValidator) {
       const customErrors = customValidator();
@@ -333,15 +348,19 @@ function SafeWithdraw() {
   };
 
   const getErrorsForApproveButton = () =>
-    getErrorsForSafeTx({ customValidator: () => {
-      return Number(ethValue) ? { errors: [] } : { errors: ['xdai value is required'] };
-    } });
+    getErrorsForSafeTx({
+      customValidator: () => {
+        return Number(ethValue) ? { errors: [] } : { errors: ['xdai value is required'] };
+      },
+    });
 
   const getErrorsForExecuteButton = () =>
-    getErrorsForSafeTx({ customValidator: () => {
-      // no user action means the user can not do anything
-      return !userAction ? { errors: [] } : { errors: ['transaction requires more approvals'] };
-    } });
+    getErrorsForSafeTx({
+      customValidator: () => {
+        // no user action means the user can not do anything
+        return !userAction ? { errors: [] } : { errors: ['transaction requires more approvals'] };
+      },
+    });
 
   const handleChangeToken = (event: SelectChangeEvent<unknown>) => {
     const value = event.target.value as string;
@@ -352,7 +371,7 @@ function SafeWithdraw() {
   };
 
   const handleChangeNftId = (event: SelectChangeEvent<unknown>) => {
-    if(error) set_error(null);
+    if (error) set_error(null);
     const value = event.target.value as string;
     if (value) {
       set_nftId(value);
@@ -360,9 +379,10 @@ function SafeWithdraw() {
   };
 
   const getTokenAvailable = (token: keyof typeof SUPPORTED_TOKENS): boolean => {
-    if (token === 'nft') {
-      return !!communityNftIds.length;
-    } else if (token === 'xdai') {
+    // if (token === 'nft') {
+    //   return !!communityNftIds.length;
+    // } else
+    if (token === 'xdai') {
       return !!safeBalances.xDai.value && BigInt(safeBalances.xDai.value) > BigInt(0);
     } else if (token === 'wxhopr') {
       return !!safeBalances.wxHopr.value && BigInt(safeBalances.wxHopr.value) > BigInt(0);
@@ -379,7 +399,7 @@ function SafeWithdraw() {
       center
       fullHeightMin
     >
-      <StartOnboarding/>
+      <StartOnboarding />
       <Card
         image={{
           src: '/assets/funds-safe-withdraw.svg',
@@ -418,14 +438,14 @@ function SafeWithdraw() {
                   size="small"
                   value={receiver}
                   onChange={(e) => {
-                    if(error) set_error(null);
+                    if (error) set_error(null);
                     set_receiver(e.target.value);
                   }}
                   InputProps={{ inputProps: { style: { textAlign: 'right' } } }}
                 />
                 <StyledCoinLabel>Receiver</StyledCoinLabel>
               </InputWithLabel>
-              {token === 'nft' ? (
+              {/* {token === 'nft' ? (
                 <InputWithLabel>
                   <Select
                     size="small"
@@ -442,7 +462,7 @@ function SafeWithdraw() {
                   />
                   <StyledCoinLabel>NFT ID</StyledCoinLabel>
                 </InputWithLabel>
-              ) : (
+              ) : ( */}
                 <InputWithLabel>
                   <TextField
                     variant="outlined"
@@ -450,8 +470,8 @@ function SafeWithdraw() {
                     size="small"
                     value={ethValue}
                     onChange={(e) => {
-                      if(error) set_error(null);
-                      set_ethValue(e.target.value)
+                      if (error) set_error(null);
+                      set_ethValue(e.target.value);
                     }}
                     inputProps={{
                       inputMode: 'numeric',
@@ -461,7 +481,7 @@ function SafeWithdraw() {
                   />
                   <StyledCoinLabel>{SUPPORTED_TOKENS[token].name}</StyledCoinLabel>
                 </InputWithLabel>
-              )}
+              {/* )} */}
             </StyledInputGroup>
           </StyledForm>
           {!!proposedTx && (
@@ -470,8 +490,8 @@ function SafeWithdraw() {
                 {userAction === 'EXECUTE'
                   ? 'transaction has been approved by required owners, now can be executed'
                   : `transaction is pending ${
-                    (proposedTx?.confirmationsRequired ?? 0) - (proposedTx?.confirmations?.length ?? 0)
-                  } approvals`}
+                      (proposedTx?.confirmationsRequired ?? 0) - (proposedTx?.confirmations?.length ?? 0)
+                    } approvals`}
               </StyledDescription>
             </StyledPendingSafeTransactions>
           )}
@@ -496,7 +516,7 @@ function SafeWithdraw() {
                 pending: isWalletLoading,
                 disabled: !!getErrorsForExecuteButton().length || isWalletLoading,
                 tooltipText: isWalletLoading ? 'Executing transaction' : getErrorsForExecuteButton().at(0),
-                transactionHash
+                transactionHash,
               }}
             />
           </StyledButtonGroup>

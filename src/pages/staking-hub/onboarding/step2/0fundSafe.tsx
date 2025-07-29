@@ -6,10 +6,15 @@ import {
   useSendTransaction,
   useBlockNumber,
   useEstimateGas,
-  useSimulateContract
+  useSimulateContract,
 } from 'wagmi';
 import { erc20Abi } from 'viem';
-import { MINIMUM_WXHOPR_TO_FUND, MINIMUM_WXHOPR_TO_FUND_NFT, MINIMUM_XDAI_TO_FUND, wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../../../config'
+import {
+  MINIMUM_WXHOPR_TO_FUND,
+  MINIMUM_WXHOPR_TO_FUND_NFT,
+  MINIMUM_XDAI_TO_FUND,
+  wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+} from '../../../../../config';
 
 //Store
 import { useAppDispatch, useAppSelector } from '../../../../store';
@@ -28,7 +33,7 @@ import {
   StyledInputGroup,
   StyledInstructions,
   StyledTextField,
-  Text
+  Text,
 } from '../styled';
 
 // MUI
@@ -52,14 +57,17 @@ const GreenText = styled.div`
 `;
 
 const BlueTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
+  <Tooltip
+    {...props}
+    classes={{ popper: className }}
+  />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "#DAF8FF",
+    backgroundColor: '#DAF8FF',
     color: '#414141',
-    borderRadius: "10px",
-    fontSize: "12px",
-    boxShadow: "0px 4px 4px #00000040"
+    borderRadius: '10px',
+    fontSize: '12px',
+    boxShadow: '0px 4px 4px #00000040',
   },
 }));
 
@@ -76,31 +84,25 @@ const FundsToSafe = () => {
   const [transactionHashFundXDai, set_transactionHashFundXDai] = useState<Address>();
   const [transactionHashFundWXHopr, set_transactionHashFundWXHopr] = useState<Address>();
 
-  const { data: blockNumber } = useBlockNumber({ watch: true })
+  const { data: blockNumber } = useBlockNumber({ watch: true });
 
-  const {
-    refetch: refetchXDaiSafeBalance,
-    data: xDaiSafeBalance,
-  } = useBalance({
+  const { refetch: refetchXDaiSafeBalance, data: xDaiSafeBalance } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     query: {
       enabled: !!selectedSafeAddress,
-    }
+    },
   });
 
-  const {
-    refetch: refetchWXHoprSafeBalance,
-    data: wxHoprSafeBalance,
-  } = useBalance({
+  const { refetch: refetchWXHoprSafeBalance, data: wxHoprSafeBalance } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
     query: {
       enabled: !!selectedSafeAddress,
-    }
+    },
   });
   useEffect(() => {
     refetchXDaiSafeBalance();
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (selectedSafeAddress) {
@@ -115,7 +117,7 @@ const FundsToSafe = () => {
   }, [communityNftIdInSafe]);
 
   const { data: xDAI_to_safe_config } = useEstimateGas({
-    to: selectedSafeAddress as `0x${string}` ?? undefined,
+    to: (selectedSafeAddress as `0x${string}`) ?? undefined,
     value: parseEther(xdaiValue),
   });
 
@@ -178,18 +180,17 @@ const FundsToSafe = () => {
           set_transactionHashFundXDai(result);
           refetchXDaiSafeBalance();
         },
-      });
+      }
+    );
   };
 
   const handleFundwxHopr = () => {
-    write_wxHOPR_to_safe(
-      wxHOPR_to_safe_config!.request,
-      {
-        onSuccess: (result) => {
-          set_transactionHashFundWXHopr(result);
-          refetchWXHoprSafeBalance();
-        },
-      });
+    write_wxHOPR_to_safe(wxHOPR_to_safe_config!.request, {
+      onSuccess: (result) => {
+        set_transactionHashFundWXHopr(result);
+        refetchWXHoprSafeBalance();
+      },
+    });
   };
 
   const xdaiEnoughBalance = (): boolean => {
@@ -206,8 +207,10 @@ const FundsToSafe = () => {
     return false;
   };
 
-  const notEnoughxDaiInWallet = !!walletxDaiBalance && !!xdaiValue && BigInt(parseFloat(xdaiValue) * 1e18) > BigInt(walletxDaiBalance);
-  const notEnoughwxHoprInWallet = !!walletwxHoprBalance && !!wxhoprValue && BigInt(parseFloat(wxhoprValue) * 1e18) > BigInt(walletwxHoprBalance);
+  const notEnoughxDaiInWallet =
+    !!walletxDaiBalance && !!xdaiValue && BigInt(parseFloat(xdaiValue) * 1e18) > BigInt(walletxDaiBalance);
+  const notEnoughwxHoprInWallet =
+    !!walletwxHoprBalance && !!wxhoprValue && BigInt(parseFloat(wxhoprValue) * 1e18) > BigInt(walletwxHoprBalance);
 
   return (
     <StepContainer
@@ -222,7 +225,7 @@ const FundsToSafe = () => {
         <>
           <StyledGrayButton
             onClick={() => {
-              dispatch(stakingHubActions.setOnboardingStep(3));
+              dispatch(stakingHubActions.setOnboardingStep(2));
             }}
           >
             Back
@@ -241,9 +244,12 @@ const FundsToSafe = () => {
       <StyledForm>
         <StyledInstructions>
           <Text>
-            Move <Lowercase>x</Lowercase>DAI to safe {' '}
-            <BlueTooltip title="Enter the amount of xDAI you would like to deposit to your Safe. In a later step this will be used to fund your node." >
-              <img src='/assets/question-icon.svg' style={{ height: "100%" }} />
+            Move <Lowercase>x</Lowercase>DAI to safe{' '}
+            <BlueTooltip title="Enter the amount of xDAI you would like to deposit to your Safe. In a later step this will be used to fund your node.">
+              <img
+                src="/assets/question-icon.svg"
+                style={{ height: '100%' }}
+              />
             </BlueTooltip>
           </Text>
         </StyledInstructions>
@@ -260,45 +266,45 @@ const FundsToSafe = () => {
                 style: { textAlign: 'right' },
                 min: 0,
                 pattern: '[0-9]*',
-              }
+              },
             }}
             helperText={`min. ${MINIMUM_XDAI_TO_FUND}`}
           />
           <StyledCoinLabel>xDAI</StyledCoinLabel>
           <StyledGrayButton onClick={setMin_xDAI}>Min</StyledGrayButton>
-          {
-            notEnoughxDaiInWallet ?
-              <Tooltip
-                title='You do not have enough xDai in your wallet'
-              >
-                <span>
-                  <Button
-                    onClick={handleFundxDai}
-                    disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0' || notEnoughxDaiInWallet}
-                    pending={is_xDAI_to_safe_loading}
-                  >
-                    Fund
-                  </Button>
-                </span>
-              </Tooltip>
-              :
-              <Button
-                onClick={handleFundxDai}
-                disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0'}
-                pending={is_xDAI_to_safe_loading}
-              >
-                Fund
-              </Button>
-          }
+          {notEnoughxDaiInWallet ? (
+            <Tooltip title="You do not have enough xDai in your wallet">
+              <span>
+                <Button
+                  onClick={handleFundxDai}
+                  disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0' || notEnoughxDaiInWallet}
+                  pending={is_xDAI_to_safe_loading}
+                >
+                  Fund
+                </Button>
+              </span>
+            </Tooltip>
+          ) : (
+            <Button
+              onClick={handleFundxDai}
+              disabled={!xdaiValue || xdaiValue === '' || xdaiValue === '0'}
+              pending={is_xDAI_to_safe_loading}
+            >
+              Fund
+            </Button>
+          )}
         </StyledInputGroup>
       </StyledForm>
       <GreenText className="underline mb16">{xdaiEnoughBalance() && 'You transferred enough xDai'}</GreenText>
       <StyledForm>
         <StyledInstructions>
           <Text>
-            Move <Lowercase>wx</Lowercase>HOPR into safe {' '}
-            <BlueTooltip title="Enter the amount of wxHOPR you would like to deposit to your Safe. We recommend moving all of your wxHOPR." >
-              <img src='/assets/question-icon.svg' style={{ height: "100%" }} />
+            Move <Lowercase>wx</Lowercase>HOPR into safe{' '}
+            <BlueTooltip title="Enter the amount of wxHOPR you would like to deposit to your Safe. We recommend moving all of your wxHOPR.">
+              <img
+                src="/assets/question-icon.svg"
+                style={{ height: '100%' }}
+              />
             </BlueTooltip>
           </Text>
           <GreenText></GreenText>
@@ -316,37 +322,34 @@ const FundsToSafe = () => {
                 style: { textAlign: 'right' },
                 min: 0,
                 pattern: '[0-9]*',
-              }
+              },
             }}
             helperText={`min. ${wxhoprValueMin}`}
           />
           <StyledCoinLabel>wxHOPR</StyledCoinLabel>
           <StyledGrayButton onClick={setMax_wxHOPR}>Max</StyledGrayButton>
 
-          {
-            notEnoughwxHoprInWallet ?
-              <Tooltip
-                title='You do not have enough wxHopr in your wallet'
-              >
-                <span>
-                  <Button
-                    onClick={handleFundwxHopr}
-                    disabled={!wxhoprValue || wxhoprValue === '' || wxhoprValue === '0' || notEnoughwxHoprInWallet}
-                    pending={is_wxHOPR_to_safe_loading}
-                  >
-                    Fund
-                  </Button>
-                </span>
-              </Tooltip>
-              :
-              <Button
-                onClick={handleFundwxHopr}
-                disabled={!wxhoprValue || wxhoprValue === '' || wxhoprValue === '0'}
-                pending={is_wxHOPR_to_safe_loading}
-              >
-                Fund
-              </Button>
-          }
+          {notEnoughwxHoprInWallet ? (
+            <Tooltip title="You do not have enough wxHopr in your wallet">
+              <span>
+                <Button
+                  onClick={handleFundwxHopr}
+                  disabled={!wxhoprValue || wxhoprValue === '' || wxhoprValue === '0' || notEnoughwxHoprInWallet}
+                  pending={is_wxHOPR_to_safe_loading}
+                >
+                  Fund
+                </Button>
+              </span>
+            </Tooltip>
+          ) : (
+            <Button
+              onClick={handleFundwxHopr}
+              disabled={!wxhoprValue || wxhoprValue === '' || wxhoprValue === '0'}
+              pending={is_wxHOPR_to_safe_loading}
+            >
+              Fund
+            </Button>
+          )}
         </StyledInputGroup>
       </StyledForm>
       <GreenText>{wxhoprEnoughBalance() && 'You transferred enough wxHOPR'}</GreenText>

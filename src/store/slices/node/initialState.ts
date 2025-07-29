@@ -25,29 +25,28 @@ export type Message = {
 };
 
 export type ChannelOutgoingType = {
-  status?: "Open" | "PendingToClose" | "Closed";
+  status?: 'Open' | 'PendingToClose' | 'Closed';
   balance?: string;
   peerAddress?: string;
   isClosing?: boolean;
-}
+};
 
 export type ChannelIncomingType = {
-  status?: "Open" | "PendingToClose" | "Closed";
+  status?: 'Open' | 'PendingToClose' | 'Closed';
   balance?: string;
   peerAddress?: string;
   tickets: number;
   ticketBalance: string;
   isClosing?: boolean;
-}
+};
 
 export type ChannelsOutgoingType = {
-  [channelId: string]: ChannelOutgoingType
-}
-
+  [channelId: string]: ChannelOutgoingType;
+};
 
 export type ChannelsIncomingType = {
-  [channelId: string]: ChannelIncomingType
-}
+  [channelId: string]: ChannelIncomingType;
+};
 
 type WebsocketConnectionStatus = 'connecting' | 'connected' | 'error' | null;
 
@@ -66,7 +65,7 @@ type InitialState = {
   };
   aliases: {
     data: GetAliasesResponseType | null;
-    isFetching: boolean
+    isFetching: boolean;
   };
   balances: {
     data: {
@@ -81,19 +80,19 @@ type InitialState = {
       safeHopr: {
         value: string | null;
         formatted: string | null;
-      },
+      };
       safeNative: {
         value: string | null;
         formatted: string | null;
-      },
+      };
       safeHoprAllowance: {
         value: string | null;
         formatted: string | null;
-      },
+      };
       channels: {
         value: string | null;
         formatted: string | null;
-      },
+      };
     };
     isFetching: boolean;
     alreadyFetched: boolean;
@@ -101,38 +100,38 @@ type InitialState = {
   channels: {
     data: GetChannelsResponseType | null;
     parsed: {
-      outgoing:  ChannelsOutgoingType;
+      outgoing: ChannelsOutgoingType;
       incoming: ChannelsIncomingType;
-    },
+    };
     isFetching: boolean;
     alreadyFetched: boolean;
   };
   configuration: {
-    data: GetConfigurationResponseType | null,
-    isFetching: boolean,
+    data: GetConfigurationResponseType | null;
+    isFetching: boolean;
   };
   links: {
     nodeAddressToOutgoingChannel: {
-      [nodeAddress: string]: string
-    },
+      [nodeAddress: string]: string;
+    };
     nodeAddressToIncomingChannel: {
-      [nodeAddress: string]: string
-    },
+      [nodeAddress: string]: string;
+    };
     incomingChannelToNodeAddress: {
-      [channelId: string]: string
-    },
+      [channelId: string]: string;
+    };
     nodeAddressToPeerId: {
-      [nodeAddress: string]: string
-    },
+      [nodeAddress: string]: string;
+    };
     peerIdToNodeAddress: {
-      [peerId: string]: string
-    },
+      [peerId: string]: string;
+    };
     peerIdToAlias: {
-      [peerId: string]: string
-    },
+      [peerId: string]: string;
+    };
   };
   messages: {
-    data: Message[],
+    data: Message[];
     isFetching: boolean;
     isDeleting: boolean;
   };
@@ -188,30 +187,34 @@ type InitialState = {
     isFetching: boolean;
   };
   metricsParsed: {
-    nodeSync: number | null,
+    nodeSync: number | null;
     tickets: {
       incoming: {
-        redeemed: { [peerId: string ]: {
-          value: string,
-          formatted: string,
-        }},
-        unredeemed: {[peerId: string ]: {
-          value: string,
-          formatted: string,
-        }},
-      }
-    }
-  },
+        redeemed: {
+          [peerId: string]: {
+            value: string;
+            formatted: string;
+          };
+        };
+        unredeemed: {
+          [peerId: string]: {
+            value: string;
+            formatted: string;
+          };
+        };
+      };
+    };
+  };
   messagesWebsocketStatus: WebsocketConnectionStatus;
   redeemTickets: {
     isFetching: boolean;
     error: string | undefined;
   };
-  apiEndpoint: string | null,
+  apiEndpoint: string | null;
   nodeIsReady: {
-    data: boolean | null,
-    isFetching: boolean,
-  },
+    data: boolean | null;
+    isFetching: boolean;
+  };
 };
 
 export const initialState: InitialState = {
@@ -268,7 +271,7 @@ export const initialState: InitialState = {
     data: null,
     parsed: {
       outgoing: {},
-      incoming: {}
+      incoming: {},
     },
     isFetching: false,
     alreadyFetched: false,
@@ -333,8 +336,8 @@ export const initialState: InitialState = {
       incoming: {
         redeemed: {},
         unredeemed: {},
-      }
-    }
+      },
+    },
   },
   messagesWebsocketStatus: null,
   redeemTickets: {
@@ -353,5 +356,5 @@ export const initialState: InitialState = {
   nodeIsReady: {
     data: null,
     isFetching: false,
-  }
+  },
 };

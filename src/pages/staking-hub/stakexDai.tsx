@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Address, formatEther, parseEther, parseUnits } from 'viem';
-import {
-  useBalance,
-  useSendTransaction,
-  useBlockNumber,
-  useEstimateGas
-} from 'wagmi';
-import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, MINIMUM_XDAI_TO_FUND, MINIMUM_WXHOPR_TO_FUND } from '../../../config'
+import { useBalance, useSendTransaction, useBlockNumber, useEstimateGas } from 'wagmi';
+import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, MINIMUM_XDAI_TO_FUND, MINIMUM_WXHOPR_TO_FUND } from '../../../config';
 
 //Store
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -23,7 +18,7 @@ import {
   StyledInputGroup,
   StyledInstructions,
   StyledTextField,
-  Text
+  Text,
 } from './onboarding/styled';
 import { StepContainer, ConfirmButton } from './onboarding/components';
 import styled from '@emotion/styled';
@@ -38,18 +33,15 @@ const StakexDai = () => {
   const [transactionHash, set_transactionHash] = useState<Address>();
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
-  const {
-    refetch: refetchXDaiSafeBalance,
-    data: xDaiSafeBalance,
-  } = useBalance({
+  const { refetch: refetchXDaiSafeBalance, data: xDaiSafeBalance } = useBalance({
     address: selectedSafeAddress as `0x${string}`,
     query: {
       enabled: !!selectedSafeAddress,
-    }
+    },
   });
 
   const { data: xDAI_to_safe_config } = useEstimateGas({
-    to: selectedSafeAddress as `0x${string}` ?? undefined,
+    to: (selectedSafeAddress as `0x${string}`) ?? undefined,
     value: parseEther(xdaiValue),
   });
 
@@ -72,15 +64,15 @@ const StakexDai = () => {
   }, [is_xDAI_to_safe_loading]);
 
   useEffect(() => {
-    refetchXDaiSafeBalance()
-  }, [blockNumber])
+    refetchXDaiSafeBalance();
+  }, [blockNumber]);
 
   const handleFundxDai = () => {
     send_xDAI_to_safe?.(
       {
         gas: xDAI_to_safe_config,
         to: selectedSafeAddress as `0x${string}`,
-        value: parseEther(xdaiValue)
+        value: parseEther(xdaiValue),
       },
       {
         onSuccess: (result) => {
@@ -134,12 +126,10 @@ const StakexDai = () => {
                   style: { textAlign: 'right' },
                   min: 0,
                   pattern: '[0-9]*',
-                }
+                },
               }}
             />
-            <StyledCoinLabel>
-              xDAI
-            </StyledCoinLabel>
+            <StyledCoinLabel>xDAI</StyledCoinLabel>
             <StyledGrayButton onClick={setMax_xDAI}>Max</StyledGrayButton>
           </StyledInputGroup>
         </StyledForm>

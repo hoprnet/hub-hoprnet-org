@@ -6,7 +6,7 @@ import {
   SafeModuleTransactionWithTransfersResponse,
   SafeMultisigTransactionListResponse,
   SafeMultisigTransactionWithTransfersResponse,
-  TokenInfoListResponse
+  TokenInfoListResponse,
 } from '@safe-global/api-kit';
 import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
 
@@ -54,17 +54,17 @@ type InitialState = {
     data: {
       safeAddress: string | null;
       moduleAddress: string | null;
-    }
-    isFetching: boolean
+    };
+    isFetching: boolean;
   };
-  creatingNewSafePending: boolean,
+  creatingNewSafePending: boolean;
   safesByOwner: { data: string[]; isFetching: boolean };
   allTransactions: { data: CustomAllTransactionsListResponse | null; isFetching: boolean };
   pendingTransactions: { data: CustomSafeMultisigTransactionListResponse | null; isFetching: boolean };
   info: {
     data: SafeInfoResponse | null;
-    safeIndexed: boolean | null,
-    isFetching: boolean
+    safeIndexed: boolean | null;
+    isFetching: boolean;
   };
   delegates: { data: SafeDelegateListResponse | null; isFetching: boolean };
   createTransaction: { isFetching: boolean };
@@ -99,13 +99,13 @@ type InitialState = {
   gnoAirdrop: {
     status: boolean | null;
     paid: boolean | null;
-    isFetching: boolean,
-  }
+    isFetching: boolean;
+  };
 };
 
 export const initialState: InitialState = {
   selectedSafe: {
-    data:  {
+    data: {
       safeAddress: null,
       moduleAddress: null,
     },
@@ -169,5 +169,5 @@ export const initialState: InitialState = {
     status: null,
     paid: null,
     isFetching: false,
-  }
+  },
 };

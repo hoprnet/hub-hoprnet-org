@@ -58,7 +58,6 @@ const ImageContainer = styled.div`
       top: 20px;
     }
   }
-
 `;
 
 const Image = styled.img`
@@ -117,7 +116,7 @@ const SideToSideContainer = styled.div`
   margin-bottom: 2rem;
   align-items: center;
   width: 100%;
-  justify-content: space-between;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 32px;
   &.evenSplit {
@@ -204,14 +203,14 @@ const BrandsSection = styled.div`
   width: 100%;
   justify-content: space-evenly;
   flex-wrap: wrap;
-  margin: 45px 0 65px 0 ;
+  margin: 45px 0 65px 0;
 
   @media screen and (max-height: 768px) {
-    margin: -20px 0 -40px 0 ;
+    margin: -20px 0 -40px 0;
   }
 
   @media screen and (min-height: 769px) and (max-height: 1080px) {
-  margin: 20px 0 65px 0;
+    margin: 20px 0 65px 0;
   }
 `;
 
@@ -351,10 +350,13 @@ const StakingLandingPage = () => {
         <StyledContainer>
           <ImageContainer>
             <Image
-              className='staking-landing'
+              className="staking-landing"
               src="/assets/staking-landing.svg"
             />
-            <Image className="yellow-ellipse" src="/assets/yellow-ellipse.svg" />
+            <Image
+              className="yellow-ellipse"
+              src="/assets/yellow-ellipse.svg"
+            />
           </ImageContainer>
           <Title>HOPR STAKING HUB</Title>
           <Description>
@@ -697,7 +699,7 @@ const faq: FaqData = [
     id: 3,
     title: 'How much do I need to stake to earn money?',
     content:
-      'You need to stake a minimum of 30,000 wxHOPR to join the network (or 10,000 if you are a returning Node runner with an access NFT). All Node runners with reachable, connected Nodes will earn wxHOPR tokens based on their stake.',
+      'You need to stake a minimum of 30,000 wxHOPR to join the network. All Node runners with reachable, connected Nodes will earn wxHOPR tokens based on their stake.',
   },
   {
     id: 4,
@@ -737,6 +739,5 @@ const faq: FaqData = [
     ),
   },
 ];
-
 
 export default StakingLandingPage;

@@ -45,13 +45,13 @@ export const FeedbackTransaction = ({
     hash: transactionHash,
   });
 
-  if(errorMessage) {
+  if (errorMessage) {
     status = 'error';
     feedbackTexts.error = errorMessage;
   }
 
   if (isWalletLoading) {
-    return <WalletFeedback />
+    return <WalletFeedback />;
   }
 
   return (
@@ -72,7 +72,7 @@ const WalletFeedback = () => {
       <p>Check your Wallet...</p>
     </FeedbackContainer>
   );
-}
+};
 
 const TransactionFeedbackText = ({
   status,
@@ -98,13 +98,17 @@ const TransactionFeedbackText = ({
       </FeedbackContainer>
     );
   } else if (status === 'success' && feedbackTexts.success) {
-    return <FeedbackContainer>
-      <p>{feedbackTexts.success}</p>
-    </FeedbackContainer>;
-  } else if (status === 'error' &&  feedbackTexts.error) {
-    return <FeedbackContainer className='error'>
-      <p>{feedbackTexts.error}</p>
-    </FeedbackContainer>;
+    return (
+      <FeedbackContainer>
+        <p>{feedbackTexts.success}</p>
+      </FeedbackContainer>
+    );
+  } else if (status === 'error' && feedbackTexts.error) {
+    return (
+      <FeedbackContainer className="error">
+        <p>{feedbackTexts.error}</p>
+      </FeedbackContainer>
+    );
   }
 
   return <FeedbackContainer></FeedbackContainer>;

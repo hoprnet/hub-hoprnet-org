@@ -10,7 +10,7 @@ import {
   HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS,
   HOPR_CHANNELS_SMART_CONTRACT_ADDRESS,
   wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-  WEBAPI_URL
+  WEBAPI_URL,
 } from '../../../../config';
 import { web3 } from '@hoprnet/hopr-sdk';
 import { Address, PublicClient, WalletClient, parseEther, publicActions } from 'viem';
@@ -28,26 +28,24 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
   { state: RootState }
 >(
   'stakingHub/getHubSafesByOwner',
-  async (payload, {
-    rejectWithValue,
-    dispatch,
-  }) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(setHubSafesByOwnerFetching(true));
     try {
-
       const resp = await fetch(`${WEBAPI_URL}/hub/getHubSafesByOwner`, {
-          method: 'POST',
-          body: JSON.stringify({ownerAddress: payload}),
+        method: 'POST',
+        body: JSON.stringify({ ownerAddress: payload }),
       });
 
-      const json: { safes: {
-        id: string,
-        addedModules: {
-          module: {
-            id: string
-          }
-        }[]
-      }[]} = await resp.json();
+      const json: {
+        safes: {
+          id: string;
+          addedModules: {
+            module: {
+              id: string;
+            };
+          }[];
+        }[];
+      } = await resp.json();
 
       let mapped = json.safes.map((elem) => {
         return {
@@ -55,21 +53,22 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
           safeAddress: getAddress(elem.id),
         };
       });
-      mapped = mapped.filter(elem => elem.moduleAddress);
+      mapped = mapped.filter((elem) => elem.moduleAddress);
 
       return [...mapped];
     } catch (e) {
       return rejectWithValue(e);
     }
   },
-  { condition: (_payload, { getState }) => {
-    const isFetching = getState().stakingHub.safes.isFetching;
-    if (isFetching) {
-      return false;
-    }
-  } },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().stakingHub.safes.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
+  }
 );
-
 
 const registerNodeAndSafeToNRThunk = createAsyncThunk<
   | {
@@ -111,27 +110,19 @@ const registerNodeAndSafeToNRThunk = createAsyncThunk<
 
 const getSubgraphDataThunk = createAsyncThunk<
   SubgraphParsedOutput,
-  { safeAddress: string; moduleAddress: string, browserClient: PublicClient },
+  { safeAddress: string; moduleAddress: string; browserClient: PublicClient },
   { state: RootState }
 >(
   'stakingHub/getSubgraphData',
-  async ({
-    safeAddress,
-    moduleAddress,
-    browserClient
-  }, {
-    rejectWithValue,
-    dispatch,
-  }) => {
+  async ({ safeAddress, moduleAddress, browserClient }, { rejectWithValue, dispatch }) => {
     try {
-
       const resp = await fetch(`${WEBAPI_URL}/hub/getSafeInfo`, {
-          method: 'POST',
-          body: JSON.stringify({
-            safeAddress,
-            moduleAddress
-          }),
-        });
+        method: 'POST',
+        body: JSON.stringify({
+          safeAddress,
+          moduleAddress,
+        }),
+      });
 
       const json = await resp.json();
 
@@ -147,21 +138,21 @@ const getSubgraphDataThunk = createAsyncThunk<
 
       const allNodes = [...output.registeredNodesInNetworkRegistry, ...output.registeredNodesInSafeRegistry];
 
-      const nodesAddresses = allNodes.map((safeRegNode: {node: { id: string}}) => {
+      const nodesAddresses = allNodes.map((safeRegNode: { node: { id: string } }) => {
         let nodeAddress = safeRegNode.node.id;
         return nodeAddress;
-      })
+      });
 
-      const nodesAddressesFiltered = nodesAddresses.filter(function(item, pos) {
+      const nodesAddressesFiltered = nodesAddresses.filter(function (item, pos) {
         return nodesAddresses.indexOf(item) == pos;
       });
 
       console.log('nodeAddress', nodesAddressesFiltered);
 
-      dispatch(getNodesDataThunk({nodesAddresses: nodesAddressesFiltered, browserClient}));
-      nodesAddressesFiltered.map(nodeAddress=> {
-        dispatch(getNodeBalanceThunk({nodeAddress, browserClient}));
-      })
+      dispatch(getNodesDataThunk({ nodesAddresses: nodesAddressesFiltered, browserClient }));
+      nodesAddressesFiltered.map((nodeAddress) => {
+        dispatch(getNodeBalanceThunk({ nodeAddress, browserClient }));
+      });
 
       console.log('SubgraphParsedOutput', output);
       return output;
@@ -173,137 +164,139 @@ const getSubgraphDataThunk = createAsyncThunk<
       return rejectWithValue(JSON.stringify(e));
     }
   },
-  { condition: (_payload, { getState }) => {
-    const isFetching = getState().stakingHub.safeInfo.isFetching;
-    if (isFetching) {
-      return false;
-    }
-  } },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().stakingHub.safeInfo.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
+  }
 );
 
-type ParsedTargets =   {
+type ParsedTargets = {
   channels: false | string;
   wxHOPR: false | string;
   announcmentTarget: false | string;
-}
+};
 
 const getModuleTargetsThunk = createAsyncThunk<
   ParsedTargets,
-  { safeAddress: string; moduleAddress: string, walletClient: PublicClient; },
+  { safeAddress: string; moduleAddress: string; walletClient: PublicClient },
   { state: RootState }
->(
-  'stakingHub/getNodeConfiguration',
-  async ({ safeAddress, moduleAddress, walletClient }, {
-    rejectWithValue,
-  }) => {
-    console.log('stakingHub/getNodeConfiguration', safeAddress, moduleAddress);
-    try {
-      const superWalletClient = walletClient.extend(publicActions);
+>('stakingHub/getNodeConfiguration', async ({ safeAddress, moduleAddress, walletClient }, { rejectWithValue }) => {
+  console.log('stakingHub/getNodeConfiguration', safeAddress, moduleAddress);
+  try {
+    const superWalletClient = walletClient.extend(publicActions);
 
-      const channelsTarget = await superWalletClient.readContract({
-        address: moduleAddress as `0x${string}`,
-        abi: web3.hoprNodeManagementModuleABI,
-        functionName: 'tryGetTarget',
-        args: [HOPR_CHANNELS_SMART_CONTRACT_ADDRESS]
-      }) as [boolean, BigInt];
+    const channelsTarget = (await superWalletClient.readContract({
+      address: moduleAddress as `0x${string}`,
+      abi: web3.hoprNodeManagementModuleABI,
+      functionName: 'tryGetTarget',
+      args: [HOPR_CHANNELS_SMART_CONTRACT_ADDRESS],
+    })) as [boolean, BigInt];
 
-      const wxHOPRTarget = await superWalletClient.readContract({
-        address: moduleAddress as `0x${string}`,
-        abi: web3.hoprNodeManagementModuleABI,
-        functionName: 'tryGetTarget',
-        args: [wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS]
-      }) as [boolean, BigInt];
+    const wxHOPRTarget = (await superWalletClient.readContract({
+      address: moduleAddress as `0x${string}`,
+      abi: web3.hoprNodeManagementModuleABI,
+      functionName: 'tryGetTarget',
+      args: [wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS],
+    })) as [boolean, BigInt];
 
-      const announcmentTarget = await superWalletClient.readContract({
-        address: moduleAddress as `0x${string}`,
-        abi: web3.hoprNodeManagementModuleABI,
-        functionName: 'tryGetTarget',
-        args: [HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS]
-      }) as [boolean, BigInt];
+    const announcmentTarget = (await superWalletClient.readContract({
+      address: moduleAddress as `0x${string}`,
+      abi: web3.hoprNodeManagementModuleABI,
+      functionName: 'tryGetTarget',
+      args: [HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS],
+    })) as [boolean, BigInt];
 
-      console.log('targets', {wxHOPRTarget, channelsTarget, announcmentTarget})
+    console.log('targets', { wxHOPRTarget, channelsTarget, announcmentTarget });
 
-      const targets = {
-        channels: channelsTarget[0] === true ? channelsTarget[1].toString() : false,
-        wxHOPR: wxHOPRTarget[0] === true ? wxHOPRTarget[1].toString() : false,
-        announcmentTarget: announcmentTarget[0] === true ? announcmentTarget[1].toString() : false,
-      } as ParsedTargets;
+    const targets = {
+      channels: channelsTarget[0] === true ? channelsTarget[1].toString() : false,
+      wxHOPR: wxHOPRTarget[0] === true ? wxHOPRTarget[1].toString() : false,
+      announcmentTarget: announcmentTarget[0] === true ? announcmentTarget[1].toString() : false,
+    } as ParsedTargets;
 
-      // TODO: Decode the targets
-      /**
-       * @dev it stores the following information in uint256 = (160 + 8 * 12)
-       * (address)              as uint160: targetAddress
-       * (Clearance)            as uint8: clearance
-       * (TargetType)           as uint8: targetType
-       * (TargetPermission)     as uint8: defaultTargetPermission                                       (for the target)
-       * (CapabilityPermission) as uint8: defaultRedeemTicketSafeFunctionPermisson                      (for Channels
-       * contract)
-       * (CapabilityPermission) as uint8: RESERVED FOR defaultBatchRedeemTicketsSafeFunctionPermisson   (for Channels
-       * contract)
-       * (CapabilityPermission) as uint8: defaultCloseIncomingChannelSafeFunctionPermisson              (for Channels
-       * contract)
-       * (CapabilityPermission) as uint8: defaultInitiateOutgoingChannelClosureSafeFunctionPermisson    (for Channels
-       * contract)
-       * (CapabilityPermission) as uint8: defaultFinalizeOutgoingChannelClosureSafeFunctionPermisson    (for Channels
-       * contract)
-       * (CapabilityPermission) as uint8: defaultFundChannelMultiFunctionPermisson                      (for Channels
-       * contract)
-       * (CapabilityPermission) as uint8: defaultSetCommitmentSafeFunctionPermisson                     (for Channels
-       * contract)
-       * (CapabilityPermission) as uint8: defaultApproveFunctionPermisson                               (for Token contract)
-       * (CapabilityPermission) as uint8: defaultSendFunctionPermisson                                  (for Token contract)
-       */
+    // TODO: Decode the targets
+    /**
+     * @dev it stores the following information in uint256 = (160 + 8 * 12)
+     * (address)              as uint160: targetAddress
+     * (Clearance)            as uint8: clearance
+     * (TargetType)           as uint8: targetType
+     * (TargetPermission)     as uint8: defaultTargetPermission                                       (for the target)
+     * (CapabilityPermission) as uint8: defaultRedeemTicketSafeFunctionPermisson                      (for Channels
+     * contract)
+     * (CapabilityPermission) as uint8: RESERVED FOR defaultBatchRedeemTicketsSafeFunctionPermisson   (for Channels
+     * contract)
+     * (CapabilityPermission) as uint8: defaultCloseIncomingChannelSafeFunctionPermisson              (for Channels
+     * contract)
+     * (CapabilityPermission) as uint8: defaultInitiateOutgoingChannelClosureSafeFunctionPermisson    (for Channels
+     * contract)
+     * (CapabilityPermission) as uint8: defaultFinalizeOutgoingChannelClosureSafeFunctionPermisson    (for Channels
+     * contract)
+     * (CapabilityPermission) as uint8: defaultFundChannelMultiFunctionPermisson                      (for Channels
+     * contract)
+     * (CapabilityPermission) as uint8: defaultSetCommitmentSafeFunctionPermisson                     (for Channels
+     * contract)
+     * (CapabilityPermission) as uint8: defaultApproveFunctionPermisson                               (for Token contract)
+     * (CapabilityPermission) as uint8: defaultSendFunctionPermisson                                  (for Token contract)
+     */
 
-      return targets;
-    } catch (e) {
-      return rejectWithValue(e);
-    }
+    return targets;
+  } catch (e) {
+    return rejectWithValue(e);
+  }
 });
-
 
 const goToStepWeShouldBeOnThunk = createAsyncThunk<number, undefined, { state: RootState }>(
   'stakingHub/goToStepWeShouldBeOn',
-  async (_payload, {
-    getState,
-    rejectWithValue,
-  }) => {
+  async (_payload, { getState, rejectWithValue }) => {
     try {
       const state = getState();
 
       // Part of the onboarding after COMM registers you
       console.log('[Onboarding check] Node registered: ', state.stakingHub.onboarding.nodeAddress);
       if (state.stakingHub.onboarding.nodeAddress) {
-
         console.log('[Onboarding check] Delegate count: ', state.safe.delegates.data?.count);
         if (state.safe.delegates.data?.count) {
-
           console.log(
             '[Onboarding check] state.stakingHub.safeInfo.data.module.includedNodes.length > 0',
-            state.stakingHub.safeInfo.data?.module?.includedNodes,
+            state.stakingHub.safeInfo.data?.module?.includedNodes
           );
           console.log(
             '[Onboarding check] state.stakingHub.safeInfo.data.module.includedNodes.length > 0',
             state.stakingHub.safeInfo.data?.module?.includedNodes &&
-              state.stakingHub.safeInfo.data.module.includedNodes.length > 0,
+              state.stakingHub.safeInfo.data.module.includedNodes.length > 0
           );
           console.log(
             '[Onboarding check] Node configured (includeNode()): ',
             state.stakingHub.safeInfo.data?.module?.includedNodes &&
               state.stakingHub.safeInfo.data.module.includedNodes.length > 0 &&
-              state.stakingHub.safeInfo.data.module.includedNodes[0]?.node.id !== null,
+              state.stakingHub.safeInfo.data.module.includedNodes[0]?.node.id !== null
           );
           if (
             state.stakingHub.safeInfo.data?.module?.includedNodes &&
             state.stakingHub.safeInfo.data.module.includedNodes.length > 0 &&
             state.stakingHub.safeInfo.data.module.includedNodes[0]?.node.id !== null
           ) {
-
-            const nodeXDaiBalanceCheck =  state.stakingHub.onboarding.nodeXDaiBalance && BigInt(state.stakingHub.onboarding.nodeXDaiBalance) >= BigInt(0);
-            console.log('[Onboarding check] Node balance (xDai): ', state.stakingHub.onboarding.nodeXDaiBalance, nodeXDaiBalanceCheck);
+            const nodeXDaiBalanceCheck =
+              state.stakingHub.onboarding.nodeXDaiBalance &&
+              BigInt(state.stakingHub.onboarding.nodeXDaiBalance) >= BigInt(0);
+            console.log(
+              '[Onboarding check] Node balance (xDai): ',
+              state.stakingHub.onboarding.nodeXDaiBalance,
+              nodeXDaiBalanceCheck
+            );
             if (nodeXDaiBalanceCheck) {
-
-              const wxHoprAllowanceCheck = state.stakingHub.safeInfo.data.allowance.wxHoprAllowance && parseEther(state.stakingHub.safeInfo.data.allowance.wxHoprAllowance) > BigInt(0);
-              console.log('[Onboarding check] Allowance set: ', state.stakingHub.safeInfo.data.allowance.wxHoprAllowance, wxHoprAllowanceCheck);
+              const wxHoprAllowanceCheck =
+                state.stakingHub.safeInfo.data.allowance.wxHoprAllowance &&
+                parseEther(state.stakingHub.safeInfo.data.allowance.wxHoprAllowance) > BigInt(0);
+              console.log(
+                '[Onboarding check] Allowance set: ',
+                state.stakingHub.safeInfo.data.allowance.wxHoprAllowance,
+                wxHoprAllowanceCheck
+              );
               if (wxHoprAllowanceCheck) {
                 console.log('[Onboarding check] step: 16');
                 return 16;
@@ -316,25 +309,30 @@ const goToStepWeShouldBeOnThunk = createAsyncThunk<number, undefined, { state: R
           }
           console.log('[Onboarding check] step: 13');
           return 13;
-
         }
         console.log('[Onboarding check] step: 11');
         return 11;
       }
 
-
       // Part of the onboarding before COMM registers you
-      const xDaiInSafeCheck = state.safe.balance.data.xDai.value && BigInt(state.safe.balance.data.xDai.value) >= BigInt(MINIMUM_XDAI_TO_FUND * 1e18);
-      const wxHoprInSafeCheck = state.safe.balance.data.wxHopr.value && BigInt(state.safe.balance.data.wxHopr.value) >= BigInt(MINIMUM_WXHOPR_TO_FUND * 1e18);
+      const xDaiInSafeCheck =
+        state.safe.balance.data.xDai.value &&
+        BigInt(state.safe.balance.data.xDai.value) >= BigInt(MINIMUM_XDAI_TO_FUND * 1e18);
+      const wxHoprInSafeCheck =
+        state.safe.balance.data.wxHopr.value &&
+        BigInt(state.safe.balance.data.wxHopr.value) >= BigInt(MINIMUM_WXHOPR_TO_FUND * 1e18);
       console.log('[Onboarding check] Safe balance (xDai):', state.safe.balance.data.xDai.value, xDaiInSafeCheck);
       console.log('[Onboarding check] Safe balance (wxHopr):', state.safe.balance.data.wxHopr.value, wxHoprInSafeCheck);
-      if ( xDaiInSafeCheck && wxHoprInSafeCheck ) {
+      if (xDaiInSafeCheck && wxHoprInSafeCheck) {
         console.log('[Onboarding check] step: 5');
         return 5;
       }
 
-
-      console.log('[Onboarding check] CommunityNftId in Safe', state.safe.communityNftIds.data.length, state.safe.communityNftIds.data.length !== 0);
+      console.log(
+        '[Onboarding check] CommunityNftId in Safe',
+        state.safe.communityNftIds.data.length,
+        state.safe.communityNftIds.data.length !== 0
+      );
       if (state.safe.communityNftIds.data.length !== 0) {
         console.log('[Onboarding check] step: 4');
         return 4;
@@ -349,26 +347,23 @@ const goToStepWeShouldBeOnThunk = createAsyncThunk<number, undefined, { state: R
       // default case
       return 0;
     } catch (e) {
-      console.warn('Getting Onboarding Step failed', e)
+      console.warn('Getting Onboarding Step failed', e);
       if (isPlain(e)) {
         return rejectWithValue(e);
       }
 
       return rejectWithValue(JSON.stringify(e));
     }
-  },
+  }
 );
 
 const getOnboardingDataThunk = createAsyncThunk<
   void,
   { browserClient: PublicClient; safeAddress: string; moduleAddress: string },
   { state: RootState }
->('stakingHub/getOnboardingData', async (payload, {
-  rejectWithValue,
-  dispatch,
-}) => {
+>('stakingHub/getOnboardingData', async (payload, { rejectWithValue, dispatch }) => {
   dispatch(stakingHubActions.onboardingIsFetching(true));
-  await dispatch(safeActionsAsync.getCommunityNftsOwnedBySafeThunk(payload.safeAddress)).unwrap();
+  // await dispatch(safeActionsAsync.getCommunityNftsOwnedBySafeThunk(payload.safeAddress)).unwrap();
   const moduleAddress = payload.moduleAddress;
 
   if (!moduleAddress) {
@@ -379,16 +374,16 @@ const getOnboardingDataThunk = createAsyncThunk<
     getModuleTargetsThunk({
       safeAddress: payload.safeAddress,
       moduleAddress,
-      walletClient: payload.browserClient
-    }),
+      walletClient: payload.browserClient,
+    })
   );
 
   const subgraphResponse = await dispatch(
     getSubgraphDataThunk({
       safeAddress: payload.safeAddress,
       moduleAddress,
-      browserClient: payload.browserClient
-    }),
+      browserClient: payload.browserClient,
+    })
   ).unwrap();
 
   let nodeXDaiBalance = '0';
@@ -397,7 +392,9 @@ const getOnboardingDataThunk = createAsyncThunk<
     subgraphResponse.registeredNodesInNetworkRegistryParsed?.length > 0 &&
     subgraphResponse.registeredNodesInNetworkRegistryParsed[0] !== null
   ) {
-    const nodeBalanceInBigInt = await payload.browserClient?.getBalance({ address: subgraphResponse.registeredNodesInNetworkRegistryParsed[0] as Address });
+    const nodeBalanceInBigInt = await payload.browserClient?.getBalance({
+      address: subgraphResponse.registeredNodesInNetworkRegistryParsed[0] as Address,
+    });
     nodeXDaiBalance = nodeBalanceInBigInt?.toString() ?? '0';
   }
 
@@ -406,7 +403,7 @@ const getOnboardingDataThunk = createAsyncThunk<
       safeAddress: payload.safeAddress,
       moduleAddress,
       nodeXDaiBalance,
-    }),
+    })
   );
   dispatch(goToStepWeShouldBeOnThunk());
   dispatch(stakingHubActions.onboardingIsFetching(false));
@@ -414,41 +411,37 @@ const getOnboardingDataThunk = createAsyncThunk<
 
 const getNodesDataThunk = createAsyncThunk<
   NodePayload[],
-  { nodesAddresses: string[], browserClient: PublicClient, },
+  { nodesAddresses: string[]; browserClient: PublicClient },
   { state: RootState }
 >(
   'stakingHub/getNodesData',
-  async (payload, {
-    rejectWithValue,
-    dispatch,
-  }) => {
-  //  dispatch(getNodeBalanceThunk(payload));
-    const nodes = payload.nodesAddresses.map(nodeAddress => getAddress(nodeAddress));
+  async (payload, { rejectWithValue, dispatch }) => {
+    //  dispatch(getNodeBalanceThunk(payload));
+    const nodes = payload.nodesAddresses.map((nodeAddress) => getAddress(nodeAddress));
     const rez = await fetch(`https://network.hoprnet.org/api/getSomeNodes`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nodes
+        nodes,
       }),
     });
     const json = await rez.json();
     return json.nodes;
   },
-  { condition: (_payload, { getState }) => {
-    return true;
-  } },
+  {
+    condition: (_payload, { getState }) => {
+      return true;
+    },
+  }
 );
 
 const getNodeBalanceThunk = createAsyncThunk<
   NodePayload,
-  { nodeAddress: string, browserClient: PublicClient, },
+  { nodeAddress: string; browserClient: PublicClient },
   { state: RootState }
 >(
   'stakingHub/getNodeBalance',
-  async (payload, {
-    rejectWithValue,
-    dispatch,
-  }) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     const nodeBalanceInBigInt = await payload.browserClient?.getBalance({ address: payload.nodeAddress as Address });
     const nodeXDaiBalance = nodeBalanceInBigInt?.toString() ?? '0';
     const nodeXDaiBalanceFormatted = formatEther(nodeBalanceInBigInt);
@@ -461,9 +454,11 @@ const getNodeBalanceThunk = createAsyncThunk<
     };
     return nodeBalance;
   },
-  { condition: (_payload, { getState }) => {
-    return true;
-  } },
+  {
+    condition: (_payload, { getState }) => {
+      return true;
+    },
+  }
 );
 
 // Helper actions to update the isFetching state
@@ -495,53 +490,56 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.safeInfo.data = action.payload;
       if (action.payload?.registeredNodesInNetworkRegistry?.length > 0) {
         let tmp = [];
-        tmp = action.payload.registeredNodesInNetworkRegistry.map((elem: { node: { id: string | null}}) => {
-          if(elem.node.id) {
+        tmp = action.payload.registeredNodesInNetworkRegistry.map((elem: { node: { id: string | null } }) => {
+          if (elem.node.id) {
             const nodeAddress = elem.node.id.toLocaleLowerCase();
-            if(state.nodes.data[nodeAddress]) state.nodes.data[nodeAddress].registeredNodesInNetworkRegistry = true;
-            else state.nodes.data[nodeAddress] = {
-              peeraddress: nodeAddress,
-              nodeAddress,
-              registeredNodesInNetworkRegistry:true,
-              isFetchingBalance: false,
-            }
+            if (state.nodes.data[nodeAddress]) state.nodes.data[nodeAddress].registeredNodesInNetworkRegistry = true;
+            else
+              state.nodes.data[nodeAddress] = {
+                peeraddress: nodeAddress,
+                nodeAddress,
+                registeredNodesInNetworkRegistry: true,
+                isFetchingBalance: false,
+              };
           }
-          return elem.node.id as string
+          return elem.node.id as string;
         });
         state.safeInfo.data.registeredNodesInNetworkRegistryParsed = tmp;
         state.onboarding.nodeAddress = tmp[tmp.length - 1];
       }
       if (action.payload?.registeredNodesInSafeRegistry?.length > 0) {
         let tmp = [];
-        tmp = action.payload.registeredNodesInSafeRegistry.map((elem: { node: { id: string | null}}) => {
-          if(elem.node.id) {
+        tmp = action.payload.registeredNodesInSafeRegistry.map((elem: { node: { id: string | null } }) => {
+          if (elem.node.id) {
             const nodeAddress = elem.node.id.toLocaleLowerCase();
-            if(state.nodes.data[nodeAddress]) state.nodes.data[nodeAddress].registeredNodesInSafeRegistry = true;
-            else state.nodes.data[nodeAddress] = {
-              peeraddress: nodeAddress,
-              nodeAddress,
-              registeredNodesInSafeRegistry:true,
-              isFetchingBalance: false,
-            }
+            if (state.nodes.data[nodeAddress]) state.nodes.data[nodeAddress].registeredNodesInSafeRegistry = true;
+            else
+              state.nodes.data[nodeAddress] = {
+                peeraddress: nodeAddress,
+                nodeAddress,
+                registeredNodesInSafeRegistry: true,
+                isFetchingBalance: false,
+              };
           }
-          return elem.node.id as string
+          return elem.node.id as string;
         });
         state.safeInfo.data.registeredNodesInSafeRegistryParsed = tmp;
         state.onboarding.nodeAddress = tmp[tmp.length - 1];
       }
       if (action.payload?.module?.includedNodes?.length > 0) {
-        action.payload.module.includedNodes.map((elem: { node: { id: string | null}}) => {
-          if(elem.node.id) {
+        action.payload.module.includedNodes.map((elem: { node: { id: string | null } }) => {
+          if (elem.node.id) {
             const nodeAddress = elem.node.id.toLocaleLowerCase();
-            if(state.nodes.data[nodeAddress]) state.nodes.data[nodeAddress].includedInModule = true;
-            else state.nodes.data[nodeAddress] = {
-              peeraddress: nodeAddress,
-              nodeAddress,
-              includedInModule: true,
-              isFetchingBalance: false,
-            }
+            if (state.nodes.data[nodeAddress]) state.nodes.data[nodeAddress].includedInModule = true;
+            else
+              state.nodes.data[nodeAddress] = {
+                peeraddress: nodeAddress,
+                nodeAddress,
+                includedInModule: true,
+                isFetchingBalance: false,
+              };
           }
-        })
+        });
       }
     }
     state.safeInfo.isFetching = false;
@@ -559,15 +557,15 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       const correctConfig2 = '96338966875583709871840581638487531229018761285270926761304390858285246317315';
       const correctConfig3 = '44154694447105676396867590936447101190536019366130432120501522583128004100096';
 
-      if(!action.payload.channels || !action.payload.wxHOPR){
+      if (!action.payload.channels || !action.payload.wxHOPR) {
         console.log('Old safe config present, needs update. Targets:', action.payload);
         state.config.needsUpdate.data = true;
-        state.config.needsUpdate.strategy =  'configWillPointToCorrectContracts';
-      } else if(action.payload.channels !== correctConfig1 || action.payload.wxHOPR !== correctConfig2){
+        state.config.needsUpdate.strategy = 'configWillPointToCorrectContracts';
+      } else if (action.payload.channels !== correctConfig1 || action.payload.wxHOPR !== correctConfig2) {
         console.log('Old safe config present, need update. Targets:', action.payload);
         state.config.needsUpdate.data = true;
         state.config.needsUpdate.strategy = 'configWillLetOpenChannels';
-      } else if(action.payload.announcmentTarget !== correctConfig3 || !action.payload.announcmentTarget){
+      } else if (action.payload.announcmentTarget !== correctConfig3 || !action.payload.announcmentTarget) {
         console.log('Old safe config present, need update. Targets:', action.payload);
         state.config.needsUpdate.data = true;
         state.config.needsUpdate.strategy = 'configAnnounceOnly';
@@ -592,14 +590,14 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   builder.addCase(getNodesDataThunk.fulfilled, (state, action) => {
     const nodesData = action.payload;
-    nodesData.map(nodeData => {
-      if(nodeData.peeraddress){
+    nodesData.map((nodeData) => {
+      if (nodeData.peeraddress) {
         const nodeAddress = nodeData.peeraddress.toLowerCase();
-        if(state.nodes.data[nodeAddress]) {
+        if (state.nodes.data[nodeAddress]) {
           state.nodes.data[nodeAddress] = {
             ...state.nodes.data[nodeAddress],
-            ...nodeData
-          }
+            ...nodeData,
+          };
         } else {
           state.nodes.data[nodeAddress] = nodeData;
         }
@@ -607,7 +605,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       if (state.nodes.isFetching) {
         state.nodes.isFetching = false;
       }
-    })
+    });
   });
   builder.addCase(getNodesDataThunk.rejected, (state) => {
     state.nodes.isFetching = false;
@@ -631,13 +629,13 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   // });
   builder.addCase(getNodeBalanceThunk.fulfilled, (state, action) => {
     const nodeData = action.payload;
-    if(nodeData.peeraddress){
+    if (nodeData.peeraddress) {
       const nodeAddress = nodeData.peeraddress.toLowerCase();
-      if(Object.keys(state.nodes.data).includes(nodeAddress)) {
+      if (Object.keys(state.nodes.data).includes(nodeAddress)) {
         state.nodes.data[nodeAddress] = {
           ...state.nodes.data[nodeAddress],
           ...nodeData,
-        }
+        };
       } else {
         state.nodes.data[nodeAddress] = nodeData;
       }

@@ -4,13 +4,21 @@ import { Address, formatEther } from 'viem';
 import { useReadContract, useWalletClient, useBlockNumber } from 'wagmi';
 import { erc20Abi } from 'viem';
 import { web3 } from '@hoprnet/hopr-sdk';
-import { HOPR_CHANNELS_SMART_CONTRACT_ADDRESS, HOPR_NODE_SAFE_REGISTRY, HOPR_TOKEN_USED_CONTRACT_ADDRESS } from '../../../config';
+import {
+  HOPR_CHANNELS_SMART_CONTRACT_ADDRESS,
+  HOPR_NODE_SAFE_REGISTRY,
+  HOPR_TOKEN_USED_CONTRACT_ADDRESS,
+} from '../../../config';
 import { useEthersSigner } from '../../hooks';
 import { observePendingSafeTransactions } from '../../hooks/useWatcher/safeTransactions';
 import { appActions } from '../../store/slices/app';
-import { MAX_UINT256, createApproveTransactionData, createIncludeNodeTransactionData, encodeDefaultPermissions } from '../../utils/blockchain';
+import {
+  MAX_UINT256,
+  createApproveTransactionData,
+  createIncludeNodeTransactionData,
+  encodeDefaultPermissions,
+} from '../../utils/blockchain';
 import { Container, FlexContainer, Text } from './onboarding/styled';
-
 
 //Stores
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -50,10 +58,10 @@ function SafeSection() {
   const [newOwner, set_newOwner] = useState('');
 
   const activePendingSafeTransaction = useAppSelector(
-    (store) => store.app.configuration.notifications.pendingSafeTransaction,
+    (store) => store.app.configuration.notifications.pendingSafeTransaction
   );
 
-  const { data: blockNumber } = useBlockNumber({ watch: true })
+  const { data: blockNumber } = useBlockNumber({ watch: true });
 
   const { data: allowanceData } = useReadContract({
     address: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
@@ -62,7 +70,7 @@ function SafeSection() {
     args: [selectedSafeAddress, HOPR_CHANNELS_SMART_CONTRACT_ADDRESS],
     query: {
       enabled: !!selectedSafeAddress,
-    }
+    },
   });
 
   const { data: isNodeResponse, refetch: refetchIsNodeResponse } = useReadContract({
@@ -72,7 +80,7 @@ function SafeSection() {
     args: [nodeAddress],
     query: {
       enabled: !!safeModules?.at(0) && !!nodeAddress && !!includeNodeResponse,
-    }
+    },
   });
 
   const { data: isNodeSafeRegistered, refetch: refetchIsNodeSafeRegistered } = useReadContract({
@@ -87,7 +95,7 @@ function SafeSection() {
     ],
     query: {
       enabled: !!safeAddressForRegistry && !!nodeAddressForRegistry,
-    }
+    },
   });
 
   useEffect(() => {
@@ -97,7 +105,7 @@ function SafeSection() {
   useEffect(() => {
     refetchIsNodeSafeRegistered();
     refetchIsNodeResponse();
-  }, [blockNumber])
+  }, [blockNumber]);
 
   const fetchInitialStateForSigner = async () => {
     if (signer) {
@@ -107,11 +115,13 @@ function SafeSection() {
 
   const updateSafeThreshold = async (safeAddress: string) => {
     if (signer && safeAddress) {
-      const removeTransactionData = await dispatch(safeActionsAsync.createSetThresholdToSafeTransactionDataThunk({
-        signer: signer,
-        newThreshold: newThreshold,
-        safeAddress: safeAddress,
-      })).unwrap()
+      const removeTransactionData = await dispatch(
+        safeActionsAsync.createSetThresholdToSafeTransactionDataThunk({
+          signer: signer,
+          newThreshold: newThreshold,
+          safeAddress: safeAddress,
+        })
+      ).unwrap();
 
       if (removeTransactionData) {
         await dispatch(
@@ -119,7 +129,7 @@ function SafeSection() {
             signer: signer,
             safeAddress: safeAddress,
             safeTransactionData: removeTransactionData,
-          }),
+          })
         );
       }
     }
@@ -132,22 +142,26 @@ function SafeSection() {
 
   const removeOwner = async (address: string, safeAddress: string, threshold?: number) => {
     if (signer && safeAddress) {
-      const transactionData = await dispatch(safeActionsAsync.createRemoveOwnerFromSafeTransactionDataThunk({
-        ownerAddress: address,
-        safeAddress: safeAddress,
-        signer,
-        threshold: threshold,
-      })).unwrap()
+      const transactionData = await dispatch(
+        safeActionsAsync.createRemoveOwnerFromSafeTransactionDataThunk({
+          ownerAddress: address,
+          safeAddress: safeAddress,
+          signer,
+          threshold: threshold,
+        })
+      ).unwrap();
 
       if (!transactionData) return;
 
-      const transactionHash = await dispatch(safeActionsAsync.createAndExecuteSafeTransactionThunk({
-        safeAddress: safeAddress,
-        signer,
-        safeTransactionData: transactionData,
-      })).unwrap()
+      const transactionHash = await dispatch(
+        safeActionsAsync.createAndExecuteSafeTransactionThunk({
+          safeAddress: safeAddress,
+          signer,
+          safeTransactionData: transactionData,
+        })
+      ).unwrap();
 
-      return transactionHash
+      return transactionHash;
     }
   };
 
@@ -158,16 +172,17 @@ function SafeSection() {
           ownerAddress: newOwner,
           safeAddress: safeAddress,
           signer: signer,
-        }),
-      ).unwrap()
+        })
+      ).unwrap();
 
       if (transactionData) {
-        const transactionHash = await dispatch(safeActionsAsync.createAndExecuteSafeTransactionThunk({
-          safeAddress: safeAddress,
-          signer,
-          safeTransactionData: transactionData,
-        })).unwrap()
-
+        const transactionHash = await dispatch(
+          safeActionsAsync.createAndExecuteSafeTransactionThunk({
+            safeAddress: safeAddress,
+            signer,
+            safeTransactionData: transactionData,
+          })
+        ).unwrap();
       }
     }
   };
@@ -213,23 +228,21 @@ function SafeSection() {
                 safeActionsAsync.getSafeInfoThunk({
                   signer,
                   safeAddress,
-                }),
+                })
               );
               dispatch(
                 safeActionsAsync.getAllSafeTransactionsThunk({
                   signer,
                   safeAddress,
-                }),
+                })
               );
               dispatch(
                 safeActionsAsync.getSafeDelegatesThunk({
                   signer,
                   options: { safeAddress },
-                }),
+                })
               );
-              dispatch(
-                safeActionsAsync.getGnoAidropThunk(safeAddress)
-              );
+              dispatch(safeActionsAsync.getGnoAidropThunk(safeAddress));
             }
           }}
         >
@@ -266,7 +279,7 @@ function SafeSection() {
                   threshold: createSafeThreshold,
                 },
                 signer,
-              }),
+              })
             );
           }
         }}
@@ -283,7 +296,7 @@ function SafeSection() {
                   threshold: createSafeThreshold,
                 },
                 walletClient,
-              }),
+              })
             );
           }
         }}
@@ -308,7 +321,7 @@ function SafeSection() {
               safeActionsAsync.getSafeInfoThunk({
                 safeAddress: selectedSafeAddress,
                 signer,
-              }),
+              })
             );
           }
         }}
@@ -325,7 +338,7 @@ function SafeSection() {
                 data: createIncludeNodeTransactionData(nodeAddress),
                 safeAddress: selectedSafeAddress,
                 signer,
-              }),
+              })
             )
               .unwrap()
               .then((transactionResult) => {
@@ -365,7 +378,7 @@ function SafeSection() {
                 safeAddress: safeAddressForRegistry,
                 nodeAddress: nodeAddressForRegistry,
                 walletClient,
-              }),
+              })
             );
           }
         }}
@@ -387,7 +400,7 @@ function SafeSection() {
                   to: signerAddress,
                   data: '0x',
                 },
-              }),
+              })
             );
           }
         }}
@@ -485,7 +498,7 @@ function SafeSection() {
                         signer,
                         safeAddress: transaction.safe,
                         safeTransaction: transaction,
-                      }),
+                      })
                     );
                   }
                 }}
@@ -501,7 +514,7 @@ function SafeSection() {
                         signer,
                         safeAddress: transaction.safe,
                         safeTransactionHash: transaction.safeTxHash,
-                      }),
+                      })
                     );
                   }
                 }}
@@ -524,7 +537,7 @@ function SafeSection() {
                 signer,
                 safeAddress: selectedSafeAddress,
                 smartContractAddress: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
-              }),
+              })
             );
           }
         }}
