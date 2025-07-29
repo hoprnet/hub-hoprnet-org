@@ -59,6 +59,11 @@ const Container = styled.section`
     svg[data-testid="CancelRoundedIcon"]{
       color: red;
     }
+
+    .online {
+      color: darkgreen;
+      font-weight: 600;
+    }
 `;
 
 const Grid = styled.div`
@@ -413,7 +418,20 @@ const NodeAdded = () => {
           </Tooltip>
         </>,
       inNetworkRegistry: inNetworkRegistry ? 'Yes' : 'No',
-      lastSeen: lastSeen ? formatDate(lastSeen) : '-',
+      lastSeen:
+        <>
+          {
+            lastSeen ?
+              lastSeen > Date.now() - 5 * 60 * 1000 ? (
+                <span className="online">Online</span>
+              )
+              :
+              (
+                formatDate(lastSeen)
+              )
+              :
+              '-'}
+        </>,
       avability30d: <ProgressBar value={availability30d} />,
       version: version || '-',
       id: node,
