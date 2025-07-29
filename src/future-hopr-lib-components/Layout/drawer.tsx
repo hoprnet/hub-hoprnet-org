@@ -116,6 +116,33 @@ const StyledListItemButton = styled(ListItemButton)`
       fill: #0000b4;
     }
   }
+  &.onboardingNotFinished {
+    ::after {
+      content: '';
+      background-image: url(/assets/Continue-Stamp.svg);
+      top: 0;
+      right: -2px;
+      position: relative;
+      width: 65px;
+      height: 100%;
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+  }
+  &.onboardingFinished {
+    opacity: 0.5;
+    ::after {
+      content: '';
+      background-image: url(/assets/Done-Stamp.svg);
+      top: 0;
+      right: -5px;
+      position: relative;
+      width: 65px;
+      height: 100%;
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+  }
 ` as typeof ListItemButton;
 
 const SListItemIcon = styled(ListItemIcon)`
@@ -137,6 +164,7 @@ type DrawerProps = {
     node?: boolean;
     web3?: boolean;
     safe?: boolean;
+    onboardingFinished?: boolean | null;
   };
   drawerNumbers?: {
     [key: string]: number | string | undefined | null
@@ -185,7 +213,6 @@ const Drawer = ({
 
   const preare = drawerFunctionItems ? drawerFunctionItems : [];
   const allItems = [...preare, ...drawerItems];
-
 
 
   return (
@@ -241,13 +268,19 @@ const Drawer = ({
                           rel={item.path.includes('http') ? 'noopener noreferrer' : undefined}
                           selected={location.pathname === `/${group.path}/${item.path}`}
                           disabled={
-                            item.path.includes('http')
+                            (item.path.includes('http')
                               ? false
                               : (!item.element && !item.onClick) ||
-                                (item.loginNeeded && !drawerLoginState?.[item.loginNeeded])
+                                (item.loginNeeded && !drawerLoginState?.[item.loginNeeded]))
+                                ||
+                              (item.path === 'onboarding' && drawerLoginState && drawerLoginState.onboardingFinished !== false)
                           }
                           onClick={item.onClick ? item.onClick : handleButtonClick}
-                          className="StyledListItemButton"
+                          className={[
+                            'StyledListItemButton',
+                            `${(item.path === 'onboarding' && drawerLoginState && drawerLoginState.onboardingFinished) ? 'onboardingFinished' : ''}`,
+                            `${(item.path === 'onboarding' && drawerLoginState && drawerLoginState.onboardingFinished === false) ? 'onboardingNotFinished' : ''}`
+                          ].join(' ')}
                         >
                           <SListItemIcon className="SListItemIcon">{item.icon}</SListItemIcon>
                           <ListItemText className="ListItemText">{item.name}</ListItemText>
