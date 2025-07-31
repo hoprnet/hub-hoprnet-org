@@ -11,6 +11,11 @@ import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { useReadContract, useWriteContract, useSimulateContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ERC1820_REGISTRY } from '../../../../config';
 import { ERC1820RegistryAbi } from '../../../utils/abis/ERC1820RegistryAbi';
+import { useEthersSigner } from '../../../hooks';
+import { safeActions, safeActionsAsync } from '../../../store/slices/safe';
+import { Address, encodeFunctionData, encodePacked, getAddress } from 'viem';
+import { type UseSimulateContractParameters } from 'wagmi'
+import { encode } from 'punycode';
 
 const Content = styled(SDialogContent)`
   gap: 1rem;
@@ -53,35 +58,62 @@ type AddAddressToERC1820RegistryModalProps = {
   closeModal: Function;
   refetchHandler: Function;
   handlerData: `0x${string}` | undefined;
+  fundsSource: 'wallet' | 'safe';
+  address?: `0x${string}` | null;
 };
 
 const AddAddressToERC1820RegistryModal = ({
   closeModal,
   refetchHandler,
   handlerData,
+  fundsSource,
 }: AddAddressToERC1820RegistryModalProps) => {
+  const dispatch = useAppDispatch();
   const [txStarted, set_txStarted] = useState<boolean>(false);
   const [success, set_success] = useState<boolean | null>(null);
   const [error, set_error] = useState<string | null>(null);
-  const address = useAppSelector((store) => store.web3.account);
+  const signer = useEthersSigner();
+  const walletAddress = useAppSelector((store) => store.web3.account);
+  const safeAddress = useAppSelector((state) => state.safe.selectedSafe.data.safeAddress);
 
   useEffect(() => {
-    if (!address) return;
+    if (!walletAddress) return;
+    console.log('Address provided:', walletAddress);
     refetchSetter();
-    startRefetchHandler();
-  }, [address]);
+  }, [walletAddress]);
 
-  // TX: handlerData
-  const { data, refetch: refetchSetter } = useSimulateContract({
+  const { data, refetch: refetchSetter, error: simulateError } = useSimulateContract({
     address: ERC1820_REGISTRY,
     abi: ERC1820RegistryAbi,
     functionName: 'setInterfaceImplementer',
     args: [
-      address,
+      walletAddress,
       '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b',
-      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619',
+      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619'
     ],
   });
+
+  const TXdata = encodeFunctionData({
+    abi: ERC1820RegistryAbi,
+    functionName: 'setInterfaceImplementer',
+    args: [
+      safeAddress,
+      '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b',
+      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619'
+    ],
+  });
+
+  useEffect(() => {
+    console.log('TXdata:', TXdata);
+  }, [TXdata]);
+
+  useEffect(() => {
+    console.log('Simulate contract data:', data);
+  }, [data]);
+
+  useEffect(() => {
+    console.log('Simulate contract error:', simulateError);
+  }, [simulateError]);
 
   // Perform contract writes and retrieve data.
   const { data: hash, isPending, isSuccess, isError, writeContract, failureReason } = useWriteContract();
@@ -103,17 +135,39 @@ const AddAddressToERC1820RegistryModal = ({
 
   const handleClick = () => {
     set_txStarted(true);
-    writeContract?.(data!.request);
+    if(fundsSource === 'wallet') writeContract?.(data!.request);
+    else if (fundsSource === 'safe') {
+      createAndExecuteTx();
+    }
+  };
+
+  const createAndExecuteTx = async () => {
+    set_error(null);
+    if (signer && safeAddress) {
+      return dispatch(
+        safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
+          data: TXdata,
+          signer,
+          safeAddress,
+          smartContractAddress: ERC1820_REGISTRY,
+        })
+      )
+        .unwrap()
+        .catch((error) => {
+          console.log('Transaction error:', error);
+          set_txStarted(false);
+        })
+        .then((transactionResponse: any) => {
+          console.log('Transaction response:', transactionResponse);
+        })
+        .finally(() => {
+          console.log('Transaction finally called');
+        });
+    }
   };
 
   const handleCloseModal = () => {
     closeModal();
-  };
-
-  const startRefetchHandler = async () => {
-    while (true) {
-      await new Promise((r) => setTimeout(r, 5_500));
-    }
   };
 
   useEffect(() => {

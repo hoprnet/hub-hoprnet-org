@@ -428,6 +428,7 @@ function SafeWithdraw() {
                     width: '230px',
                     margin: 0,
                   }}
+                  label="Token"
                 />
                 <StyledCoinLabel>Token</StyledCoinLabel>
               </InputWithLabel>
