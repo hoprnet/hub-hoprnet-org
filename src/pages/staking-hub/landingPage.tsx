@@ -315,6 +315,34 @@ const FurtherReadingButtonsSection = styled.div`
   max-width: 800px;
 `;
 
+const TotalStake = styled.div`
+  display: flex;
+  position: absolute;
+  height: 62px;
+  width: 180px;
+  background-color: #CADEFF;
+  flex-direction: column;
+  right: 15px;
+  top: 73px;
+  text-align: center;
+  padding: 8px;
+  justify-content: center;
+  border-radius: 8px;
+  P:first-of-type {
+    font-weight: 600;
+    font-size: 16px;
+    color: #414141;
+    margin: 0;
+  }
+  P:last-of-type {
+    font-weight: 700;
+    font-size: 24px;
+    color: #414141;
+    margin: 0;
+  }
+`;
+
+
 // FAQ
 type FaqElement = {
   id: number;
@@ -331,6 +359,11 @@ const StakingLandingPage = () => {
   const status = useAppSelector((store) => store.web3.status);
   const onboardingStep = useAppSelector((store) => store.stakingHub.onboarding.step);
   const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
+  const totalwxHoprStakeRaw = useAppSelector((store) => store.stakingHub.safeInfo.data.overall_staking_v2_balances.wxHoprBalance);
+
+  const totalwxHoprStake = totalwxHoprStakeRaw
+    ? Math.floor(parseFloat(totalwxHoprStakeRaw)).toLocaleString()
+    : totalwxHoprStakeRaw;
 
   const handleAccordionClick = (id: number) => {
     set_expandedId((prevId) => {
@@ -346,7 +379,18 @@ const StakingLandingPage = () => {
         gradient
       >
         <ContinueOnboarding />
-
+        {
+          totalwxHoprStakeRaw && (
+            <TotalStake>
+              <p>Total Stake wxHOPR</p>
+              <p>{totalwxHoprStake}</p>
+            </TotalStake>
+          )
+        }
+        <TotalStake>
+          <p>Total Stake wxHOPR</p>
+          <p>{totalwxHoprStake}</p>
+        </TotalStake>
         <StyledContainer>
           <ImageContainer>
             <Image
@@ -358,6 +402,7 @@ const StakingLandingPage = () => {
               src="/assets/yellow-ellipse.svg"
             />
           </ImageContainer>
+
           <Title>HOPR STAKING HUB</Title>
           <Description>
             Earn $HOPR while providing web3 users with the data privacy and autonomy Web 2.0 never did. Create your HOPR
