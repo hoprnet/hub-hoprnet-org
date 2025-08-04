@@ -61,12 +61,12 @@ const stakingFaq: FaqData = {
         </span>
       ),
     },
-    {
-      id: 5,
-      title: 'How do I get an Network Registry NFT?',
-      content:
-        'Network Registry NFTs were given to node runners of previous HOPR releases. We no longer distribute this NFT. So unless you have already been airdropped one by HOPR, you will only be able to find them on NFT marketplaces.',
-    },
+    // {
+    //   id: 5,
+    //   title: 'How do I get an Network Registry NFT?',
+    //   content:
+    //     'Network Registry NFTs were given to node runners of previous HOPR releases. We no longer distribute this NFT. So unless you have already been airdropped one by HOPR, you will only be able to find them on NFT marketplaces.',
+    // },
   ],
   '/staking/onboarding#1': [
     {
@@ -75,20 +75,20 @@ const stakingFaq: FaqData = {
       content: 'You can change ownership after safe creation.',
     },
   ],
-  '/staking/onboarding#3': [
-    {
-      id: 1,
-      title: 'How do I get an Network Registry NFT?',
-      content:
-        'Network Registry NFTs were given to node runners of previous HOPR releases. We no longer distribute this NFT. So unless you have already been airdropped one by HOPR, you will only be able to find them on NFT marketplaces.',
-    },
-    {
-      id: 2,
-      title: 'What happens if I have multiple Network Registry NFTS?',
-      content:
-        'If you have more than one Network Registry NFT, only the one with the lowest ID number will be transferred to your safe, and the rest will remain in your wallet.',
-    },
-  ],
+  // '/staking/onboarding#3': [
+  //   {
+  //     id: 1,
+  //     title: 'How do I get an Network Registry NFT?',
+  //     content:
+  //       'Network Registry NFTs were given to node runners of previous HOPR releases. We no longer distribute this NFT. So unless you have already been airdropped one by HOPR, you will only be able to find them on NFT marketplaces.',
+  //   },
+  //   {
+  //     id: 2,
+  //     title: 'What happens if I have multiple Network Registry NFTS?',
+  //     content:
+  //       'If you have more than one Network Registry NFT, only the one with the lowest ID number will be transferred to your safe, and the rest will remain in your wallet.',
+  //   },
+  // ],
   '/staking/onboarding#4': [
     {
       id: 1,

@@ -223,8 +223,7 @@ export default function WhatYouWillNeedPage() {
                 }}
               />
               <TextUnderImage style={{ maxWidth: '280px' }}>
-                <p>min. 10k wxHOPR with Network Registry NFT</p>
-                <p>min. 30k wxHOPR without Network Registry NFT</p>
+                <p>min. 30k wxHOPR</p>
                 <p>+</p>
                 <p>min. 3 xDAI</p>
               </TextUnderImage>
@@ -238,25 +237,6 @@ export default function WhatYouWillNeedPage() {
               width: 100,
             }}
           />
-          <TitleWithSVG
-            title={
-              <>
-                Network
-                <br />
-                registry NFT*
-              </>
-            }
-            img={{
-              src: '/assets/network-registry-nft-icon.svg',
-              height: 100,
-              width: 100,
-            }}
-            style={{ maxWidth: '100px' }}
-          >
-            <TextUnderImage>
-              <p style={{ textAlign: 'center' }}>*optional</p>
-            </TextUnderImage>
-          </TitleWithSVG>
         </Container>
       </Content>
     </StepContainer>
