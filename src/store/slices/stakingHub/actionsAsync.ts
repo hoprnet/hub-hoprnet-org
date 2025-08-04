@@ -16,8 +16,9 @@ import { web3 } from '@hoprnet/hopr-sdk';
 import { Address, PublicClient, WalletClient, parseEther, publicActions } from 'viem';
 import { stakingHubActions } from '.';
 import { safeActionsAsync } from '../safe';
-import { NodePayload } from './initialState';
+import { NodePayload, TotalStaked } from './initialState';
 import { formatEther, getAddress } from 'viem';
+import { To } from 'react-router-dom';
 
 const getHubSafesByOwnerThunk = createAsyncThunk<
   {
@@ -461,6 +462,28 @@ const getNodeBalanceThunk = createAsyncThunk<
   }
 );
 
+const getTotalStakedwxHoprThunk = createAsyncThunk<
+  TotalStaked | null,
+  void,
+  { state: RootState }
+>(
+  'stakingHub/getTotalStakedwxHopr',
+  async () => {
+    const rez = await fetch(`https://webapi.hoprnet.org/api/hub/getStakingData`);
+    const json = await rez.json();
+    return json.balances[0] || null;
+  },
+  {
+    condition: (_, { getState }) => {
+      const isFetching = getState().stakingHub.totalStaked.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
+  }
+);
+
+
 // Helper actions to update the isFetching state
 const setHubSafesByOwnerFetching = createAction<boolean>('stakingHub/setHubSafesByOwnerFetching');
 const setSubgraphDataFetching = createAction<boolean>('stakingHub/setSubgraphDataFetching');
@@ -641,6 +664,18 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       }
     }
   });
+  builder.addCase(getTotalStakedwxHoprThunk.pending, (state, action) => {
+    state.totalStaked.isFetching = true;
+  });
+  builder.addCase(getTotalStakedwxHoprThunk.fulfilled, (state, action) => {
+    if (action.payload) {
+      state.totalStaked.data = action.payload;
+    }
+    state.totalStaked.isFetching = false;
+  });
+  builder.addCase(getTotalStakedwxHoprThunk.rejected, (state, action) => {
+    state.totalStaked.isFetching = false;
+  });
 };
 
 export const actionsAsync = {
@@ -650,4 +685,5 @@ export const actionsAsync = {
   getSubgraphDataThunk,
   goToStepWeShouldBeOnThunk,
   getOnboardingDataThunk,
+  getTotalStakedwxHoprThunk
 };

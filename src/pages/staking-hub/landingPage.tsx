@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 
 // HOPR Components
@@ -14,6 +14,7 @@ import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding'
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
 import { web3Actions } from '../../store/slices/web3';
+import { stakingHubActionsAsync } from '../../store/slices/stakingHub';
 
 // Mui
 import { Accordion, AccordionDetails, AccordionSummary, Card, Chip } from '@mui/material';
@@ -328,6 +329,7 @@ const TotalStake = styled.div`
   padding: 8px;
   justify-content: center;
   border-radius: 8px;
+  z-index: 10;
   P:first-of-type {
     font-weight: 600;
     font-size: 16px;
@@ -359,7 +361,7 @@ const StakingLandingPage = () => {
   const status = useAppSelector((store) => store.web3.status);
   const onboardingStep = useAppSelector((store) => store.stakingHub.onboarding.step);
   const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
-  const totalwxHoprStakeRaw = useAppSelector((store) => store.stakingHub.safeInfo.data.overall_staking_v2_balances.wxHoprBalance);
+  const totalwxHoprStakeRaw = useAppSelector((store) => store.stakingHub.totalStaked.data?.wxHoprBalance);
 
   const totalwxHoprStake = totalwxHoprStakeRaw
     ? Math.floor(parseFloat(totalwxHoprStakeRaw)).toLocaleString()
@@ -371,6 +373,12 @@ const StakingLandingPage = () => {
     });
   };
 
+  useEffect(() => {
+    if(!totalwxHoprStakeRaw) {
+      dispatch(stakingHubActionsAsync.getTotalStakedwxHoprThunk());
+    }
+  }, [totalwxHoprStakeRaw, dispatch]);
+
   return (
     <>
       <Section
@@ -380,17 +388,13 @@ const StakingLandingPage = () => {
       >
         <ContinueOnboarding />
         {
-          totalwxHoprStakeRaw && (
+          totalwxHoprStake && (
             <TotalStake>
               <p>Total Stake wxHOPR</p>
               <p>{totalwxHoprStake}</p>
             </TotalStake>
           )
         }
-        <TotalStake>
-          <p>Total Stake wxHOPR</p>
-          <p>{totalwxHoprStake}</p>
-        </TotalStake>
         <StyledContainer>
           <ImageContainer>
             <Image

@@ -29,6 +29,10 @@ type InitialState = {
     data: SubgraphParsedOutput;
     isFetching: boolean;
   };
+  totalStaked: {
+    data: TotalStaked | null;
+    isFetching: boolean;
+  };
   config: {
     needsUpdate: {
       data: boolean;
@@ -195,6 +199,10 @@ export const initialState: InitialState = {
     },
     isFetching: false,
   },
+  totalStaked: {
+    data: null,
+    isFetching: false,
+  },
   config: {
     needsUpdate: {
       data: false,
@@ -206,4 +214,11 @@ export const initialState: InitialState = {
     data: {},
     isFetching: false,
   },
+};
+
+
+export type TotalStaked = {
+  mHoprBalance: string;
+  wxHoprBalance: string;
+  xHoprBalance: string;
 };
