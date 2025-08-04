@@ -187,7 +187,6 @@ export default function FundNode() {
                 xdaiValue.includes('+'),
               buttonText: 'SIGN FUND',
             }}
-            safeInfo={safeInfo}
           />
         }
       >

@@ -16,6 +16,7 @@ import { safeActions, safeActionsAsync } from '../../../store/slices/safe';
 import { Address, encodeFunctionData, encodePacked, getAddress } from 'viem';
 import { type UseSimulateContractParameters } from 'wagmi'
 import { encode } from 'punycode';
+import SafeTransactionButton from '../../../components/SafeTransactionButton';
 
 const Content = styled(SDialogContent)`
   gap: 1rem;
@@ -124,14 +125,12 @@ const AddAddressToERC1820RegistryModal = ({
 
   const handleClick = () => {
     set_txStarted(true);
-    if(fundsSource === 'wallet') writeContract?.(data!.request);
-    else if (fundsSource === 'safe') {
-      createAndExecuteTx();
-    }
+    writeContract?.(data!.request);
   };
 
   const createAndExecuteTx = async () => {
     set_error(null);
+    set_txStarted(true);
     if (signer && safeAddress) {
       return dispatch(
         safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
@@ -239,14 +238,31 @@ const AddAddressToERC1820RegistryModal = ({
           >
             NOT NOW
           </Button>
-          <Button
-            onClick={() => {
-              handleClick();
-            }}
-            pending={txStarted}
-          >
-            SET INTERFACE IMPLEMENTER
-          </Button>
+          {
+            fundsSource === 'safe' ?
+            <SafeTransactionButton
+              executeOptions={{
+                onClick: createAndExecuteTx,
+                pending: txStarted,
+                buttonText: 'SET INTERFACE IMPLEMENTER'
+              }}
+              signOptions={{
+                onClick: createAndExecuteTx,
+                pending: txStarted,
+                buttonText: 'SIGN INTERFACE IMPLEMENTER'
+              }}
+            />
+              :
+            <Button
+              onClick={() => {
+                handleClick();
+              }}
+              pending={txStarted}
+            >
+              SET INTERFACE IMPLEMENTER
+            </Button>
+          }
+
         </div>
       </Content>
     </SDialog>

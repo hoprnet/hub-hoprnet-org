@@ -196,7 +196,6 @@ export default function SetAllowance() {
               pending: isWalletLoading,
               buttonText: 'EXECUTE',
             }}
-            safeInfo={safeInfo}
             signOptions={{
               onClick: signAllowance,
               disabled:

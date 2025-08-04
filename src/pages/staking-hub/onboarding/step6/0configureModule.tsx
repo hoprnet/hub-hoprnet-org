@@ -345,7 +345,6 @@ export default function ConfigureModule(props?: {
                 ? 'You need to sign this transaction by using another owner'
                 : undefined,
             }}
-            safeInfo={safeInfo}
           />
         )
       }

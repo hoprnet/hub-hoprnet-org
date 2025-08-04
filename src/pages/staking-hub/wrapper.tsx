@@ -444,6 +444,8 @@ function WrapperPage() {
         })
       ).unwrap();
     }
+    updateBalances();
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for the state to update
     set_loading(false);
   };
 
@@ -558,15 +560,16 @@ function WrapperPage() {
           <SafeTransactionButton
             executeOptions={{
               onClick: executeSafeSwap,
-              disabled:swapDisabled,
+              disabled: swapDisabled,
               pending: loading,
+              buttonText: 'SWAP'
             }}
             signOptions={{
               onClick: executeSafeSwap,
               disabled: swapDisabled,
               pending: loading,
+              buttonText: 'SIGN SWAP'
             }}
-            safeInfo={safeInfo}
           />
            :
           <Button

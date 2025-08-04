@@ -393,7 +393,6 @@ export default function EditOwners() {
               onClick: addOwnerSign,
               buttonText: 'SIGN ADD',
             }}
-            safeInfo={safeInfo}
           />
         }
       />
@@ -418,7 +417,6 @@ export default function EditOwners() {
               onClick: updateSafeThresholdSign,
               buttonText: 'SIGN UPDATE',
             }}
-            safeInfo={safeInfo}
           />
         }
       />
@@ -443,7 +441,6 @@ export default function EditOwners() {
               onClick: removeOwnerSign,
               buttonText: 'SIGN REMOVE',
             }}
-            safeInfo={safeInfo}
           />
         }
       />

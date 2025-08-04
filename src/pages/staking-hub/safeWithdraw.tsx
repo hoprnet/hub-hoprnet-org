@@ -505,7 +505,6 @@ function SafeWithdraw() {
           />
           <StyledButtonGroup>
             <SafeTransactionButton
-              safeInfo={safeInfo}
               signOptions={{
                 onClick: signTx,
                 disabled: !!getErrorsForApproveButton().length || isWalletLoading,

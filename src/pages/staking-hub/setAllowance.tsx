@@ -103,7 +103,6 @@ export default function SetAllowance() {
                 wxHoprValue === '' || wxHoprValue === '0' || wxHoprValue.includes('-') || wxHoprValue.includes('+'),
               pending: loading,
             }}
-            safeInfo={safeInfo}
           />
         }
       >

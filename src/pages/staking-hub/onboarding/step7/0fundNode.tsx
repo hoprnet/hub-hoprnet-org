@@ -177,7 +177,6 @@ export default function FundNode(props?: { onDone?: Function; nodeAddress?: stri
       }}
       buttons={
         <SSafeTransactionButton
-          safeInfo={safeInfo}
           executeOptions={{
             onClick: createAndExecuteTx,
             pending: isExecutionLoading || isWalletLoading,

@@ -324,7 +324,6 @@ function SafeDashboard() {
               onClick: signUpdateConfig,
               buttonText: 'Sign update',
             }}
-            safeInfo={safeInfo}
           />
         )}
       </GrayCard>

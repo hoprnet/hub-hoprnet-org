@@ -1,5 +1,6 @@
 import { SafeInfoResponse } from '@safe-global/api-kit';
 import Button from '../../future-hopr-lib-components/Button';
+import { useAppDispatch, useAppSelector } from '../../store';
 import { useEffect, useState } from 'react';
 import { getUserCanSkipProposal } from '../../utils/safeTransactions';
 import styled from '@emotion/styled';
@@ -8,8 +9,6 @@ import { Address } from 'viem';
 import { useWaitForTransactionReceipt } from 'wagmi';
 
 type SafeButtonProps = {
-  // connected safe info that contains threshold
-  safeInfo: SafeInfoResponse | null;
   // specific props for sign button
   signOptions: {
     pending?: boolean;
@@ -37,15 +36,16 @@ type SafeButtonProps = {
 export default function SafeTransactionButton(props: SafeButtonProps) {
   const [userCanSkipProposal, set_userCanSkipProposal] = useState(false);
   const [indexerDidNotWork, set_indexerDidNotWork] = useState(false);
+  const safeInfo = useAppSelector((store) => store.safe.info.data);
 
   useEffect(() => {
-    if (props.safeInfo) {
+    if (safeInfo) {
       set_indexerDidNotWork(false);
-      set_userCanSkipProposal(getUserCanSkipProposal(props.safeInfo));
+      set_userCanSkipProposal(getUserCanSkipProposal(safeInfo));
     } else {
       set_indexerDidNotWork(true);
     }
-  }, [props.safeInfo]);
+  }, [safeInfo]);
 
   let { status } = useWaitForTransactionReceipt({
     confirmations: 1,
