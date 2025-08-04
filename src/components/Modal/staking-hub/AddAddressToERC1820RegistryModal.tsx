@@ -103,17 +103,6 @@ const AddAddressToERC1820RegistryModal = ({
     ],
   });
 
-  useEffect(() => {
-    console.log('TXdata:', TXdata);
-  }, [TXdata]);
-
-  useEffect(() => {
-    console.log('Simulate contract data:', data);
-  }, [data]);
-
-  useEffect(() => {
-    console.log('Simulate contract error:', simulateError);
-  }, [simulateError]);
 
   // Perform contract writes and retrieve data.
   const { data: hash, isPending, isSuccess, isError, writeContract, failureReason } = useWriteContract();

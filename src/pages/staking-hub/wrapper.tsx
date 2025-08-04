@@ -7,7 +7,7 @@ import {
   useWaitForTransactionReceipt,
   useAccount,
 } from 'wagmi';
-import { parseUnits, parseEther, toHex, parseTransaction } from 'viem';
+import { parseUnits, parseEther, toHex, parseTransaction, encodeFunctionData } from 'viem';
 import {
   xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
   wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
@@ -17,6 +17,7 @@ import {
 } from '../../../config';
 import { safeActions, safeActionsAsync } from '../../store/slices/safe';
 import { useAppDispatch, useAppSelector } from '../../store';
+import { useEthersSigner } from '../../hooks';
 
 // Abis
 import { MultiSendAbi } from '../../utils/abis/MultiSendAbi';
@@ -31,6 +32,7 @@ import Section from '../../future-hopr-lib-components/Section';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import { StepContainer } from './onboarding/components';
 import AddAddressToERC1820RegistryModal from '../../components/Modal/staking-hub/AddAddressToERC1820RegistryModal';
+import SafeTransactionButton from '../../components/SafeTransactionButton';
 
 // Mui
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -160,6 +162,7 @@ function TransactionLink({ isSuccess, hash }: TransactionLinkProps) {
 
 function WrapperPage() {
   const dispatch = useAppDispatch();
+  const signer = useEthersSigner();
   const [fundsSource, set_fundsSource] = useState<'wallet' | 'safe'>('safe');
   const [xhoprValue, set_xhoprValue] = useState('');
   const [wxhoprValue, set_wxhoprValue] = useState('');
@@ -181,6 +184,8 @@ function WrapperPage() {
   const [selectedAddress, set_selectedAddress] = useState<string | null>(safeAddress);
   const walletBalance = useAppSelector((store) => store.web3.balance);
   const safeBalance = useAppSelector((store) => store.safe.balance.data);
+  const safeInfo = useAppSelector((store) => store.safe.info.data);
+  const [loading, set_loading] = useState(false);
 
   useEffect(() => {
     if (fundsSource === 'wallet') {
@@ -400,31 +405,65 @@ function WrapperPage() {
     }
   };
 
-
   // ** Safe wrapper logic **************** */
 
-  // const handleClickSafe = () => {
-  //   dispatch(
-  //     safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
-  //       data: createSendTokensTransactionData(getAddress(receiver) as `0x${string}`, parsedValue as bigint),
-  //       signer,
-  //       safeAddress: getAddress(selectedSafeAddress),
-  //       smartContractAddress,
-  //     })
-  //   )
-  //     .unwrap()
-  //     .then((transactionResponse) => {
-  //     //  set_transactionHash(transactionResponse as Address);
-  //     })
-  //     .finally(() => {
-  //   //    set_isWalletLoading(false);
-  //     });
+  const executeSafeSwap = async () => {
+    if (!signer || !selectedAddress || !wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS) return;
+    set_loading(true);
+    if (swapDirection === 'xHOPR_to_wxHOPR') {
+      if (!handlerIsSet) {
+        set_AddAddressToERC1820RegistryModalOpen(true);
+        set_loading(false);
+        return;
+      }
+      const TXdata = encodeFunctionData({
+        abi: web3.wrapperABI,
+        functionName: 'transferAndCall',
+        args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(xhoprValue as NumberLiteral, 18), '0x'],
+      });
+      await dispatch(
+        safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
+          data: TXdata,
+          signer,
+          safeAddress: selectedAddress as `0x${string}`,
+          smartContractAddress: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        })
+      ).unwrap();
+    } else {
+      const TXdata = encodeFunctionData({
+        abi: web3.wrapperABI,
+        functionName: 'transfer',
+        args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(wxhoprValue as NumberLiteral, 18)],
+      });
+      await dispatch(
+        safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
+          data: TXdata,
+          signer,
+          safeAddress: selectedAddress as `0x${string}`,
+          smartContractAddress: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        })
+      ).unwrap();
+    }
+    set_loading(false);
+  };
+
+  // const signSafeSwap = async () => {
+  //   if (signer && selectedAddress && HOPR_CHANNELS_SMART_CONTRACT_ADDRESS) {
+  //     set_loading(true);
+  //     await dispatch(
+  //       safeActionsAsync.createSafeContractTransactionThunk({
+  //         data: createApproveTransactionData(HOPR_CHANNELS_SMART_CONTRACT_ADDRESS, parseUnits(wxHoprValue, 18)),
+  //         signer,
+  //         safeAddress: selectedAddress,
+  //         smartContractAddress: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
+  //       })
+  //     ).unwrap();
+  //     set_loading(false);
+  //   }
   // };
 
 
   /* ************************************** */
-
-
 
   const updateBalances = () => {
     if (fundsSource === 'wallet' && selectedAddress && walletBalance.xHopr.formatted && walletBalance.wxHopr.formatted) {
@@ -471,6 +510,12 @@ function WrapperPage() {
     }
   };
 
+  const swapDisabled =
+    (swapDirection === 'xHOPR_to_wxHOPR' && !write_xHOPR_to_wxHOPR) ||
+    (swapDirection === 'wxHOPR_to_xHOPR' && !write_wxHOPR_to_xHOPR) ||
+    notEnoughBalance ||
+    swapButtonDisabled;
+
   return (
     <Section
       center
@@ -509,14 +554,24 @@ function WrapperPage() {
           height: 134,
         }}
         buttons={
+          fundsSource === 'safe' ?
+          <SafeTransactionButton
+            executeOptions={{
+              onClick: executeSafeSwap,
+              disabled:swapDisabled,
+              pending: loading,
+            }}
+            signOptions={{
+              onClick: executeSafeSwap,
+              disabled: swapDisabled,
+              pending: loading,
+            }}
+            safeInfo={safeInfo}
+          />
+           :
           <Button
             className="swap-button"
-            disabled={
-              (swapDirection === 'xHOPR_to_wxHOPR' && !write_xHOPR_to_wxHOPR) ||
-              (swapDirection === 'wxHOPR_to_xHOPR' && !write_wxHOPR_to_xHOPR) ||
-              notEnoughBalance ||
-              swapButtonDisabled
-            }
+            disabled={swapDisabled}
             onClick={handleClick}
             pending={(walletLoading || isLoading) && !safeTxOverwrite.success}
           >
