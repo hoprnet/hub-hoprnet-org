@@ -50,7 +50,7 @@ import { calculateTimeInGMT, formatDateToUserTimezone, formatTimeToUserTimezone 
 import { truncateEthereumAddress } from '../../../utils/blockchain';
 import { getUserActionForPendingTransaction } from '../../../utils/safeTransactions';
 import { StringLiteral } from 'typescript';
-
+import { wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS } from '../../../../config';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
 
 const StyledContainer = styled(Paper)`
@@ -169,6 +169,7 @@ const ActionButtons = ({ transaction }: { transaction: SafeMultisigTransactionRe
   const signer = useEthersSigner();
   const dispatch = useAppDispatch();
   const address = useAppSelector((store) => store.web3.account);
+  const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const safeNonce = useAppSelector((store) => store.safe.info.data?.nonce);
   const safeThresholdFromSafe = useAppSelector((store) => store.safe.info.data?.threshold);
   const possibleThresholdProblem = safeThresholdFromSafe !== transaction.confirmationsRequired;
@@ -186,7 +187,6 @@ const ActionButtons = ({ transaction }: { transaction: SafeMultisigTransactionRe
 
   // TODO: remove this isLoading functions when isLoading is moved to redux
   const executeTx = (transaction: SafeMultisigTransactionResponse) => {
-    console.log('executeTx transaction', transaction);
     if (signer) {
       set_isLoadingExecuting(true);
       dispatch(
@@ -198,11 +198,9 @@ const ActionButtons = ({ transaction }: { transaction: SafeMultisigTransactionRe
       )
         .unwrap()
         .then(() => {
-          set_isLoadingExecuting(false);
         })
         .catch((e) => {
           console.error('Error: Multisig transaction not executed', e);
-          set_isLoadingExecuting(false);
           sendNotification({
             notificationPayload: {
               source: 'safe',
@@ -213,6 +211,16 @@ const ActionButtons = ({ transaction }: { transaction: SafeMultisigTransactionRe
             toastPayload: { message: `Multisig transaction not executed. ${JSON.stringify(e)}`, type: 'error' },
             dispatch,
           });
+        }).finally(async () => {
+          if (signer && selectedSafeAddress) {
+            await dispatch(
+              safeActionsAsync.getPendingSafeTransactionsThunk({
+                safeAddress: selectedSafeAddress,
+                signer,
+              })
+            ).unwrap();
+          }
+          set_isLoadingExecuting(false);
         });
     }
   };
@@ -426,6 +434,37 @@ const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisi
     // change allowance:
     //cap: approve
     // data: { "method": "approve", "parameters": [ { "name": "spender", "type": "address", "value": "0x693Bac5ce61c720dDC68533991Ceb41199D8F8ae" }, { "name": "value", "type": "uint256", "value": "1000000000000000000000" } ] }
+
+    // *** Check for wrapper transactions
+    try {
+      if(
+        // @ts-expect-error decode wrapper TX
+        transaction?.dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
+        // @ts-ignore
+        transaction?.dataDecoded?.parameters[2]?.value === '0x' &&
+        // @ts-ignore
+        transaction?.dataDecoded?.method === 'transferAndCall' &&
+        // @ts-ignore
+        transaction?.dataDecoded?.parameters[1]?.value
+      ){
+        console.log('getValueFromTransaction wrapper', transaction);
+        // @ts-ignore
+        return formatEther(transaction?.dataDecoded?.parameters[1]?.value);
+      }
+
+      if(
+        // @ts-expect-error decode wrapper TX
+        transaction?.dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
+        // @ts-ignore
+        transaction?.dataDecoded?.method === 'transfer' &&
+        // @ts-ignore
+        transaction?.dataDecoded?.parameters[1]?.value
+      ){
+        console.log('getValueFromTransaction wrapper', transaction);
+        // @ts-ignore
+        return formatEther(transaction?.dataDecoded?.parameters[1]?.value);
+      }
+    } catch (e) {}
 
     try {
       if (

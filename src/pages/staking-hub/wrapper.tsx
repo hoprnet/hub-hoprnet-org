@@ -44,8 +44,8 @@ import { IconButton, Paper, TextField, InputAdornment, Button as MuiButton } fro
 //   MenuItem,
 // } from '@mui/material';
 import
-  Select
- from '../../future-hopr-lib-components/Select';
+Select
+  from '../../future-hopr-lib-components/Select';
 
 const StyledPaper = styled(Paper)`
   padding: 2rem;
@@ -407,63 +407,56 @@ function WrapperPage() {
 
   // ** Safe wrapper logic **************** */
 
-  const executeSafeSwap = async () => {
+  const executeSafeSwap = async (signOnly = false) => {
     if (!signer || !selectedAddress || !wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS) return;
     set_loading(true);
-    if (swapDirection === 'xHOPR_to_wxHOPR') {
-      if (!handlerIsSet) {
-        set_AddAddressToERC1820RegistryModalOpen(true);
-        set_loading(false);
-        return;
-      }
-      const TXdata = encodeFunctionData({
-        abi: web3.wrapperABI,
-        functionName: 'transferAndCall',
-        args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(xhoprValue as NumberLiteral, 18), '0x'],
-      });
-      await dispatch(
-        safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
+    try {
+      if (swapDirection === 'xHOPR_to_wxHOPR') {
+        if (!handlerIsSet) {
+          set_AddAddressToERC1820RegistryModalOpen(true);
+          set_loading(false);
+          return;
+        }
+        const TXdata = encodeFunctionData({
+          abi: web3.wrapperABI,
+          functionName: 'transferAndCall',
+          args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(xhoprValue as NumberLiteral, 18), '0x'],
+        });
+        const payload = {
           data: TXdata,
           signer,
           safeAddress: selectedAddress as `0x${string}`,
           smartContractAddress: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-        })
-      ).unwrap();
-    } else {
-      const TXdata = encodeFunctionData({
-        abi: web3.wrapperABI,
-        functionName: 'transfer',
-        args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(wxhoprValue as NumberLiteral, 18)],
-      });
-      await dispatch(
-        safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
+        };
+        await dispatch(
+          signOnly ?
+            safeActionsAsync.createSafeContractTransactionThunk(payload) :
+            safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
+        ).unwrap();
+      } else {
+        const TXdata = encodeFunctionData({
+          abi: web3.wrapperABI,
+          functionName: 'transfer',
+          args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(wxhoprValue as NumberLiteral, 18)],
+        });
+        const payload = {
           data: TXdata,
           signer,
           safeAddress: selectedAddress as `0x${string}`,
           smartContractAddress: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-        })
-      ).unwrap();
+        }
+        await dispatch(
+          signOnly ?
+            safeActionsAsync.createSafeContractTransactionThunk(payload) :
+            safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
+        ).unwrap();
+      }
+      updateBalances();
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for the state to update
+    } finally {
+      set_loading(false);
     }
-    updateBalances();
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for the state to update
-    set_loading(false);
-  };
-
-  // const signSafeSwap = async () => {
-  //   if (signer && selectedAddress && HOPR_CHANNELS_SMART_CONTRACT_ADDRESS) {
-  //     set_loading(true);
-  //     await dispatch(
-  //       safeActionsAsync.createSafeContractTransactionThunk({
-  //         data: createApproveTransactionData(HOPR_CHANNELS_SMART_CONTRACT_ADDRESS, parseUnits(wxHoprValue, 18)),
-  //         signer,
-  //         safeAddress: selectedAddress,
-  //         smartContractAddress: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
-  //       })
-  //     ).unwrap();
-  //     set_loading(false);
-  //   }
-  // };
-
+  }
 
   /* ************************************** */
 
@@ -557,69 +550,35 @@ function WrapperPage() {
         }}
         buttons={
           fundsSource === 'safe' ?
-          <SafeTransactionButton
-            executeOptions={{
-              onClick: executeSafeSwap,
-              disabled: swapDisabled,
-              pending: loading,
-              buttonText: 'SWAP'
-            }}
-            signOptions={{
-              onClick: executeSafeSwap,
-              disabled: swapDisabled,
-              pending: loading,
-              buttonText: 'SIGN SWAP'
-            }}
-          />
-           :
-          <Button
-            className="swap-button"
-            disabled={swapDisabled}
-            onClick={handleClick}
-            pending={(walletLoading || isLoading) && !safeTxOverwrite.success}
-          >
-            SWAP
-          </Button>
+            <SafeTransactionButton
+              executeOptions={{
+                onClick: executeSafeSwap,
+                disabled: swapDisabled,
+                pending: loading,
+                buttonText: 'SWAP'
+              }}
+              signOptions={{
+                onClick: () => executeSafeSwap(true),
+                disabled: swapDisabled,
+                pending: loading,
+                buttonText: 'SIGN SWAP'
+              }}
+            />
+            :
+            <Button
+              className="swap-button"
+              disabled={swapDisabled}
+              onClick={handleClick}
+              pending={(walletLoading || isLoading) && !safeTxOverwrite.success}
+            >
+              SWAP
+            </Button>
         }
       >
         <br />
         <br />
         <br />
         <WrapperContainer>
-          <StyledTextField
-            label="xHOPR"
-            placeholder="Your xHOPR here..."
-            type="number"
-            value={xhoprValue}
-            onChange={(e) => set_xhoprValue(e.target.value)}
-            onPointerDown={() => {
-              if (selectedAddress) {
-                set_swapDirection('xHOPR_to_wxHOPR');
-                setMax_wxHOPR();
-              }
-            }}
-            disabled={!selectedAddress || swapDirection === 'wxHOPR_to_xHOPR' || isLoading}
-            fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <MaxButton
-                    disabled={swapDirection === 'wxHOPR_to_xHOPR'}
-                    onClick={setMax_xHOPR}
-                  >
-                    Max
-                  </MaxButton>
-                </InputAdornment>
-              ),
-              inputProps: { min: 0 },
-            }}
-          />
-          <StyledIconButton
-            className={`${swapDirection === 'wxHOPR_to_xHOPR' ? 'swapDirection' : ''}`}
-            onClick={handleSwap}
-          >
-            <ArrowDownwardIcon />
-          </StyledIconButton>
           <StyledTextField
             label="wxHOPR"
             placeholder="Your wxHOPR here..."
@@ -651,8 +610,44 @@ function WrapperPage() {
               },
             }}
           />
+          <StyledIconButton
+            className={`${swapDirection === 'xHOPR_to_wxHOPR' ? 'swapDirection' : ''}`}
+            onClick={handleSwap}
+            disabled={loading}
+          >
+            <ArrowDownwardIcon />
+          </StyledIconButton>
+          <StyledTextField
+            label="xHOPR"
+            placeholder="Your xHOPR here..."
+            type="number"
+            value={xhoprValue}
+            onChange={(e) => set_xhoprValue(e.target.value)}
+            onPointerDown={() => {
+              if (selectedAddress) {
+                set_swapDirection('xHOPR_to_wxHOPR');
+                setMax_wxHOPR();
+              }
+            }}
+            disabled={!selectedAddress || swapDirection === 'wxHOPR_to_xHOPR' || isLoading}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <MaxButton
+                    disabled={swapDirection === 'wxHOPR_to_xHOPR'}
+                    onClick={setMax_xHOPR}
+                  >
+                    Max
+                  </MaxButton>
+                </InputAdornment>
+              ),
+              inputProps: { min: 0 },
+            }}
+          />
+
           {walletLoading && <span>Check your Wallet...</span>}
-          {notEnoughBalance && <span style={{ color: 'red' }}>Not enough balance in your wallet</span>}
+          {notEnoughBalance && <span style={{ color: 'red' }}>Not enough balance</span>}
           {selectedAddress && (
             <>
               <TransactionLink

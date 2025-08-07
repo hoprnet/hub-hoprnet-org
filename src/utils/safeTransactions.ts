@@ -10,6 +10,7 @@ import { Address, decodeFunctionData, formatEther, formatUnits } from 'viem';
 import { erc20Abi, erc4626Abi, erc721Abi } from 'viem';
 import { truncateEthereumAddress } from './blockchain';
 import { web3 } from '@hoprnet/hopr-sdk';
+import { wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS } from '../../config';
 
 /**
  * Pending transactions
@@ -18,11 +19,35 @@ import { web3 } from '@hoprnet/hopr-sdk';
 /** Human readable explanation of what the transaction is going to do */
 export const getRequestOfPendingTransaction = (transaction: SafeMultisigTransactionResponse) => {
   if (transaction.data) {
+
+    // *** Check for wrapper transactions
+    if(
+      // @ts-expect-error decode wrapper TX
+      transaction?.dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
+      // @ts-ignore
+      transaction?.dataDecoded?.parameters[2]?.value === '0x' &&
+      // @ts-ignore
+      transaction?.dataDecoded?.method === 'transferAndCall'
+    ){
+      // this is a wrapper transaction
+      return 'Wrap to wxHOPR';
+    }
+
+    if(
+      // @ts-expect-error decode wrapper TX
+      transaction?.dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
+      // @ts-ignore
+      transaction?.dataDecoded?.method === 'transfer'
+    ){
+      // this is a wrapper transaction
+      return 'Unwrap to xHOPR';
+    }
+
     try {
       const decodedData = decodeFunctionData({
         data: transaction.data as Address,
         // could be any sc so not sure on the abi
-        abi: [...erc20Abi, ...erc4626Abi, ...erc721Abi, ...web3.hoprSafeABI],
+        abi: [...erc20Abi, ...erc4626Abi, ...erc721Abi, ...web3.hoprSafeABI, ...web3.wrapperABI],
       });
       return decodedData.functionName;
     } catch (e) {
