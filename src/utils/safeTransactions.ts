@@ -19,28 +19,39 @@ import { wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS } from '../../config';
 /** Human readable explanation of what the transaction is going to do */
 export const getRequestOfPendingTransaction = (transaction: SafeMultisigTransactionResponse) => {
   if (transaction.data) {
+    const safeAddress = transaction.safe;
+    const dataDecoded = transaction?.dataDecoded as any;
 
     // *** Check for wrapper transactions
     if(
-      // @ts-expect-error decode wrapper TX
-      transaction?.dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
-      // @ts-ignore
-      transaction?.dataDecoded?.parameters[2]?.value === '0x' &&
-      // @ts-ignore
-      transaction?.dataDecoded?.method === 'transferAndCall'
+      dataDecoded &&
+      dataDecoded?.method === 'transferAndCall' &&
+      dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
+      dataDecoded?.parameters[2]?.value === '0x'
     ){
       // this is a wrapper transaction
       return 'Wrap to wxHOPR';
     }
 
     if(
-      // @ts-expect-error decode wrapper TX
-      transaction?.dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
-      // @ts-ignore
-      transaction?.dataDecoded?.method === 'transfer'
+      dataDecoded &&
+      dataDecoded?.method === 'transfer' &&
+      dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS
     ){
       // this is a wrapper transaction
       return 'Unwrap to xHOPR';
+    }
+
+    // *** Check for set Implementer transactions
+    if(
+      dataDecoded &&
+      dataDecoded?.method === 'setInterfaceImplementer' &&
+      dataDecoded?.parameters[0]?.value === safeAddress &&
+      dataDecoded?.parameters[1]?.value === '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b' &&
+      dataDecoded?.parameters[2]?.value === '0xe530E2f9DECF24D7d42F011F54f1e9F8001E7619'
+    ){
+      // this is a wrapper transaction
+      return 'Add Safe to ERC1820 Registry';
     }
 
     try {

@@ -17,6 +17,7 @@ import { Address, encodeFunctionData, encodePacked, getAddress } from 'viem';
 import { type UseSimulateContractParameters } from 'wagmi'
 import { encode } from 'punycode';
 import SafeTransactionButton from '../../../components/SafeTransactionButton';
+import { useNavigate } from 'react-router-dom';
 
 const Content = styled(SDialogContent)`
   gap: 1rem;
@@ -70,6 +71,7 @@ const AddAddressToERC1820RegistryModal = ({
   fundsSource,
 }: AddAddressToERC1820RegistryModalProps) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [txStarted, set_txStarted] = useState<boolean>(false);
   const [success, set_success] = useState<boolean | null>(null);
   const [error, set_error] = useState<string | null>(null);
@@ -128,25 +130,33 @@ const AddAddressToERC1820RegistryModal = ({
     writeContract?.(data!.request);
   };
 
-  const createAndExecuteTx = async () => {
+  const createAndExecuteTx = async (signOnly = false) => {
     set_error(null);
     set_txStarted(true);
     if (signer && safeAddress) {
+      const payload = {
+        data: TXdata,
+        signer,
+        safeAddress,
+        smartContractAddress: ERC1820_REGISTRY,
+      };
       return dispatch(
-        safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
-          data: TXdata,
-          signer,
-          safeAddress,
-          smartContractAddress: ERC1820_REGISTRY,
-        })
+        signOnly ?
+          safeActionsAsync.createSafeContractTransactionThunk(payload) :
+          safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
       )
         .unwrap()
         .catch((error) => {
           console.log('Transaction error:', error);
           set_txStarted(false);
         })
-        .then((transactionResponse: any) => {
+        .then(async (transactionResponse: any) => {
           console.log('Transaction response:', transactionResponse);
+          if (signOnly) {
+            set_txStarted(true);
+            await new Promise ((resolve) => setTimeout(resolve, 2000)); // Wait for a second
+            navigate('/staking/dashboard#transactions');
+          }
         })
         .finally(() => {
           console.log('Transaction finally called');
@@ -247,7 +257,7 @@ const AddAddressToERC1820RegistryModal = ({
                 buttonText: 'SET INTERFACE IMPLEMENTER'
               }}
               signOptions={{
-                onClick: createAndExecuteTx,
+                onClick: ()=> {createAndExecuteTx(true)},
                 pending: txStarted,
                 buttonText: 'SIGN INTERFACE IMPLEMENTER'
               }}
