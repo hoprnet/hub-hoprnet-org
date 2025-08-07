@@ -435,11 +435,9 @@ const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisi
     //cap: approve
     // data: { "method": "approve", "parameters": [ { "name": "spender", "type": "address", "value": "0x693Bac5ce61c720dDC68533991Ceb41199D8F8ae" }, { "name": "value", "type": "uint256", "value": "1000000000000000000000" } ] }
 
-    // *** Check for wrapper transactions
+    // *** Check for wrapper or transfer transactions
     try {
       if(
-        // @ts-expect-error decode wrapper TX
-        transaction?.dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
         // @ts-ignore
         transaction?.dataDecoded?.parameters[2]?.value === '0x' &&
         // @ts-ignore
@@ -447,20 +445,16 @@ const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisi
         // @ts-ignore
         transaction?.dataDecoded?.parameters[1]?.value
       ){
-        console.log('getValueFromTransaction wrapper', transaction);
         // @ts-ignore
         return formatEther(transaction?.dataDecoded?.parameters[1]?.value);
       }
 
       if(
-        // @ts-expect-error decode wrapper TX
-        transaction?.dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
         // @ts-ignore
         transaction?.dataDecoded?.method === 'transfer' &&
         // @ts-ignore
         transaction?.dataDecoded?.parameters[1]?.value
       ){
-        console.log('getValueFromTransaction wrapper', transaction);
         // @ts-ignore
         return formatEther(transaction?.dataDecoded?.parameters[1]?.value);
       }

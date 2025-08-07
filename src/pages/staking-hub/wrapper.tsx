@@ -479,9 +479,6 @@ function WrapperPage() {
   useEffect(() => {
     if (selectedAddress) {
       updateBalances();
-      if (walletBalance.xHopr.formatted === '0') {
-        set_swapDirection('wxHOPR_to_xHOPR');
-      }
     } else {
       set_xhoprValue('');
       set_wxhoprValue('');
@@ -505,6 +502,26 @@ function WrapperPage() {
     }
   };
 
+  const chooseTheSwapDirection = () => {
+    if (fundsSource === 'wallet' && walletBalance.wxHopr.value && walletBalance.xHopr.value) {
+      if(BigInt(walletBalance.wxHopr.value) < BigInt(walletBalance.xHopr.value)) {
+        set_swapDirection('xHOPR_to_wxHOPR');
+      } else if (BigInt(walletBalance.wxHopr.value) > BigInt(walletBalance.xHopr.value)) {
+        set_swapDirection('wxHOPR_to_xHOPR');
+      }
+    } else if (fundsSource === 'safe' && safeBalance.wxHopr.value && safeBalance.xHopr.value) {
+      if(BigInt(safeBalance.wxHopr.value) < BigInt(safeBalance.xHopr.value)) {
+        set_swapDirection('xHOPR_to_wxHOPR');
+      } else if (BigInt(safeBalance.wxHopr.value) > BigInt(safeBalance.xHopr.value)) {
+        set_swapDirection('wxHOPR_to_xHOPR');
+      }
+    }
+  };
+
+  useEffect(() => {
+    chooseTheSwapDirection();
+  }, [fundsSource]);
+
   const swapDisabled =
     (swapDirection === 'xHOPR_to_wxHOPR' && !write_xHOPR_to_wxHOPR) ||
     (swapDirection === 'wxHOPR_to_xHOPR' && !write_wxHOPR_to_xHOPR) ||
@@ -525,7 +542,9 @@ function WrapperPage() {
             <br />
             <Select
               value={fundsSource}
-              onChange={(event) => { set_fundsSource(event.target.value as 'wallet' | 'safe') }}
+              onChange={(event) => {
+                set_fundsSource(event.target.value as 'wallet' | 'safe');
+              }}
               label={'Funds source'}
               labelId="funds-source-select-label"
               style={{ width: "270px" }}
