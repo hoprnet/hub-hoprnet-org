@@ -7,7 +7,7 @@ import {
   useWaitForTransactionReceipt,
   useAccount,
 } from 'wagmi';
-import { parseUnits, parseEther, toHex, parseTransaction } from 'viem';
+import { parseUnits, parseEther, toHex, parseTransaction, encodeFunctionData } from 'viem';
 import {
   xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
   wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
@@ -15,6 +15,9 @@ import {
   MULTISEND_CONTRACT_GNOSIS,
   ERC1820_REGISTRY,
 } from '../../../config';
+import { safeActions, safeActionsAsync } from '../../store/slices/safe';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { useEthersSigner } from '../../hooks';
 
 // Abis
 import { MultiSendAbi } from '../../utils/abis/MultiSendAbi';
@@ -22,8 +25,6 @@ import { SafeProxyAbi } from '../../utils/abis/SafeProxyAbi';
 import { ERC1820RegistryAbi } from '../../utils/abis/ERC1820RegistryAbi';
 import { hoprSafeABI } from '@hoprnet/hopr-sdk/dist/ethereum/stakingV2/hoprSafeABI';
 
-// Redux
-import { useAppSelector } from '../../store';
 
 // HOPR Components
 import Button from '../../future-hopr-lib-components/Button';
@@ -31,12 +32,21 @@ import Section from '../../future-hopr-lib-components/Section';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import { StepContainer } from './onboarding/components';
 import AddAddressToERC1820RegistryModal from '../../components/Modal/staking-hub/AddAddressToERC1820RegistryModal';
+import SafeTransactionButton from '../../components/SafeTransactionButton';
 
 // Mui
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { web3 } from '@hoprnet/hopr-sdk';
 import { IconButton, Paper, TextField, InputAdornment, Button as MuiButton } from '@mui/material';
+// import {
+//   Select,
+//   MenuItem,
+// } from '@mui/material';
+import
+Select
+  from '../../future-hopr-lib-components/Select';
+import { safe } from 'wagmi/connectors';
 
 const StyledPaper = styled(Paper)`
   padding: 2rem;
@@ -152,6 +162,9 @@ function TransactionLink({ isSuccess, hash }: TransactionLinkProps) {
 }
 
 function WrapperPage() {
+  const dispatch = useAppDispatch();
+  const signer = useEthersSigner();
+  const [fundsSource, set_fundsSource] = useState<'wallet' | 'safe'>('safe');
   const [xhoprValue, set_xhoprValue] = useState('');
   const [wxhoprValue, set_wxhoprValue] = useState('');
   const [showTxInfo, set_showTxInfo] = useState(false);
@@ -167,32 +180,68 @@ function WrapperPage() {
   const [notEnoughBalance, set_notEnoughBalance] = useState(false);
   const [AddAddressToERC1820RegistryModalOpen, set_AddAddressToERC1820RegistryModalOpen] = useState<boolean>(false);
   const [swapDirection, set_swapDirection] = useState<'xHOPR_to_wxHOPR' | 'wxHOPR_to_xHOPR'>('xHOPR_to_wxHOPR');
-  const address = useAppSelector((store) => store.web3.account);
+  const walletAddress = useAppSelector((store) => store.web3.account);
+  const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
+  const safesByOwner = useAppSelector((store) => store.safe.safesByOwner.data);
+  const [selectedAddress, set_selectedAddress] = useState<string | null>(safeAddress);
   const walletBalance = useAppSelector((store) => store.web3.balance);
+  const safeBalance = useAppSelector((store) => store.safe.balance.data);
+  const walletIcon = useAppSelector((store) => store.web3.walletIcon);
+  const [loading, set_loading] = useState(false);
+
+  useEffect(() => {
+    if (fundsSource === 'wallet') {
+      set_selectedAddress(walletAddress);
+    } else {
+      set_selectedAddress(safeAddress);
+    }
+  }, [fundsSource, walletAddress, safeAddress]);
+
+  // When the user has no safes, we set the selected address to the wallet address
+  useEffect(() => {
+    if (safesByOwner.length === 0 && safeAddress === null) {
+      set_selectedAddress(walletAddress);
+      set_fundsSource('wallet');
+    }
+  }, [safesByOwner, safeAddress]);
 
   useEffect(() => {
     refetch1();
     refetch2();
     refetchHandler();
-  }, [address]);
+  }, [selectedAddress]);
 
   useEffect(() => {
     set_showTxInfo(false);
   }, [xhoprValue, wxhoprValue]);
 
+  // Enough balance for the TX check
   useEffect(() => {
-    if (!walletBalance.xHopr.value || !walletBalance.wxHopr.value) return;
+    if (fundsSource === 'safe') {
+      if (!safeBalance.xHopr.value || !safeBalance.wxHopr.value) return;
+    } else {
+      if (!walletBalance.xHopr.value || !walletBalance.wxHopr.value) return;
+    }
 
     const xhoprEther = parseEther(xhoprValue);
     const wxhoprEther = parseEther(wxhoprValue);
-    const xhoprWalletEther = parseEther(walletBalance.xHopr.value);
-    const wxhoprWalletEther = parseEther(walletBalance.wxHopr.value);
+    const xhoprWalletEther = BigInt(fundsSource === 'safe' ? safeBalance.xHopr.value as string : walletBalance.xHopr.value as string);
+    const wxhoprWalletEther = BigInt(fundsSource === 'safe' ? safeBalance.wxHopr.value as string : walletBalance.wxHopr.value as string);
 
     if (swapDirection === 'xHOPR_to_wxHOPR' && xhoprEther > xhoprWalletEther) set_notEnoughBalance(true);
     else if (swapDirection === 'xHOPR_to_wxHOPR') set_notEnoughBalance(false);
     else if (swapDirection === 'wxHOPR_to_xHOPR' && wxhoprEther > wxhoprWalletEther) set_notEnoughBalance(true);
     else if (swapDirection === 'wxHOPR_to_xHOPR') set_notEnoughBalance(false);
-  }, [swapDirection, xhoprValue, wxhoprValue, walletBalance.xHopr.value, walletBalance.xHopr.value]);
+  }, [
+    fundsSource,
+    swapDirection,
+    xhoprValue,
+    wxhoprValue,
+    walletBalance.xHopr.value,
+    walletBalance.xHopr.value,
+    safeBalance.wxHopr.value,
+    safeBalance.xHopr.value,
+  ]);
 
   const swapButtonDisabled =
     (swapDirection === 'xHOPR_to_wxHOPR' && parseEther(xhoprValue) <= BigInt(0)) ||
@@ -215,7 +264,7 @@ function WrapperPage() {
       },
     ],
     functionName: 'getInterfaceImplementer',
-    args: [address as `0x${string}`, '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b'],
+    args: [selectedAddress as `0x${string}`, '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b'],
   });
 
   const handlerIsSet = handlerData !== `0x0000000000000000000000000000000000000000`;
@@ -248,7 +297,7 @@ function WrapperPage() {
   /**  TODO: make it work at some point, probably signature issue
   // xHOPR -> wxHOPR multicall if handlerData not set
 
-  const addressWithout0x = address?.replace('0x', '').toLocaleLowerCase() || '';
+  const addressWithout0x = selectedAddress?.replace('0x', '').toLocaleLowerCase() || '';
   const setInterfaceImplementer = `29965a1d000000000000000000000000${addressWithout0x}b281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b000000000000000000000000e530e2f9decf24d7d42f011f54f1e9f8001e7619`;
 
   const wrapHex = toHex(parseUnits(xhoprValue as NumberLiteral, 18)).replace('0x', '');
@@ -257,7 +306,7 @@ function WrapperPage() {
   const xHOPR_to_wxHOPR = `4000aea0000000000000000000000000${wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESSWithout0x}${wrapHexWithZeros}00000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000`;
   const multiSendTx: `0x${string}` = `0x8d80ff0a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000192001820a4b7618bde71dce8cdc73aab6c95905fad2400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064${setInterfaceImplementer}00d057604a14982fe8d88c5fc25aac3267ea142a0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000084${xHOPR_to_wxHOPR}`;
   const { data: xHOPR_to_wxHOPR_config_multicall, refetch: refetch4, failureReason } = useSimulateContract({
-    address: address as `0x${string}`,
+    address: selectedAddress as `0x${string}`,
     abi: SafeProxyAbi,
     functionName: 'execTransaction',
     args: [
@@ -366,10 +415,68 @@ function WrapperPage() {
     }
   };
 
+  // ** Safe wrapper logic **************** */
+
+  const executeSafeSwap = async (signOnly = false) => {
+    if (!signer || !selectedAddress || !wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS) return;
+    set_loading(true);
+    try {
+      if (swapDirection === 'xHOPR_to_wxHOPR') {
+        if (!handlerIsSet) {
+          set_AddAddressToERC1820RegistryModalOpen(true);
+          set_loading(false);
+          return;
+        }
+        const TXdata = encodeFunctionData({
+          abi: web3.wrapperABI,
+          functionName: 'transferAndCall',
+          args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(xhoprValue as NumberLiteral, 18), '0x'],
+        });
+        const payload = {
+          data: TXdata,
+          signer,
+          safeAddress: selectedAddress as `0x${string}`,
+          smartContractAddress: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        };
+        await dispatch(
+          signOnly ?
+            safeActionsAsync.createSafeContractTransactionThunk(payload) :
+            safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
+        ).unwrap();
+      } else {
+        const TXdata = encodeFunctionData({
+          abi: web3.wrapperABI,
+          functionName: 'transfer',
+          args: [wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS, parseUnits(wxhoprValue as NumberLiteral, 18)],
+        });
+        const payload = {
+          data: TXdata,
+          signer,
+          safeAddress: selectedAddress as `0x${string}`,
+          smartContractAddress: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        }
+        await dispatch(
+          signOnly ?
+            safeActionsAsync.createSafeContractTransactionThunk(payload) :
+            safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
+        ).unwrap();
+      }
+      updateBalances();
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for the state to update
+    } finally {
+      set_loading(false);
+    }
+  }
+
+  /* ************************************** */
+
   const updateBalances = () => {
-    if (address && walletBalance.xHopr.formatted && walletBalance.wxHopr.formatted) {
+    if (fundsSource === 'wallet' && selectedAddress && walletBalance.xHopr.formatted && walletBalance.wxHopr.formatted) {
       set_xhoprValue(walletBalance.xHopr.formatted);
       set_wxhoprValue(walletBalance.wxHopr.formatted);
+    } else if (fundsSource === 'safe' && selectedAddress && safeBalance.xHopr.formatted && safeBalance.wxHopr.formatted) {
+      set_xhoprValue(safeBalance.xHopr.formatted);
+      set_wxhoprValue(safeBalance.wxHopr.formatted);
     }
   };
 
@@ -377,32 +484,59 @@ function WrapperPage() {
     if (isSuccess) {
       updateBalances();
     }
-  }, [walletBalance.xHopr.formatted, walletBalance.wxHopr.formatted]);
+  }, [fundsSource, walletBalance.xHopr.formatted, walletBalance.wxHopr.formatted, safeBalance.xHopr.formatted, safeBalance.wxHopr.formatted]);
 
   useEffect(() => {
-    if (address) {
+    if (selectedAddress) {
       updateBalances();
-      if (walletBalance.xHopr.formatted === '0') {
-        set_swapDirection('wxHOPR_to_xHOPR');
-      }
     } else {
       set_xhoprValue('');
       set_wxhoprValue('');
     }
-  }, [address, walletBalance.xHopr.formatted, walletBalance.wxHopr.formatted]);
+  }, [selectedAddress, walletBalance.xHopr.formatted, walletBalance.wxHopr.formatted, safeBalance.xHopr.formatted, safeBalance.wxHopr.formatted]);
 
   // Set the maximum value for xHOPR on input field.
   const setMax_xHOPR = () => {
-    if (walletBalance.xHopr.formatted) {
+    if (fundsSource === 'wallet' && walletBalance.xHopr.formatted) {
       set_xhoprValue(walletBalance.xHopr.formatted);
+    } else if (fundsSource === 'safe' && safeBalance.xHopr.formatted) {
+      set_xhoprValue(safeBalance.xHopr.formatted);
     }
   };
 
   const setMax_wxHOPR = () => {
-    if (walletBalance.wxHopr.formatted) {
+    if (fundsSource === 'wallet' && walletBalance.wxHopr.formatted) {
       set_wxhoprValue(walletBalance.wxHopr.formatted);
+    } else if (fundsSource === 'safe' && safeBalance.wxHopr.formatted) {
+      set_wxhoprValue(safeBalance.wxHopr.formatted);
     }
   };
+
+  const chooseTheSwapDirection = () => {
+    if (fundsSource === 'wallet' && walletBalance.wxHopr.value && walletBalance.xHopr.value) {
+      if(BigInt(walletBalance.wxHopr.value) < BigInt(walletBalance.xHopr.value)) {
+        set_swapDirection('xHOPR_to_wxHOPR');
+      } else if (BigInt(walletBalance.wxHopr.value) > BigInt(walletBalance.xHopr.value)) {
+        set_swapDirection('wxHOPR_to_xHOPR');
+      }
+    } else if (fundsSource === 'safe' && safeBalance.wxHopr.value && safeBalance.xHopr.value) {
+      if(BigInt(safeBalance.wxHopr.value) < BigInt(safeBalance.xHopr.value)) {
+        set_swapDirection('xHOPR_to_wxHOPR');
+      } else if (BigInt(safeBalance.wxHopr.value) > BigInt(safeBalance.xHopr.value)) {
+        set_swapDirection('wxHOPR_to_xHOPR');
+      }
+    }
+  };
+
+  useEffect(() => {
+    chooseTheSwapDirection();
+  }, [fundsSource]);
+
+  const swapDisabled =
+    (swapDirection === 'xHOPR_to_wxHOPR' && !write_xHOPR_to_wxHOPR) ||
+    (swapDirection === 'wxHOPR_to_xHOPR' && !write_wxHOPR_to_xHOPR) ||
+    notEnoughBalance ||
+    swapButtonDisabled;
 
   return (
     <Section
@@ -416,8 +550,34 @@ function WrapperPage() {
           <p>
             Utility to wrap (xHOPR &#8594; wxHOPR) and unwrap (wxHOPR &#8594; xHOPR) xHOPR tokens.
             <br />
-            <br />
-            Funds source: Your connected wallet
+            <Select
+              value={fundsSource}
+              onChange={(event) => {
+                set_fundsSource(event.target.value as 'wallet' | 'safe');
+              }}
+              label={'Funds source'}
+              labelId="funds-source-select-label"
+              style={{ width: "300px", textAlign: "left" }}
+              values={[
+                {
+                  name: "Your connected wallet",
+                  value: "wallet",
+                  icon: <img
+                    src={walletIcon || ''}
+                    alt="Wallet Icon"
+                  />,
+                },
+                {
+                  name: "Your safe",
+                  value: "safe",
+                  disabled: safesByOwner.length === 0 || !safeAddress,
+                  icon: <img
+                    src="/assets/safe-icon.svg"
+                    alt="Safe Icon"
+                  />,
+                },
+              ]}
+            />
           </p>
         }
         image={{
@@ -426,19 +586,30 @@ function WrapperPage() {
           height: 134,
         }}
         buttons={
-          <Button
-            className="swap-button"
-            disabled={
-              (swapDirection === 'xHOPR_to_wxHOPR' && !write_xHOPR_to_wxHOPR) ||
-              (swapDirection === 'wxHOPR_to_xHOPR' && !write_wxHOPR_to_xHOPR) ||
-              notEnoughBalance ||
-              swapButtonDisabled
-            }
-            onClick={handleClick}
-            pending={(walletLoading || isLoading) && !safeTxOverwrite.success}
-          >
-            SWAP
-          </Button>
+          fundsSource === 'safe' ?
+            <SafeTransactionButton
+              executeOptions={{
+                onClick: executeSafeSwap,
+                disabled: swapDisabled,
+                pending: loading,
+                buttonText: 'SWAP'
+              }}
+              signOptions={{
+                onClick: () => executeSafeSwap(true),
+                disabled: swapDisabled,
+                pending: loading,
+                buttonText: 'SIGN SWAP'
+              }}
+            />
+            :
+            <Button
+              className="swap-button"
+              disabled={swapDisabled}
+              onClick={handleClick}
+              pending={(walletLoading || isLoading) && !safeTxOverwrite.success}
+            >
+              SWAP
+            </Button>
         }
       >
         <br />
@@ -446,52 +617,18 @@ function WrapperPage() {
         <br />
         <WrapperContainer>
           <StyledTextField
-            label="xHOPR"
-            placeholder="Your xHOPR here..."
-            type="number"
-            value={xhoprValue}
-            onChange={(e) => set_xhoprValue(e.target.value)}
-            onPointerDown={() => {
-              if (address) {
-                set_swapDirection('xHOPR_to_wxHOPR');
-                setMax_wxHOPR();
-              }
-            }}
-            disabled={!address || swapDirection === 'wxHOPR_to_xHOPR' || isLoading}
-            fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <MaxButton
-                    disabled={swapDirection === 'wxHOPR_to_xHOPR'}
-                    onClick={setMax_xHOPR}
-                  >
-                    Max
-                  </MaxButton>
-                </InputAdornment>
-              ),
-              inputProps: { min: 0 },
-            }}
-          />
-          <StyledIconButton
-            className={`${swapDirection === 'wxHOPR_to_xHOPR' ? 'swapDirection' : ''}`}
-            onClick={handleSwap}
-          >
-            <ArrowDownwardIcon />
-          </StyledIconButton>
-          <StyledTextField
             label="wxHOPR"
             placeholder="Your wxHOPR here..."
             type="number"
             value={wxhoprValue}
             onChange={(e) => set_wxhoprValue(e.target.value)}
             onPointerDown={() => {
-              if (address) {
+              if (selectedAddress) {
                 set_swapDirection('wxHOPR_to_xHOPR');
                 setMax_xHOPR();
               }
             }}
-            disabled={!address || swapDirection === 'xHOPR_to_wxHOPR' || isLoading}
+            disabled={!selectedAddress || swapDirection === 'xHOPR_to_wxHOPR' || isLoading}
             fullWidth
             InputProps={{
               endAdornment: (
@@ -510,9 +647,45 @@ function WrapperPage() {
               },
             }}
           />
+          <StyledIconButton
+            className={`${swapDirection === 'xHOPR_to_wxHOPR' ? 'swapDirection' : ''}`}
+            onClick={handleSwap}
+            disabled={loading}
+          >
+            <ArrowDownwardIcon />
+          </StyledIconButton>
+          <StyledTextField
+            label="xHOPR"
+            placeholder="Your xHOPR here..."
+            type="number"
+            value={xhoprValue}
+            onChange={(e) => set_xhoprValue(e.target.value)}
+            onPointerDown={() => {
+              if (selectedAddress) {
+                set_swapDirection('xHOPR_to_wxHOPR');
+                setMax_wxHOPR();
+              }
+            }}
+            disabled={!selectedAddress || swapDirection === 'wxHOPR_to_xHOPR' || isLoading}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <MaxButton
+                    disabled={swapDirection === 'wxHOPR_to_xHOPR'}
+                    onClick={setMax_xHOPR}
+                  >
+                    Max
+                  </MaxButton>
+                </InputAdornment>
+              ),
+              inputProps: { min: 0 },
+            }}
+          />
+
           {walletLoading && <span>Check your Wallet...</span>}
-          {notEnoughBalance && <span style={{ color: 'red' }}>Not enough balance in your wallet</span>}
-          {address && (
+          {notEnoughBalance && <span style={{ color: 'red' }}>Not enough balance</span>}
+          {selectedAddress && (
             <>
               <TransactionLink
                 isSuccess={showTxInfo}
@@ -527,6 +700,8 @@ function WrapperPage() {
               }}
               handlerData={handlerData}
               refetchHandler={refetchHandler}
+              fundsSource={fundsSource}
+              address={selectedAddress as `0x${string}` | null}
             />
           )}
         </WrapperContainer>

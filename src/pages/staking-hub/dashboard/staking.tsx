@@ -143,7 +143,6 @@ function shrinkNumber(value?: string | number | undefined | null): string {
       mantissa: 4,
       thousandSeparated: true,
     });
-    console.log('shrank', shrank, 'originalValue', originalValue);
     if (shrank === '0' && originalValue > 0) {
       shrank = '~' + shrank;
     }

@@ -42,7 +42,6 @@ export const SSafeTransactionButton = styled(SafeTransactionButton)`
 export default function SetAllowance() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const safeInfo = useAppSelector((store) => store.safe.info.data);
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as Address;
   const signer = useEthersSigner();
   const [wxHoprValue, set_wxHoprValue] = useState('');
@@ -59,6 +58,7 @@ export default function SetAllowance() {
           smartContractAddress: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
         })
       ).unwrap();
+
       navigate('/staking/dashboard');
       set_loading(false);
     }
@@ -103,7 +103,6 @@ export default function SetAllowance() {
                 wxHoprValue === '' || wxHoprValue === '0' || wxHoprValue.includes('-') || wxHoprValue.includes('+'),
               pending: loading,
             }}
-            safeInfo={safeInfo}
           />
         }
       >

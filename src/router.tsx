@@ -322,6 +322,7 @@ const LayoutEnhanced = () => {
         node: nodeConnected,
         web3: web3Connected,
         safe: !!safeAddress && web3Connected,
+        onboardingNotStarted,
         onboardingFinished,
       }}
       className={environment}

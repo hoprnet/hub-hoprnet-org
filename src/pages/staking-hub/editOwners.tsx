@@ -60,8 +60,6 @@ export const SSafeTransactionButton = styled(SafeTransactionButton)`
 
 export default function EditOwners() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const safeInfo = useAppSelector((store) => store.safe.info.data);
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as Address;
   const safeModules = useAppSelector((state) => state.safe.info.data?.modules);
   //const safeOwners = useAppSelector((store) => store.safe.info.data?.owners); // Safe Infra
@@ -393,7 +391,6 @@ export default function EditOwners() {
               onClick: addOwnerSign,
               buttonText: 'SIGN ADD',
             }}
-            safeInfo={safeInfo}
           />
         }
       />
@@ -418,7 +415,6 @@ export default function EditOwners() {
               onClick: updateSafeThresholdSign,
               buttonText: 'SIGN UPDATE',
             }}
-            safeInfo={safeInfo}
           />
         }
       />
@@ -443,7 +439,6 @@ export default function EditOwners() {
               onClick: removeOwnerSign,
               buttonText: 'SIGN REMOVE',
             }}
-            safeInfo={safeInfo}
           />
         }
       />

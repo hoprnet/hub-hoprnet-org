@@ -83,14 +83,10 @@ export const SSafeTransactionButton = styled(SafeTransactionButton)`
 export default function FundNode(props?: { onDone?: Function; nodeAddress?: string | null }) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  // injected states
-  const safeInfo = useAppSelector((store) => store.safe.info.data);
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const nodeAddressFromStore = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress) as Address;
   const safeXDaiBalance = useAppSelector((store) => store.safe.balance.data.xDai.formatted) as string;
   const isExecutionLoading = useAppSelector((store) => store.safe.executeTransaction.isFetching);
-
-  // local states
   const [xdaiValue, set_xdaiValue] = useState<string>('');
   const [lowBalanceError, set_lowBalanceError] = useState<boolean>(false);
   const [txError, set_txError] = useState<string | null>(null);
@@ -177,7 +173,6 @@ export default function FundNode(props?: { onDone?: Function; nodeAddress?: stri
       }}
       buttons={
         <SSafeTransactionButton
-          safeInfo={safeInfo}
           executeOptions={{
             onClick: createAndExecuteTx,
             pending: isExecutionLoading || isWalletLoading,

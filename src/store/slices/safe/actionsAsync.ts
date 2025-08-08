@@ -693,6 +693,12 @@ const createAndExecuteSafeTransactionThunk = createAsyncThunk<
       }
       // execute safe transaction
       const safeTxResponse = await safeSDK.executeTransaction(safeTransaction);
+
+      // wait for transaction to be confirmed
+      console.log(`Waiting for transaction ${safeTxResponse.hash} to be confirmed...`);
+      const receipt = await payload.signer.provider.waitForTransaction(safeTxResponse.hash);
+      console.log(`Transaction confirmed in block ${receipt.blockNumber}`);
+
       // re fetch all txs
       dispatch(
         getAllSafeTransactionsThunk({
@@ -700,6 +706,7 @@ const createAndExecuteSafeTransactionThunk = createAsyncThunk<
           signer: payload.signer,
         })
       );
+
       return safeTxResponse.hash;
     } catch (e) {
       console.log({ e });

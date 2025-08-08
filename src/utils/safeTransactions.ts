@@ -10,6 +10,7 @@ import { Address, decodeFunctionData, formatEther, formatUnits } from 'viem';
 import { erc20Abi, erc4626Abi, erc721Abi } from 'viem';
 import { truncateEthereumAddress } from './blockchain';
 import { web3 } from '@hoprnet/hopr-sdk';
+import { wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS } from '../../config';
 
 /**
  * Pending transactions
@@ -18,11 +19,46 @@ import { web3 } from '@hoprnet/hopr-sdk';
 /** Human readable explanation of what the transaction is going to do */
 export const getRequestOfPendingTransaction = (transaction: SafeMultisigTransactionResponse) => {
   if (transaction.data) {
+    const safeAddress = transaction.safe;
+    const dataDecoded = transaction?.dataDecoded as any;
+
+    // *** Check for wrapper transactions
+    if(
+      dataDecoded &&
+      dataDecoded?.method === 'transferAndCall' &&
+      dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS &&
+      dataDecoded?.parameters[2]?.value === '0x'
+    ){
+      // this is a wrapper transaction
+      return 'Wrap to wxHOPR';
+    }
+
+    if(
+      dataDecoded &&
+      dataDecoded?.method === 'transfer' &&
+      dataDecoded?.parameters[0]?.value === wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS
+    ){
+      // this is a wrapper transaction
+      return 'Unwrap to xHOPR';
+    }
+
+    // *** Check for set Implementer transactions
+    if(
+      dataDecoded &&
+      dataDecoded?.method === 'setInterfaceImplementer' &&
+      dataDecoded?.parameters[0]?.value === safeAddress &&
+      dataDecoded?.parameters[1]?.value === '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b' &&
+      dataDecoded?.parameters[2]?.value === '0xe530E2f9DECF24D7d42F011F54f1e9F8001E7619'
+    ){
+      // this is a wrapper transaction
+      return 'Add Safe to ERC1820 Registry';
+    }
+
     try {
       const decodedData = decodeFunctionData({
         data: transaction.data as Address,
         // could be any sc so not sure on the abi
-        abi: [...erc20Abi, ...erc4626Abi, ...erc721Abi, ...web3.hoprSafeABI],
+        abi: [...erc20Abi, ...erc4626Abi, ...erc721Abi, ...web3.hoprSafeABI, ...web3.wrapperABI],
       });
       return decodedData.functionName;
     } catch (e) {

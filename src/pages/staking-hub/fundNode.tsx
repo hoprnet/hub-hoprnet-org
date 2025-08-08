@@ -68,7 +68,6 @@ export default function FundNode() {
 
   // injected states
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
-  const safeInfo = useAppSelector((store) => store.safe.info.data);
   const nodeAddressFromTheStore = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress) as Address;
   const safeXDaiBalance = useAppSelector((store) => store.safe.balance.data.xDai.formatted) as string;
 
@@ -187,7 +186,6 @@ export default function FundNode() {
                 xdaiValue.includes('+'),
               buttonText: 'SIGN FUND',
             }}
-            safeInfo={safeInfo}
           />
         }
       >

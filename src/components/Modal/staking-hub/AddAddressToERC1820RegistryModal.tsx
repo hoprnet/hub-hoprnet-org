@@ -11,6 +11,13 @@ import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { useReadContract, useWriteContract, useSimulateContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ERC1820_REGISTRY } from '../../../../config';
 import { ERC1820RegistryAbi } from '../../../utils/abis/ERC1820RegistryAbi';
+import { useEthersSigner } from '../../../hooks';
+import { safeActions, safeActionsAsync } from '../../../store/slices/safe';
+import { Address, encodeFunctionData, encodePacked, getAddress } from 'viem';
+import { type UseSimulateContractParameters } from 'wagmi'
+import { encode } from 'punycode';
+import SafeTransactionButton from '../../../components/SafeTransactionButton';
+import { useNavigate } from 'react-router-dom';
 
 const Content = styled(SDialogContent)`
   gap: 1rem;
@@ -53,35 +60,52 @@ type AddAddressToERC1820RegistryModalProps = {
   closeModal: Function;
   refetchHandler: Function;
   handlerData: `0x${string}` | undefined;
+  fundsSource: 'wallet' | 'safe';
+  address?: `0x${string}` | null;
 };
 
 const AddAddressToERC1820RegistryModal = ({
   closeModal,
   refetchHandler,
   handlerData,
+  fundsSource,
 }: AddAddressToERC1820RegistryModalProps) => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [txStarted, set_txStarted] = useState<boolean>(false);
   const [success, set_success] = useState<boolean | null>(null);
   const [error, set_error] = useState<string | null>(null);
-  const address = useAppSelector((store) => store.web3.account);
+  const signer = useEthersSigner();
+  const walletAddress = useAppSelector((store) => store.web3.account);
+  const safeAddress = useAppSelector((state) => state.safe.selectedSafe.data.safeAddress);
 
   useEffect(() => {
-    if (!address) return;
+    if (!walletAddress) return;
+    console.log('Address provided:', walletAddress);
     refetchSetter();
-    startRefetchHandler();
-  }, [address]);
+  }, [walletAddress]);
 
-  // TX: handlerData
-  const { data, refetch: refetchSetter } = useSimulateContract({
+  const { data, refetch: refetchSetter, error: simulateError } = useSimulateContract({
     address: ERC1820_REGISTRY,
     abi: ERC1820RegistryAbi,
     functionName: 'setInterfaceImplementer',
     args: [
-      address,
+      walletAddress,
       '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b',
-      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619',
+      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619'
     ],
   });
+
+  const TXdata = encodeFunctionData({
+    abi: ERC1820RegistryAbi,
+    functionName: 'setInterfaceImplementer',
+    args: [
+      safeAddress,
+      '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b',
+      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619'
+    ],
+  });
+
 
   // Perform contract writes and retrieve data.
   const { data: hash, isPending, isSuccess, isError, writeContract, failureReason } = useWriteContract();
@@ -106,14 +130,42 @@ const AddAddressToERC1820RegistryModal = ({
     writeContract?.(data!.request);
   };
 
-  const handleCloseModal = () => {
-    closeModal();
+  const createAndExecuteTx = async (signOnly = false) => {
+    set_error(null);
+    set_txStarted(true);
+    if (signer && safeAddress) {
+      const payload = {
+        data: TXdata,
+        signer,
+        safeAddress,
+        smartContractAddress: ERC1820_REGISTRY,
+      };
+      return dispatch(
+        signOnly ?
+          safeActionsAsync.createSafeContractTransactionThunk(payload) :
+          safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
+      )
+        .unwrap()
+        .catch((error) => {
+          console.log('Transaction error:', error);
+          set_txStarted(false);
+        })
+        .then(async (transactionResponse: any) => {
+          console.log('Transaction response:', transactionResponse);
+          if (signOnly) {
+            set_txStarted(true);
+            await new Promise ((resolve) => setTimeout(resolve, 2000)); // Wait for a second
+            navigate('/staking/dashboard#transactions');
+          }
+        })
+        .finally(() => {
+          console.log('Transaction finally called');
+        });
+    }
   };
 
-  const startRefetchHandler = async () => {
-    while (true) {
-      await new Promise((r) => setTimeout(r, 5_500));
-    }
+  const handleCloseModal = () => {
+    closeModal();
   };
 
   useEffect(() => {
@@ -196,14 +248,31 @@ const AddAddressToERC1820RegistryModal = ({
           >
             NOT NOW
           </Button>
-          <Button
-            onClick={() => {
-              handleClick();
-            }}
-            pending={txStarted}
-          >
-            SET INTERFACE IMPLEMENTER
-          </Button>
+          {
+            fundsSource === 'safe' ?
+            <SafeTransactionButton
+              executeOptions={{
+                onClick: createAndExecuteTx,
+                pending: txStarted,
+                buttonText: 'SET INTERFACE IMPLEMENTER'
+              }}
+              signOptions={{
+                onClick: ()=> {createAndExecuteTx(true)},
+                pending: txStarted,
+                buttonText: 'SIGN INTERFACE IMPLEMENTER'
+              }}
+            />
+              :
+            <Button
+              onClick={() => {
+                handleClick();
+              }}
+              pending={txStarted}
+            >
+              SET INTERFACE IMPLEMENTER
+            </Button>
+          }
+
         </div>
       </Content>
     </SDialog>

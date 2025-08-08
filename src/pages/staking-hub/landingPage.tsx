@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 
 // HOPR Components
@@ -14,6 +14,7 @@ import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding'
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
 import { web3Actions } from '../../store/slices/web3';
+import { stakingHubActionsAsync } from '../../store/slices/stakingHub';
 
 // Mui
 import { Accordion, AccordionDetails, AccordionSummary, Card, Chip } from '@mui/material';
@@ -315,6 +316,35 @@ const FurtherReadingButtonsSection = styled.div`
   max-width: 800px;
 `;
 
+const TotalStake = styled.div`
+  display: flex;
+  position: absolute;
+  height: 62px;
+  width: 180px;
+  background-color: #CADEFF;
+  flex-direction: column;
+  right: 15px;
+  top: 73px;
+  text-align: center;
+  padding: 8px;
+  justify-content: center;
+  border-radius: 8px;
+  z-index: 10;
+  P:first-of-type {
+    font-weight: 600;
+    font-size: 16px;
+    color: #414141;
+    margin: 0;
+  }
+  P:last-of-type {
+    font-weight: 700;
+    font-size: 24px;
+    color: #414141;
+    margin: 0;
+  }
+`;
+
+
 // FAQ
 type FaqElement = {
   id: number;
@@ -331,12 +361,23 @@ const StakingLandingPage = () => {
   const status = useAppSelector((store) => store.web3.status);
   const onboardingStep = useAppSelector((store) => store.stakingHub.onboarding.step);
   const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
+  const totalwxHoprStakeRaw = useAppSelector((store) => store.stakingHub.totalStaked.data?.wxHoprBalance);
+
+  const totalwxHoprStake = totalwxHoprStakeRaw
+    ? Math.floor(parseFloat(totalwxHoprStakeRaw)).toLocaleString()
+    : totalwxHoprStakeRaw;
 
   const handleAccordionClick = (id: number) => {
     set_expandedId((prevId) => {
       return prevId === id ? false : id;
     });
   };
+
+  useEffect(() => {
+    if(!totalwxHoprStakeRaw) {
+      dispatch(stakingHubActionsAsync.getTotalStakedwxHoprThunk());
+    }
+  }, [totalwxHoprStakeRaw, dispatch]);
 
   return (
     <>
@@ -346,7 +387,14 @@ const StakingLandingPage = () => {
         gradient
       >
         <ContinueOnboarding />
-
+        {
+          totalwxHoprStake && (
+            <TotalStake>
+              <p>Total Stake wxHOPR</p>
+              <p>{totalwxHoprStake}</p>
+            </TotalStake>
+          )
+        }
         <StyledContainer>
           <ImageContainer>
             <Image
@@ -358,6 +406,7 @@ const StakingLandingPage = () => {
               src="/assets/yellow-ellipse.svg"
             />
           </ImageContainer>
+
           <Title>HOPR STAKING HUB</Title>
           <Description>
             Earn $HOPR while providing web3 users with the data privacy and autonomy Web 2.0 never did. Create your HOPR
