@@ -186,6 +186,7 @@ function WrapperPage() {
   const [selectedAddress, set_selectedAddress] = useState<string | null>(safeAddress);
   const walletBalance = useAppSelector((store) => store.web3.balance);
   const safeBalance = useAppSelector((store) => store.safe.balance.data);
+  const walletIcon = useAppSelector((store) => store.web3.walletIcon);
   const [loading, set_loading] = useState(false);
 
   useEffect(() => {
@@ -556,17 +557,24 @@ function WrapperPage() {
               }}
               label={'Funds source'}
               labelId="funds-source-select-label"
-              style={{ width: "270px" }}
-              size="small"
+              style={{ width: "300px", textAlign: "left" }}
               values={[
                 {
                   name: "Your connected wallet",
                   value: "wallet",
+                  icon: <img
+                    src={walletIcon || ''}
+                    alt="Wallet Icon"
+                  />,
                 },
                 {
                   name: "Your safe",
                   value: "safe",
                   disabled: safesByOwner.length === 0 || !safeAddress,
+                  icon: <img
+                    src="/assets/safe-icon.svg"
+                    alt="Safe Icon"
+                  />,
                 },
               ]}
             />

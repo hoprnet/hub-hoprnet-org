@@ -14,7 +14,7 @@ import { safeActions } from '../../store/slices/safe';
 import { stakingHubActions, stakingHubActionsAsync } from '../../store/slices/stakingHub';
 
 // wagmi
-import { Connector, useConnect, useDisconnect, useAccount } from 'wagmi';
+import { type Connector, useConnect, useDisconnect, useAccount  } from 'wagmi';
 import { truncateEthereumAddress } from '../../utils/blockchain';
 import { web3Actions } from '../../store/slices/web3';
 import { UserRejectedRequestError } from 'viem';
@@ -123,6 +123,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
   const walletPresent = useAppSelector((store) => store.web3.status.walletPresent);
   const [localError, set_localError] = useState<false | string>(false);
   const [walletIcon, set_walletIcon] = useState('/assets/wallets/MetaMask_Fox.svg');
+  const walletIconRedux = useAppSelector((store) => store.web3.walletIcon);
   const containerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -228,23 +229,29 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
 
   useEffect(() => {
     console.log('connector', connector);
-    if (!connector?.id) {
-      set_walletIcon('/assets/wallets/MetaMask_Fox.svg');
-      return;
+
+    const setIcon = (connector: Connector | undefined) => {
+      if (!connector?.id) {
+        return('/assets/wallets/MetaMask_Fox.svg');
+      }
+
+      switch (connector.id) {
+        case 'com.brave.wallet':
+          return('/assets/wallets/Brave-wallet.png');
+        case 'walletConnect':
+          return('/assets/wallets/WalletConnect-Icon.svg');
+        default:
+          if (!connector.icon) return ('/assets/wallets/MetaMask_Fox.svg');
+          else return (connector.icon);
+      }
     }
 
-    switch (connector.id) {
-      case 'com.brave.wallet':
-        set_walletIcon('/assets/wallets/Brave-wallet.png');
-        break;
-      case 'walletConnect':
-        set_walletIcon('/assets/wallets/WalletConnect-Icon.svg');
-        break;
-      default:
-        if (!connector.icon) set_walletIcon('/assets/wallets/MetaMask_Fox.svg');
-        else set_walletIcon(connector.icon);
-    }
-  }, [connector]);
+    const icon = setIcon(connector);
+    console.log('setIcon', icon);
+    set_walletIcon(icon);
+    dispatch(web3Actions.setIcon(icon));
+
+  }, [connector, walletIconRedux]);
 
   return (
     <>

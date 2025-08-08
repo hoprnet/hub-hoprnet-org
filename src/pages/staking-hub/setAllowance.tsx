@@ -58,6 +58,7 @@ export default function SetAllowance() {
           smartContractAddress: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
         })
       ).unwrap();
+
       navigate('/staking/dashboard');
       set_loading(false);
     }

@@ -465,7 +465,7 @@ const NodeAdded = () => {
         <GrayCard
           id="add-new-node"
           title="Add new Node"
-          subtitle="Node will be added to the waitlist and once its is accepted, it will show up below"
+          subtitle="Node will be added to the waitlist and once its is accepted, it will show up below."
         >
           <Button
             title="add"

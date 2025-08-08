@@ -26,6 +26,41 @@ const SFormControl = styled(FormControl)`
       display: none;
     }
   }
+    .MenuItem-icon {
+      height: 18px;
+      width: 22px;
+      display: inline-block;
+      position: relative;
+      margin-right: 8px;
+      img {
+        margin-right: 8px;
+        height: 22px;
+        width: 22px;
+        margin: 0;
+        padding: 0;
+        left: 0px;
+        position: absolute;
+      }
+    }
+`;
+
+const SMenuItem = styled(MenuItem)`
+    .MenuItem-icon {
+      height: 18px;
+      width: 22px;
+      display: inline-block;
+      position: relative;
+      margin-right: 8px;
+      img {
+        margin-right: 8px;
+        height: 22px;
+        width: 22px;
+        margin: 0;
+        padding: 0;
+        left: 0px;
+        position: absolute;
+      }
+    }
 `;
 
 type Props = SelectMuiProps & {
@@ -35,6 +70,7 @@ type Props = SelectMuiProps & {
     value: string | number;
     name: string | number | null;
     disabled?: boolean;
+    icon?: React.ReactNode;
   }[];
   native?: boolean;
 };
@@ -56,12 +92,13 @@ const Select: React.FC<Props> = (props) => {
       >
         {props.values &&
           props.values.map((elem, index) => (
-            <MenuItem
+            <SMenuItem
               value={elem.value}
               disabled={elem.disabled}
               key={`${elem.value}_${elem.name}_${index}`}
               style={props.removeValue && { justifyContent: 'space-between' }}
             >
+              {elem.icon && <div className='MenuItem-icon'>{elem.icon}</div>}
               {elem.name}
               {props.removeValue && (
                 <Tooltip title={props.removeValueTooltip}>
@@ -77,7 +114,7 @@ const Select: React.FC<Props> = (props) => {
                   </IconButton>
                 </Tooltip>
               )}
-            </MenuItem>
+            </SMenuItem>
           ))}
       </SelectMui>
     </SFormControl>
