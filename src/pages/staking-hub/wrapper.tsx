@@ -46,6 +46,7 @@ import { IconButton, Paper, TextField, InputAdornment, Button as MuiButton } fro
 import
 Select
   from '../../future-hopr-lib-components/Select';
+import { safe } from 'wagmi/connectors';
 
 const StyledPaper = styled(Paper)`
   padding: 2rem;
@@ -181,10 +182,10 @@ function WrapperPage() {
   const [swapDirection, set_swapDirection] = useState<'xHOPR_to_wxHOPR' | 'wxHOPR_to_xHOPR'>('xHOPR_to_wxHOPR');
   const walletAddress = useAppSelector((store) => store.web3.account);
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
+  const safesByOwner = useAppSelector((store) => store.safe.safesByOwner.data);
   const [selectedAddress, set_selectedAddress] = useState<string | null>(safeAddress);
   const walletBalance = useAppSelector((store) => store.web3.balance);
   const safeBalance = useAppSelector((store) => store.safe.balance.data);
-  const safeInfo = useAppSelector((store) => store.safe.info.data);
   const [loading, set_loading] = useState(false);
 
   useEffect(() => {
@@ -194,6 +195,14 @@ function WrapperPage() {
       set_selectedAddress(safeAddress);
     }
   }, [fundsSource, walletAddress, safeAddress]);
+
+  // When the user has no safes, we set the selected address to the wallet address
+  useEffect(() => {
+    if (safesByOwner.length === 0 && safeAddress === null) {
+      set_selectedAddress(walletAddress);
+      set_fundsSource('wallet');
+    }
+  }, [safesByOwner, safeAddress]);
 
   useEffect(() => {
     refetch1();
@@ -557,6 +566,7 @@ function WrapperPage() {
                 {
                   name: "Your safe",
                   value: "safe",
+                  disabled: safesByOwner.length === 0 || !safeAddress,
                 },
               ]}
             />

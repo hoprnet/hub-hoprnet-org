@@ -60,8 +60,6 @@ export const SSafeTransactionButton = styled(SafeTransactionButton)`
 
 export default function EditOwners() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const safeInfo = useAppSelector((store) => store.safe.info.data);
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as Address;
   const safeModules = useAppSelector((state) => state.safe.info.data?.modules);
   //const safeOwners = useAppSelector((store) => store.safe.info.data?.owners); // Safe Infra
