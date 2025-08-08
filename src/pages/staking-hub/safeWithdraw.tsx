@@ -145,6 +145,10 @@ function SafeWithdraw() {
   const [proposedTxHash, set_proposedTxHash] = useState<string>();
   const [proposedTx, set_proposedTx] = useState<SafeMultisigTransactionResponse>();
 
+  const safeBalance_xDai = safeBalances.xDai.value;
+  const safeBalance_wxHOPR = safeBalances.wxHopr.value;
+  const safeBalance_xHOPR = safeBalances.xHopr.value;
+
   useEffect(() => {
     if (proposedTxHash) {
       const foundProposedTx = pendingTransactions?.results.find((tx) => tx.transactionHash === proposedTxHash);
@@ -154,6 +158,30 @@ function SafeWithdraw() {
       }
     }
   }, [pendingTransactions, proposedTxHash, address]);
+
+  useEffect(() => {
+    // if token is set in the URL
+    if (tokenParam && tokenParam in SUPPORTED_TOKENS) {
+      if (tokenParam === 'wxhopr' && safeBalance_wxHOPR && BigInt(safeBalance_wxHOPR) > BigInt(0)) {
+        set_token(tokenParam as keyof typeof SUPPORTED_TOKENS);
+      } else if (tokenParam === 'xhopr' && safeBalance_xHOPR && BigInt(safeBalance_xHOPR) > BigInt(0)) {
+        set_token(tokenParam as keyof typeof SUPPORTED_TOKENS);
+      } else {
+        set_token('xdai');
+      }
+    // if no token is set in the URL
+    } else {
+      if (safeBalance_xDai && BigInt(safeBalance_xDai) > BigInt(0)) {
+        set_token('xdai');
+      } else if (safeBalance_wxHOPR && BigInt(safeBalance_wxHOPR) > BigInt(0)) {
+        set_token('wxhopr');
+      } else if (safeBalance_xHOPR && BigInt(safeBalance_xHOPR) > BigInt(0)) {
+        set_token('xhopr');
+      } else {
+        set_token('xdai');
+      }
+    }
+  }, [tokenParam, safeBalance_xDai, safeBalance_wxHOPR, safeBalance_xHOPR]);
 
   const signTx = () => {
     set_error(null);
