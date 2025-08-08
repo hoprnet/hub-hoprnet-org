@@ -69,6 +69,7 @@ const Layout: React.FC<{
     web3?: boolean;
     safe?: boolean;
     onboardingFinished?: boolean | null;
+    onboardingNotStarted?: boolean | null;
   };
   drawerType?: 'blue' | 'white';
   drawerItems: ApplicationMapType;

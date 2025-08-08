@@ -165,6 +165,7 @@ type DrawerProps = {
     web3?: boolean;
     safe?: boolean;
     onboardingFinished?: boolean | null;
+    onboardingNotStarted?: boolean | null;
   };
   drawerNumbers?: {
     [key: string]: number | string | undefined | null;
@@ -272,7 +273,9 @@ const Drawer = ({
                                 (item.loginNeeded && !drawerLoginState?.[item.loginNeeded])) ||
                             (item.path === 'onboarding' &&
                               drawerLoginState &&
-                              drawerLoginState.onboardingFinished !== false)
+                              drawerLoginState.onboardingFinished !== false &&
+                              drawerLoginState.onboardingNotStarted === false
+                            )
                           }
                           onClick={item.onClick ? item.onClick : handleButtonClick}
                           className={[
