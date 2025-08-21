@@ -98,8 +98,9 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
               dispatch,
             });
           }
+        }).finally(() => {
+          set_isLoading(false);
         });
-      set_isLoading(false);
     }
   };
 
@@ -186,7 +187,7 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
         labelId="Node-Address-select-label"
         values={selectValues}
       />
-  <p style={{textAlign: "center"}}>Please verify that the selected address is your HOPR node address.</p>
+    <p style={{textAlign: "center"}}>Please verify that the selected address is your HOPR node address.</p>
     </StepContainer>
   );
 }
