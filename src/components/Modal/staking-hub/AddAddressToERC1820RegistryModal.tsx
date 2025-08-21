@@ -14,7 +14,7 @@ import { ERC1820RegistryAbi } from '../../../utils/abis/ERC1820RegistryAbi';
 import { useEthersSigner } from '../../../hooks';
 import { safeActions, safeActionsAsync } from '../../../store/slices/safe';
 import { Address, encodeFunctionData, encodePacked, getAddress } from 'viem';
-import { type UseSimulateContractParameters } from 'wagmi'
+import { type UseSimulateContractParameters } from 'wagmi';
 import { encode } from 'punycode';
 import SafeTransactionButton from '../../../components/SafeTransactionButton';
 import { useNavigate } from 'react-router-dom';
@@ -85,14 +85,18 @@ const AddAddressToERC1820RegistryModal = ({
     refetchSetter();
   }, [walletAddress]);
 
-  const { data, refetch: refetchSetter, error: simulateError } = useSimulateContract({
+  const {
+    data,
+    refetch: refetchSetter,
+    error: simulateError,
+  } = useSimulateContract({
     address: ERC1820_REGISTRY,
     abi: ERC1820RegistryAbi,
     functionName: 'setInterfaceImplementer',
     args: [
       walletAddress,
       '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b',
-      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619'
+      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619',
     ],
   });
 
@@ -102,10 +106,9 @@ const AddAddressToERC1820RegistryModal = ({
     args: [
       safeAddress,
       '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b',
-      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619'
+      '0xe530e2f9decf24d7d42f011f54f1e9f8001e7619',
     ],
   });
-
 
   // Perform contract writes and retrieve data.
   const { data: hash, isPending, isSuccess, isError, writeContract, failureReason } = useWriteContract();
@@ -141,9 +144,9 @@ const AddAddressToERC1820RegistryModal = ({
         smartContractAddress: ERC1820_REGISTRY,
       };
       return dispatch(
-        signOnly ?
-          safeActionsAsync.createSafeContractTransactionThunk(payload) :
-          safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
+        signOnly
+          ? safeActionsAsync.createSafeContractTransactionThunk(payload)
+          : safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
       )
         .unwrap()
         .catch((error) => {
@@ -154,7 +157,7 @@ const AddAddressToERC1820RegistryModal = ({
           console.log('Transaction response:', transactionResponse);
           if (signOnly) {
             set_txStarted(true);
-            await new Promise ((resolve) => setTimeout(resolve, 2000)); // Wait for a second
+            await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for a second
             navigate('/staking/dashboard#transactions');
           }
         })
@@ -248,21 +251,22 @@ const AddAddressToERC1820RegistryModal = ({
           >
             NOT NOW
           </Button>
-          {
-            fundsSource === 'safe' ?
+          {fundsSource === 'safe' ? (
             <SafeTransactionButton
               executeOptions={{
                 onClick: createAndExecuteTx,
                 pending: txStarted,
-                buttonText: 'SET INTERFACE IMPLEMENTER'
+                buttonText: 'SET INTERFACE IMPLEMENTER',
               }}
               signOptions={{
-                onClick: ()=> {createAndExecuteTx(true)},
+                onClick: () => {
+                  createAndExecuteTx(true);
+                },
                 pending: txStarted,
-                buttonText: 'SIGN INTERFACE IMPLEMENTER'
+                buttonText: 'SIGN INTERFACE IMPLEMENTER',
               }}
             />
-              :
+          ) : (
             <Button
               onClick={() => {
                 handleClick();
@@ -271,8 +275,7 @@ const AddAddressToERC1820RegistryModal = ({
             >
               SET INTERFACE IMPLEMENTER
             </Button>
-          }
-
+          )}
         </div>
       </Content>
     </SDialog>

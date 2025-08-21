@@ -25,7 +25,6 @@ import { SafeProxyAbi } from '../../utils/abis/SafeProxyAbi';
 import { ERC1820RegistryAbi } from '../../utils/abis/ERC1820RegistryAbi';
 import { hoprSafeABI } from '@hoprnet/hopr-sdk/dist/ethereum/stakingV2/hoprSafeABI';
 
-
 // HOPR Components
 import Button from '../../future-hopr-lib-components/Button';
 import Section from '../../future-hopr-lib-components/Section';
@@ -43,9 +42,7 @@ import { IconButton, Paper, TextField, InputAdornment, Button as MuiButton } fro
 //   Select,
 //   MenuItem,
 // } from '@mui/material';
-import
-Select
-  from '../../future-hopr-lib-components/Select';
+import Select from '../../future-hopr-lib-components/Select';
 import { safe } from 'wagmi/connectors';
 
 const StyledPaper = styled(Paper)`
@@ -225,8 +222,12 @@ function WrapperPage() {
 
     const xhoprEther = parseEther(xhoprValue);
     const wxhoprEther = parseEther(wxhoprValue);
-    const xhoprWalletEther = BigInt(fundsSource === 'safe' ? safeBalance.xHopr.value as string : walletBalance.xHopr.value as string);
-    const wxhoprWalletEther = BigInt(fundsSource === 'safe' ? safeBalance.wxHopr.value as string : walletBalance.wxHopr.value as string);
+    const xhoprWalletEther = BigInt(
+      fundsSource === 'safe' ? (safeBalance.xHopr.value as string) : (walletBalance.xHopr.value as string)
+    );
+    const wxhoprWalletEther = BigInt(
+      fundsSource === 'safe' ? (safeBalance.wxHopr.value as string) : (walletBalance.wxHopr.value as string)
+    );
 
     if (swapDirection === 'xHOPR_to_wxHOPR' && xhoprEther > xhoprWalletEther) set_notEnoughBalance(true);
     else if (swapDirection === 'xHOPR_to_wxHOPR') set_notEnoughBalance(false);
@@ -439,9 +440,9 @@ function WrapperPage() {
           smartContractAddress: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
         };
         await dispatch(
-          signOnly ?
-            safeActionsAsync.createSafeContractTransactionThunk(payload) :
-            safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
+          signOnly
+            ? safeActionsAsync.createSafeContractTransactionThunk(payload)
+            : safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
         ).unwrap();
       } else {
         const TXdata = encodeFunctionData({
@@ -454,11 +455,11 @@ function WrapperPage() {
           signer,
           safeAddress: selectedAddress as `0x${string}`,
           smartContractAddress: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-        }
+        };
         await dispatch(
-          signOnly ?
-            safeActionsAsync.createSafeContractTransactionThunk(payload) :
-            safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
+          signOnly
+            ? safeActionsAsync.createSafeContractTransactionThunk(payload)
+            : safeActionsAsync.createAndExecuteSafeContractTransactionThunk(payload)
         ).unwrap();
       }
       updateBalances();
@@ -466,15 +467,25 @@ function WrapperPage() {
     } finally {
       set_loading(false);
     }
-  }
+  };
 
   /* ************************************** */
 
   const updateBalances = () => {
-    if (fundsSource === 'wallet' && selectedAddress && walletBalance.xHopr.formatted && walletBalance.wxHopr.formatted) {
+    if (
+      fundsSource === 'wallet' &&
+      selectedAddress &&
+      walletBalance.xHopr.formatted &&
+      walletBalance.wxHopr.formatted
+    ) {
       set_xhoprValue(walletBalance.xHopr.formatted);
       set_wxhoprValue(walletBalance.wxHopr.formatted);
-    } else if (fundsSource === 'safe' && selectedAddress && safeBalance.xHopr.formatted && safeBalance.wxHopr.formatted) {
+    } else if (
+      fundsSource === 'safe' &&
+      selectedAddress &&
+      safeBalance.xHopr.formatted &&
+      safeBalance.wxHopr.formatted
+    ) {
       set_xhoprValue(safeBalance.xHopr.formatted);
       set_wxhoprValue(safeBalance.wxHopr.formatted);
     }
@@ -484,7 +495,13 @@ function WrapperPage() {
     if (isSuccess) {
       updateBalances();
     }
-  }, [fundsSource, walletBalance.xHopr.formatted, walletBalance.wxHopr.formatted, safeBalance.xHopr.formatted, safeBalance.wxHopr.formatted]);
+  }, [
+    fundsSource,
+    walletBalance.xHopr.formatted,
+    walletBalance.wxHopr.formatted,
+    safeBalance.xHopr.formatted,
+    safeBalance.wxHopr.formatted,
+  ]);
 
   useEffect(() => {
     if (selectedAddress) {
@@ -493,7 +510,13 @@ function WrapperPage() {
       set_xhoprValue('');
       set_wxhoprValue('');
     }
-  }, [selectedAddress, walletBalance.xHopr.formatted, walletBalance.wxHopr.formatted, safeBalance.xHopr.formatted, safeBalance.wxHopr.formatted]);
+  }, [
+    selectedAddress,
+    walletBalance.xHopr.formatted,
+    walletBalance.wxHopr.formatted,
+    safeBalance.xHopr.formatted,
+    safeBalance.wxHopr.formatted,
+  ]);
 
   // Set the maximum value for xHOPR on input field.
   const setMax_xHOPR = () => {
@@ -514,13 +537,13 @@ function WrapperPage() {
 
   const chooseTheSwapDirection = () => {
     if (fundsSource === 'wallet' && walletBalance.wxHopr.value && walletBalance.xHopr.value) {
-      if(BigInt(walletBalance.wxHopr.value) < BigInt(walletBalance.xHopr.value)) {
+      if (BigInt(walletBalance.wxHopr.value) < BigInt(walletBalance.xHopr.value)) {
         set_swapDirection('xHOPR_to_wxHOPR');
       } else if (BigInt(walletBalance.wxHopr.value) > BigInt(walletBalance.xHopr.value)) {
         set_swapDirection('wxHOPR_to_xHOPR');
       }
     } else if (fundsSource === 'safe' && safeBalance.wxHopr.value && safeBalance.xHopr.value) {
-      if(BigInt(safeBalance.wxHopr.value) < BigInt(safeBalance.xHopr.value)) {
+      if (BigInt(safeBalance.wxHopr.value) < BigInt(safeBalance.xHopr.value)) {
         set_swapDirection('xHOPR_to_wxHOPR');
       } else if (BigInt(safeBalance.wxHopr.value) > BigInt(safeBalance.xHopr.value)) {
         set_swapDirection('wxHOPR_to_xHOPR');
@@ -557,24 +580,28 @@ function WrapperPage() {
               }}
               label={'Funds source'}
               labelId="funds-source-select-label"
-              style={{ width: "300px", textAlign: "left" }}
+              style={{ width: '300px', textAlign: 'left' }}
               values={[
                 {
-                  name: "Your connected wallet",
-                  value: "wallet",
-                  icon: <img
-                    src={walletIcon || ''}
-                    alt="Wallet Icon"
-                  />,
+                  name: 'Your connected wallet',
+                  value: 'wallet',
+                  icon: (
+                    <img
+                      src={walletIcon || ''}
+                      alt="Wallet Icon"
+                    />
+                  ),
                 },
                 {
-                  name: "Your safe",
-                  value: "safe",
+                  name: 'Your safe',
+                  value: 'safe',
                   disabled: safesByOwner.length === 0 || !safeAddress,
-                  icon: <img
-                    src="/assets/safe-icon.svg"
-                    alt="Safe Icon"
-                  />,
+                  icon: (
+                    <img
+                      src="/assets/safe-icon.svg"
+                      alt="Safe Icon"
+                    />
+                  ),
                 },
               ]}
             />
@@ -586,22 +613,22 @@ function WrapperPage() {
           height: 134,
         }}
         buttons={
-          fundsSource === 'safe' ?
+          fundsSource === 'safe' ? (
             <SafeTransactionButton
               executeOptions={{
                 onClick: executeSafeSwap,
                 disabled: swapDisabled,
                 pending: loading,
-                buttonText: 'SWAP'
+                buttonText: 'SWAP',
               }}
               signOptions={{
                 onClick: () => executeSafeSwap(true),
                 disabled: swapDisabled,
                 pending: loading,
-                buttonText: 'SIGN SWAP'
+                buttonText: 'SIGN SWAP',
               }}
             />
-            :
+          ) : (
             <Button
               className="swap-button"
               disabled={swapDisabled}
@@ -610,6 +637,7 @@ function WrapperPage() {
             >
               SWAP
             </Button>
+          )
         }
       >
         <br />

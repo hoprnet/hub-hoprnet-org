@@ -216,7 +216,6 @@ export const initialState: InitialState = {
   },
 };
 
-
 export type TotalStaked = {
   mHoprBalance: string;
   wxHoprBalance: string;

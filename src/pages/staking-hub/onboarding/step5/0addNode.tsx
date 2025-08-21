@@ -31,13 +31,17 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
   const HOPRdNodeAddressForOnboarding = useAppSelector(
     (store) => store.stakingHub.onboarding.nodeAddressProvidedByMagicLink
   );
-  const nodesAddedToSafe = useAppSelector(
-    (store) => store.stakingHub.safeInfo.data.registeredNodesInNetworkRegistryParsed
-  ) || [];
+  const nodesAddedToSafe =
+    useAppSelector((store) => store.stakingHub.safeInfo.data.registeredNodesInNetworkRegistryParsed) || [];
   const selectValues = nodesAddedToSafe.map((node) => ({
     name: node,
     value: node,
-    icon: <img src="/assets/HOPR_Node_Adming.svg" alt="Node Icon" />,
+    icon: (
+      <img
+        src="/assets/HOPR_Node_Adming.svg"
+        alt="Node Icon"
+      />
+    ),
   }));
   const ownerAddress = useAppSelector((store) => store.stakingHub.safeInfo.data.owners[0].owner.id);
   const account = useAppSelector((store) => store.web3.account);
@@ -45,17 +49,13 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
   const signer = useEthersSigner();
   const [isLoading, set_isLoading] = useState(false);
   const [address, set_address] = useState(
-    HOPRdNodeAddressForOnboarding ?
-      HOPRdNodeAddressForOnboarding
-      :
-      props?.nodeAddress ?
-      props.nodeAddress
-      :
-      nodesAddedToSafe.length > 0
-      ?
-      nodesAddedToSafe[0]
-      :
-      ''
+    HOPRdNodeAddressForOnboarding
+      ? HOPRdNodeAddressForOnboarding
+      : props?.nodeAddress
+      ? props.nodeAddress
+      : nodesAddedToSafe.length > 0
+      ? nodesAddedToSafe[0]
+      : ''
   );
   const nodeInNetworkRegistry =
     nodesAddedToSafe && nodesAddedToSafe.length > 0 && nodesAddedToSafe.includes(address.toLocaleLowerCase());
@@ -98,7 +98,8 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
               dispatch,
             });
           }
-        }).finally(() => {
+        })
+        .finally(() => {
           set_isLoading(false);
         });
     }
@@ -187,7 +188,7 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
         labelId="Node-Address-select-label"
         values={selectValues}
       />
-    <p style={{textAlign: "center"}}>Please verify that the selected address is your HOPR node address.</p>
+      <p style={{ textAlign: 'center' }}>Please verify that the selected address is your HOPR node address.</p>
     </StepContainer>
   );
 }

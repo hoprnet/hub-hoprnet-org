@@ -274,8 +274,7 @@ const Drawer = ({
                             (item.path === 'onboarding' &&
                               drawerLoginState &&
                               drawerLoginState.onboardingFinished !== false &&
-                              drawerLoginState.onboardingNotStarted === false
-                            )
+                              drawerLoginState.onboardingNotStarted === false)
                           }
                           onClick={item.onClick ? item.onClick : handleButtonClick}
                           className={[
