@@ -26,41 +26,41 @@ const SFormControl = styled(FormControl)`
       display: none;
     }
   }
-    .MenuItem-icon {
-      height: 18px;
-      width: 22px;
-      display: inline-block;
-      position: relative;
+  .MenuItem-icon {
+    height: 18px;
+    width: 22px;
+    display: inline-block;
+    position: relative;
+    margin-right: 8px;
+    img {
       margin-right: 8px;
-      img {
-        margin-right: 8px;
-        height: 22px;
-        width: 22px;
-        margin: 0;
-        padding: 0;
-        left: 0px;
-        position: absolute;
-      }
+      height: 22px;
+      width: 22px;
+      margin: 0;
+      padding: 0;
+      left: 0px;
+      position: absolute;
     }
+  }
 `;
 
 const SMenuItem = styled(MenuItem)`
-    .MenuItem-icon {
-      height: 18px;
-      width: 22px;
-      display: inline-block;
-      position: relative;
+  .MenuItem-icon {
+    height: 18px;
+    width: 22px;
+    display: inline-block;
+    position: relative;
+    margin-right: 8px;
+    img {
       margin-right: 8px;
-      img {
-        margin-right: 8px;
-        height: 22px;
-        width: 22px;
-        margin: 0;
-        padding: 0;
-        left: 0px;
-        position: absolute;
-      }
+      height: 22px;
+      width: 22px;
+      margin: 0;
+      padding: 0;
+      left: 0px;
+      position: absolute;
     }
+  }
 `;
 
 type Props = SelectMuiProps & {
@@ -98,7 +98,7 @@ const Select: React.FC<Props> = (props) => {
               key={`${elem.value}_${elem.name}_${index}`}
               style={props.removeValue && { justifyContent: 'space-between' }}
             >
-              {elem.icon && <div className='MenuItem-icon'>{elem.icon}</div>}
+              {elem.icon && <div className="MenuItem-icon">{elem.icon}</div>}
               {elem.name}
               {props.removeValue && (
                 <Tooltip title={props.removeValueTooltip}>

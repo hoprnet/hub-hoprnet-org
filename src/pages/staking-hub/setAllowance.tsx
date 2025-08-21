@@ -57,10 +57,12 @@ export default function SetAllowance() {
           safeAddress: selectedSafeAddress,
           smartContractAddress: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
         })
-      ).unwrap();
-
+      )
+        .unwrap()
+        .finally(() => {
+          set_loading(false);
+        });
       navigate('/staking/dashboard');
-      set_loading(false);
     }
   };
 
@@ -74,9 +76,12 @@ export default function SetAllowance() {
           safeAddress: selectedSafeAddress,
           smartContractAddress: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
         })
-      ).unwrap();
+      )
+        .unwrap()
+        .finally(() => {
+          set_loading(false);
+        });
       navigate('/staking/dashboard');
-      set_loading(false);
     }
   };
 
@@ -93,14 +98,12 @@ export default function SetAllowance() {
           <SSafeTransactionButton
             executeOptions={{
               onClick: executeAllowance,
-              disabled:
-                wxHoprValue === '' || wxHoprValue === '0' || wxHoprValue.includes('-') || wxHoprValue.includes('+'),
+              disabled: wxHoprValue === '' || wxHoprValue.includes('-') || wxHoprValue.includes('+'),
               pending: loading,
             }}
             signOptions={{
               onClick: signAllowance,
-              disabled:
-                wxHoprValue === '' || wxHoprValue === '0' || wxHoprValue.includes('-') || wxHoprValue.includes('+'),
+              disabled: wxHoprValue === '' || wxHoprValue.includes('-') || wxHoprValue.includes('+'),
               pending: loading,
             }}
           />

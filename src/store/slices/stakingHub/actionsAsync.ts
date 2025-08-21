@@ -462,11 +462,7 @@ const getNodeBalanceThunk = createAsyncThunk<
   }
 );
 
-const getTotalStakedwxHoprThunk = createAsyncThunk<
-  TotalStaked | null,
-  void,
-  { state: RootState }
->(
+const getTotalStakedwxHoprThunk = createAsyncThunk<TotalStaked | null, void, { state: RootState }>(
   'stakingHub/getTotalStakedwxHopr',
   async () => {
     const rez = await fetch(`https://webapi.hoprnet.org/api/hub/getStakingData`);
@@ -482,7 +478,6 @@ const getTotalStakedwxHoprThunk = createAsyncThunk<
     },
   }
 );
-
 
 // Helper actions to update the isFetching state
 const setHubSafesByOwnerFetching = createAction<boolean>('stakingHub/setHubSafesByOwnerFetching');
@@ -685,5 +680,5 @@ export const actionsAsync = {
   getSubgraphDataThunk,
   goToStepWeShouldBeOnThunk,
   getOnboardingDataThunk,
-  getTotalStakedwxHoprThunk
+  getTotalStakedwxHoprThunk,
 };

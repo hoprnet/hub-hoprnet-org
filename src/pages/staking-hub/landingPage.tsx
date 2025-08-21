@@ -321,7 +321,7 @@ const TotalStake = styled.div`
   position: absolute;
   height: 62px;
   width: 180px;
-  background-color: #CADEFF;
+  background-color: #cadeff;
   flex-direction: column;
   right: 15px;
   top: 73px;
@@ -343,7 +343,6 @@ const TotalStake = styled.div`
     margin: 0;
   }
 `;
-
 
 // FAQ
 type FaqElement = {
@@ -374,7 +373,7 @@ const StakingLandingPage = () => {
   };
 
   useEffect(() => {
-    if(!totalwxHoprStakeRaw) {
+    if (!totalwxHoprStakeRaw) {
       dispatch(stakingHubActionsAsync.getTotalStakedwxHoprThunk());
     }
   }, [totalwxHoprStakeRaw, dispatch]);
@@ -387,14 +386,12 @@ const StakingLandingPage = () => {
         gradient
       >
         <ContinueOnboarding />
-        {
-          totalwxHoprStake && (
-            <TotalStake>
-              <p>Total Stake wxHOPR</p>
-              <p>{totalwxHoprStake}</p>
-            </TotalStake>
-          )
-        }
+        {totalwxHoprStake && (
+          <TotalStake>
+            <p>Total Stake wxHOPR</p>
+            <p>{totalwxHoprStake}</p>
+          </TotalStake>
+        )}
         <StyledContainer>
           <ImageContainer>
             <Image

@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import styled from '@emotion/styled';
-import Button from '../../../../future-hopr-lib-components/Button';
-import GrayButton from '../../../../future-hopr-lib-components/Button/gray';
 import { StepContainer, ConfirmButton } from '../components';
 import { useEthersSigner } from '../../../../hooks';
 import { getAddress } from 'viem';
@@ -9,6 +7,10 @@ import { getAddress } from 'viem';
 // Mui
 import { TextField } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
+
+// HOPR Components
+import Select from '../../../../future-hopr-lib-components/Select';
+import GrayButton from '../../../../future-hopr-lib-components/Button/gray';
 
 // Store
 import { useAppSelector, useAppDispatch } from '../../../../store';
@@ -29,16 +31,31 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
   const HOPRdNodeAddressForOnboarding = useAppSelector(
     (store) => store.stakingHub.onboarding.nodeAddressProvidedByMagicLink
   );
-  const nodesAddedToSafe = useAppSelector(
-    (store) => store.stakingHub.safeInfo.data.registeredNodesInNetworkRegistryParsed
-  );
+  const nodesAddedToSafe =
+    useAppSelector((store) => store.stakingHub.safeInfo.data.registeredNodesInNetworkRegistryParsed) || [];
+  const selectValues = nodesAddedToSafe.map((node) => ({
+    name: node,
+    value: node,
+    icon: (
+      <img
+        src="/assets/HOPR_Node_Adming.svg"
+        alt="Node Icon"
+      />
+    ),
+  }));
   const ownerAddress = useAppSelector((store) => store.stakingHub.safeInfo.data.owners[0].owner.id);
   const account = useAppSelector((store) => store.web3.account);
   const safeIndexed = useAppSelector((store) => store.safe.info.safeIndexed);
   const signer = useEthersSigner();
   const [isLoading, set_isLoading] = useState(false);
   const [address, set_address] = useState(
-    HOPRdNodeAddressForOnboarding ? HOPRdNodeAddressForOnboarding : props?.nodeAddress ? props.nodeAddress : ''
+    HOPRdNodeAddressForOnboarding
+      ? HOPRdNodeAddressForOnboarding
+      : props?.nodeAddress
+      ? props.nodeAddress
+      : nodesAddedToSafe.length > 0
+      ? nodesAddedToSafe[0]
+      : ''
   );
   const nodeInNetworkRegistry =
     nodesAddedToSafe && nodesAddedToSafe.length > 0 && nodesAddedToSafe.includes(address.toLocaleLowerCase());
@@ -81,8 +98,10 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
               dispatch,
             });
           }
+        })
+        .finally(() => {
+          set_isLoading(false);
         });
-      set_isLoading(false);
     }
   };
 
@@ -157,21 +176,19 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
         </>
       }
     >
-      <TextField
-        type="text"
-        label="Node Address"
-        placeholder="Your address..."
+      <Select
         value={address}
-        onChange={(e) => set_address(e.target.value)}
-        fullWidth
-        style={{ marginTop: '16px' }}
-        error={addressIsOwnerAddress()}
-        helperText={
-          addressIsOwnerAddress()
-            ? 'You entered your wallet address and you should enter your Node Address'
-            : 'Address should start with 0x'
-        }
+        onChange={(event) => {
+          set_address(event.target.value as string);
+        }}
+        style={{
+          width: '100%',
+        }}
+        label={'Node Address'}
+        labelId="Node-Address-select-label"
+        values={selectValues}
       />
+      <p style={{ textAlign: 'center' }}>Please verify that the selected address is your HOPR node address.</p>
     </StepContainer>
   );
 }
