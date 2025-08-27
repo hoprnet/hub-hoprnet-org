@@ -169,7 +169,7 @@ function SafeWithdraw() {
       } else {
         set_token('xdai');
       }
-    // if no token is set in the URL
+      // if no token is set in the URL
     } else {
       if (safeBalance_xDai && BigInt(safeBalance_xDai) > BigInt(0)) {
         set_token('xdai');
@@ -243,28 +243,28 @@ function SafeWithdraw() {
       //     });
       // }
       // else {
-        const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
-        const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
-        return dispatch(
-          safeActionsAsync.createSafeContractTransactionThunk({
-            data: createSendTokensTransactionData(getAddress(receiver) as `0x${string}`, parsedValue as bigint),
-            signer,
-            safeAddress: getAddress(selectedSafeAddress),
-            smartContractAddress,
-          })
-        )
-          .unwrap()
-          .then((safeTxHash) => {
-            set_proposedTxHash(safeTxHash);
-            navigate('/staking/dashboard#transactions');
-          })
-          .catch((e) => {
-            if (e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`);
-            else set_error(`ERROR: ${JSON.stringify(e)}`);
-          })
-          .finally(() => {
-            set_isWalletLoading(false);
-          });
+      const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
+      const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
+      return dispatch(
+        safeActionsAsync.createSafeContractTransactionThunk({
+          data: createSendTokensTransactionData(getAddress(receiver) as `0x${string}`, parsedValue as bigint),
+          signer,
+          safeAddress: getAddress(selectedSafeAddress),
+          smartContractAddress,
+        })
+      )
+        .unwrap()
+        .then((safeTxHash) => {
+          set_proposedTxHash(safeTxHash);
+          navigate('/staking/dashboard#transactions');
+        })
+        .catch((e) => {
+          if (e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`);
+          else set_error(`ERROR: ${JSON.stringify(e)}`);
+        })
+        .finally(() => {
+          set_isWalletLoading(false);
+        });
       //}
     }
   };
@@ -316,25 +316,25 @@ function SafeWithdraw() {
       //       set_isWalletLoading(false);
       //     });
       // }
-     // else {
-        const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
-        const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
-        return dispatch(
-          safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
-            data: createSendTokensTransactionData(getAddress(receiver) as `0x${string}`, parsedValue as bigint),
-            signer,
-            safeAddress: getAddress(selectedSafeAddress),
-            smartContractAddress,
-          })
-        )
-          .unwrap()
-          .then((transactionResponse) => {
-            set_transactionHash(transactionResponse as Address);
-          })
-          .finally(() => {
-            set_isWalletLoading(false);
-          });
-     // }
+      // else {
+      const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
+      const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
+      return dispatch(
+        safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
+          data: createSendTokensTransactionData(getAddress(receiver) as `0x${string}`, parsedValue as bigint),
+          signer,
+          safeAddress: getAddress(selectedSafeAddress),
+          smartContractAddress,
+        })
+      )
+        .unwrap()
+        .then((transactionResponse) => {
+          set_transactionHash(transactionResponse as Address);
+        })
+        .finally(() => {
+          set_isWalletLoading(false);
+        });
+      // }
     }
   };
 
@@ -358,7 +358,7 @@ function SafeWithdraw() {
     if (
       !ethValue &&
       !proposedTx
-    //  && token !== 'nft'
+      //  && token !== 'nft'
     ) {
       errors.push('xDai value is required');
     }
@@ -492,24 +492,24 @@ function SafeWithdraw() {
                   <StyledCoinLabel>NFT ID</StyledCoinLabel>
                 </InputWithLabel>
               ) : ( */}
-                <InputWithLabel>
-                  <TextField
-                    variant="outlined"
-                    placeholder="-"
-                    size="small"
-                    value={ethValue}
-                    onChange={(e) => {
-                      if (error) set_error(null);
-                      set_ethValue(e.target.value);
-                    }}
-                    inputProps={{
-                      inputMode: 'numeric',
-                      pattern: '[0-9]*',
-                    }}
-                    InputProps={{ inputProps: { style: { textAlign: 'right' } } }}
-                  />
-                  <StyledCoinLabel>{SUPPORTED_TOKENS[token].name}</StyledCoinLabel>
-                </InputWithLabel>
+              <InputWithLabel>
+                <TextField
+                  variant="outlined"
+                  placeholder="-"
+                  size="small"
+                  value={ethValue}
+                  onChange={(e) => {
+                    if (error) set_error(null);
+                    set_ethValue(e.target.value);
+                  }}
+                  inputProps={{
+                    inputMode: 'numeric',
+                    pattern: '[0-9]*',
+                  }}
+                  InputProps={{ inputProps: { style: { textAlign: 'right' } } }}
+                />
+                <StyledCoinLabel>{SUPPORTED_TOKENS[token].name}</StyledCoinLabel>
+              </InputWithLabel>
               {/* )} */}
             </StyledInputGroup>
           </StyledForm>

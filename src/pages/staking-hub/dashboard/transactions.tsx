@@ -197,8 +197,7 @@ const ActionButtons = ({ transaction }: { transaction: SafeMultisigTransactionRe
         })
       )
         .unwrap()
-        .then(() => {
-        })
+        .then(() => {})
         .catch((e) => {
           console.error('Error: Multisig transaction not executed', e);
           sendNotification({
@@ -211,7 +210,8 @@ const ActionButtons = ({ transaction }: { transaction: SafeMultisigTransactionRe
             toastPayload: { message: `Multisig transaction not executed. ${JSON.stringify(e)}`, type: 'error' },
             dispatch,
           });
-        }).finally(async () => {
+        })
+        .finally(async () => {
           if (signer && selectedSafeAddress) {
             await dispatch(
               safeActionsAsync.getPendingSafeTransactionsThunk({
@@ -437,24 +437,24 @@ const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisi
 
     // *** Check for wrapper or transfer transactions
     try {
-      if(
+      if (
         // @ts-ignore
         transaction?.dataDecoded?.parameters[2]?.value === '0x' &&
         // @ts-ignore
         transaction?.dataDecoded?.method === 'transferAndCall' &&
         // @ts-ignore
         transaction?.dataDecoded?.parameters[1]?.value
-      ){
+      ) {
         // @ts-ignore
         return formatEther(transaction?.dataDecoded?.parameters[1]?.value);
       }
 
-      if(
+      if (
         // @ts-ignore
         transaction?.dataDecoded?.method === 'transfer' &&
         // @ts-ignore
         transaction?.dataDecoded?.parameters[1]?.value
-      ){
+      ) {
         // @ts-ignore
         return formatEther(transaction?.dataDecoded?.parameters[1]?.value);
       }

@@ -78,6 +78,9 @@ const stakingHubSlice = createSlice({
     },
     setOnboardingStep: (state, action) => {
       state.onboarding.step = action.payload;
+      if (action.payload === 16) {
+        state.onboarding.notFinished = false;
+      }
     },
     setNodeLinkedToSafeBalance_xDai: (state, action) => {
       state.onboarding.nodeBalance.xDai.value = action.payload ? action.payload.value : null;
