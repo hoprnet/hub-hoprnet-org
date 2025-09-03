@@ -85,7 +85,7 @@ const StyledIconButton = styled(IconButton)`
   align-self: center;
   position: absolute;
   background: linear-gradient(rgba(0, 0, 178, 1), rgba(0, 0, 80, 1));
-  top: 48px;
+  top: 28px;
   z-index: 2;
 
   svg {
@@ -107,7 +107,7 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-const MaxButton = styled(MuiButton)`
+export const MaxButton = styled(MuiButton)`
   background-color: #ffffa0;
   border-radius: 2px;
   border: none;
@@ -581,6 +581,7 @@ function WrapperPage() {
               label={'Funds source'}
               labelId="funds-source-select-label"
               style={{ width: '300px', textAlign: 'left' }}
+              size="small"
               values={[
                 {
                   name: 'Your connected wallet',
@@ -648,6 +649,7 @@ function WrapperPage() {
             label="wxHOPR"
             placeholder="Your wxHOPR here..."
             type="number"
+            size="small"
             value={wxhoprValue}
             onChange={(e) => set_wxhoprValue(e.target.value)}
             onPointerDown={() => {
@@ -686,6 +688,7 @@ function WrapperPage() {
             label="xHOPR"
             placeholder="Your xHOPR here..."
             type="number"
+            size="small"
             value={xhoprValue}
             onChange={(e) => set_xhoprValue(e.target.value)}
             onPointerDown={() => {

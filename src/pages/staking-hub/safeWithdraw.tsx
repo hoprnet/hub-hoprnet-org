@@ -18,10 +18,14 @@ import Card from '../../components/Card';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import Section from '../../future-hopr-lib-components/Section';
 import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
+import { MaxButton } from './wrapper';
 
 // Mui
 import { SelectChangeEvent } from '@mui/material/Select';
-import TextField from '@mui/material/TextField';
+import {
+  TextField,
+  InputAdornment
+ } from '@mui/material';
 import { FeedbackTransaction } from '../../components/FeedbackTransaction';
 import SafeTransactionButton from '../../components/SafeTransactionButton';
 import Select from '../../future-hopr-lib-components/Select';
@@ -36,20 +40,6 @@ const StyledForm = styled.div`
   border-bottom: 1px solid #414141;
   justify-content: center;
   padding-bottom: 16px;
-`;
-
-const StyledInstructions = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const StyledText = styled.h3`
-  color: var(--414141, #414141);
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 500;
-  letter-spacing: 0.35px;
-  text-align: end;
 `;
 
 const StyledDescription = styled.p`
@@ -421,6 +411,10 @@ function SafeWithdraw() {
     return false;
   };
 
+  const setMaxAmount = () => {
+
+  }
+
   return (
     <Section
       lightBlue
@@ -438,9 +432,6 @@ function SafeWithdraw() {
       >
         <div>
           <StyledForm>
-            <StyledInstructions>
-              <StyledText>WITHDRAW</StyledText>
-            </StyledInstructions>
             <StyledInputGroup>
               <InputWithLabel>
                 <Select
@@ -453,12 +444,11 @@ function SafeWithdraw() {
                   value={token}
                   onChange={handleChangeToken}
                   style={{
-                    width: '230px',
+                    width: '100%',
                     margin: 0,
                   }}
                   label="Token"
                 />
-                <StyledCoinLabel>Token</StyledCoinLabel>
               </InputWithLabel>
               <InputWithLabel>
                 <TextField
@@ -470,9 +460,8 @@ function SafeWithdraw() {
                     if (error) set_error(null);
                     set_receiver(e.target.value);
                   }}
-                  InputProps={{ inputProps: { style: { textAlign: 'right' } } }}
+                  label="Receiver"
                 />
-                <StyledCoinLabel>Receiver</StyledCoinLabel>
               </InputWithLabel>
               {/* {token === 'nft' ? (
                 <InputWithLabel>
@@ -506,9 +495,18 @@ function SafeWithdraw() {
                     inputMode: 'numeric',
                     pattern: '[0-9]*',
                   }}
-                  InputProps={{ inputProps: { style: { textAlign: 'right' } } }}
+                  label={"Amount"}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {SUPPORTED_TOKENS[token].name}
+                        <span style={{ marginLeft: '16px' }}/>
+                        <MaxButton onClick={setMaxAmount}>Max</MaxButton>
+                      </InputAdornment>
+                    ),
+                    inputProps: { min: 0 },
+                  }}
                 />
-                <StyledCoinLabel>{SUPPORTED_TOKENS[token].name}</StyledCoinLabel>
               </InputWithLabel>
               {/* )} */}
             </StyledInputGroup>
