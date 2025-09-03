@@ -56,6 +56,8 @@ const StyledInputGroup = styled.div`
   flex-direction: column;
   align-items: baseline;
   gap: 10px;
+  width: 100%;
+  max-width: 450px;
 `;
 
 const StyledCoinLabel = styled.p`
@@ -261,7 +263,8 @@ function SafeWithdraw() {
 
   const createAndExecuteTx = async () => {
     set_error(null);
-    if (signer && selectedSafeAddress) {
+    if (!signer || !selectedSafeAddress) return;
+    try {
       set_isWalletLoading(true);
       if (token === 'xdai') {
         const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : 0;
@@ -315,8 +318,7 @@ function SafeWithdraw() {
           signer,
           safeAddress: getAddress(selectedSafeAddress),
           smartContractAddress,
-        })
-      )
+        }))
         .unwrap()
         .then((transactionResponse) => {
           set_transactionHash(transactionResponse as Address);
@@ -325,6 +327,12 @@ function SafeWithdraw() {
           set_isWalletLoading(false);
         });
       // }
+    } catch(e) {
+      console.log('Error occurred while creating and executing transaction:', e);
+      set_isWalletLoading(false);
+      if (typeof e === 'object' && e !== null && 'shortMessage' in e && typeof e.shortMessage === 'string') {
+        set_error((e as { shortMessage: string }).shortMessage);
+      }
     }
   };
 
@@ -412,7 +420,13 @@ function SafeWithdraw() {
   };
 
   const setMaxAmount = () => {
-
+    if (token === 'xdai' && safeBalances.xDai.formatted) {
+      set_ethValue(safeBalances.xDai.formatted);
+    } else if (token === 'wxhopr' && safeBalances.wxHopr.formatted) {
+      set_ethValue(safeBalances.wxHopr.formatted);
+    } else if (token === 'xhopr' && safeBalances.xHopr.formatted) {
+      set_ethValue(safeBalances.xHopr.formatted);
+    }
   }
 
   return (
@@ -433,7 +447,11 @@ function SafeWithdraw() {
         <div>
           <StyledForm>
             <StyledInputGroup>
-              <InputWithLabel>
+              <InputWithLabel
+                style={{
+                  width: '100%',
+                }}
+              >
                 <Select
                   size="small"
                   values={Object.values(SUPPORTED_TOKENS).map((t) => ({
@@ -450,7 +468,11 @@ function SafeWithdraw() {
                   label="Token"
                 />
               </InputWithLabel>
-              <InputWithLabel>
+              <InputWithLabel
+                style={{
+                  width: '100%',
+                }}
+              >
                 <TextField
                   variant="outlined"
                   placeholder="-"
@@ -461,6 +483,7 @@ function SafeWithdraw() {
                     set_receiver(e.target.value);
                   }}
                   label="Receiver"
+                  fullWidth
                 />
               </InputWithLabel>
               {/* {token === 'nft' ? (
@@ -481,7 +504,11 @@ function SafeWithdraw() {
                   <StyledCoinLabel>NFT ID</StyledCoinLabel>
                 </InputWithLabel>
               ) : ( */}
-              <InputWithLabel>
+              <InputWithLabel
+                style={{
+                  width: '100%',
+                }}
+              >
                 <TextField
                   variant="outlined"
                   placeholder="-"
@@ -506,6 +533,7 @@ function SafeWithdraw() {
                     ),
                     inputProps: { min: 0 },
                   }}
+                  fullWidth
                 />
               </InputWithLabel>
               {/* )} */}
