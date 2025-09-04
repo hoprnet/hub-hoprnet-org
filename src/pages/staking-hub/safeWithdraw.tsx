@@ -503,6 +503,8 @@ function SafeWithdraw() {
                   }}
                   label="Receiver"
                   fullWidth
+                  autoComplete="off"
+                  inputProps={{ autoComplete: 'off' }}
                 />
               </InputWithLabel>
               {/* {token === 'nft' ? (
