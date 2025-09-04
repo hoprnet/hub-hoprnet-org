@@ -92,16 +92,34 @@ const SUPPORTED_TOKENS = {
   xdai: {
     value: 'xdai',
     name: 'xDai',
+    icon: (
+      <img
+        src="/assets/xDaiIcon.svg"
+        alt="Safe Icon"
+      />
+    ),
   },
   wxhopr: {
     name: 'wxHOPR',
     value: 'wxhopr',
     smartContract: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+    icon: (
+      <img
+        src="/assets/wxHoprIcon.svg"
+        alt="wxHOPR Icon"
+      />
+    ),
   },
   xhopr: {
     name: 'xHOPR',
     value: 'xhopr',
     smartContract: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+    icon: (
+      <img
+        src="/assets/xHoprIcon.svg"
+        alt="xHOPR Icon"
+      />
+    ),
   },
   // nft: {
   //   name: 'NFT',
@@ -458,6 +476,7 @@ function SafeWithdraw() {
                     name: t.name,
                     value: t.value,
                     disabled: !getTokenAvailable(t.value),
+                    icon: t.icon,
                   }))}
                   value={token}
                   onChange={handleChangeToken}
