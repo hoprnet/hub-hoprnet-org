@@ -9,7 +9,7 @@ import CodeIcon from '@mui/icons-material/Code';
 // HOPR Components
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
 import Button from '../../../future-hopr-lib-components/Button';
-import { Button as MuiButton } from '@mui/material';
+import { Button as MuiButton, Radio } from '@mui/material';
 import { CodeContainer } from '../../../pages/staking-hub/onboarding/step3/1setupYourNode';
 
 type DockerRunCommandModalProps = {
@@ -103,10 +103,31 @@ export const DockerRunCommandModal = (props: DockerRunCommandModalProps) => {
         {
           nodeType === 'dappnode' && <DAppNode />
         }
+        {
+          !!nodeType &&
+          <span
+            style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}
+          >
+            <Button
+              onClick={() => set_nodeType(null)}
+            >
+              Back
+            </Button>
+          </span>
+        }
       </SDialog>
     </>
   );
 };
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 16px;
+`
 
 const NodeTypesContainer = styled.div`
   display: flex;
@@ -117,29 +138,42 @@ const NodeTypesContainer = styled.div`
 `
 
 function SelectNodeType(props: { set_nodeType: (type: NodeType) => void }) {
+  const [selectedType, set_selectedType] = useState<NodeType>(null);
   return (
-    <NodeTypesContainer>
-      <NodeType
-        onClick={() => props.set_nodeType('dockerRun')}
-        title="Docker Run"
-        image="/assets/NodeTypeIconDockerRun.svg"
-      />
-      <NodeType
-        onClick={() => props.set_nodeType('dockerCompose')}
-        title="Docker Compose"
-        image="/assets/NodeTypeIconDockerCompose.svg"
-      />
-      <NodeType
-        onClick={() => props.set_nodeType('binary')}
-        title="Binary"
-        image="/assets/NodeTypeIconBinary.svg"
-      />
-      <NodeType
-        onClick={() => props.set_nodeType('dappnode')}
-        title="DAppNode"
-        image="/assets/NodeTypeIconDAppNode.svg"
-      />
-    </NodeTypesContainer>
+    <Container>
+      <NodeTypesContainer>
+        <NodeType
+          onClick={() => set_selectedType('dockerRun')}
+          title="Docker Run"
+          image="/assets/NodeTypeIconDockerRun.svg"
+          selected={selectedType === 'dockerRun'}
+        />
+        <NodeType
+          onClick={() => set_selectedType('dockerCompose')}
+          title="Docker Compose"
+          image="/assets/NodeTypeIconDockerCompose.svg"
+          selected={selectedType === 'dockerCompose'}
+        />
+        <NodeType
+          onClick={() => set_selectedType('binary')}
+          title="Binary"
+          image="/assets/NodeTypeIconBinary.svg"
+          selected={selectedType === 'binary'}
+        />
+        <NodeType
+          onClick={() => set_selectedType('dappnode')}
+          title="DAppNode"
+          image="/assets/NodeTypeIconDAppNode.svg"
+          selected={selectedType === 'dappnode'}
+        />
+      </NodeTypesContainer>
+      <Button
+        onClick={() => props.set_nodeType(selectedType)}
+        disabled={!selectedType}
+      >
+        Show install instructions
+      </Button>
+    </Container>
   )
 }
 
@@ -149,20 +183,24 @@ const StyledButton = styled(MuiButton)`
   background-color: #EDF2F7;
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
 `
 
 function NodeType(props: {
   image?: string;
   title: string;
+  selected?: boolean;
   onClick: () => void;
 }){
   return (
     <StyledButton
       onClick={props.onClick}
+      className={props.selected ? 'selected' : ''}
     >
       {props.image && <img src={props.image} alt={props.title} />}
       {props.title}
+      <Radio
+        checked={props.selected}
+      />
     </StyledButton>
   )
 }
