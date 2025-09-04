@@ -603,6 +603,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         state.onboarding.notStarted = false;
       } else if (state.onboarding.step === 16) {
         state.onboarding.notFinished = false;
+        state.onboarding.notStarted = false;
       }
     }
   });
