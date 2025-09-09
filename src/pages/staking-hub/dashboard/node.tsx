@@ -457,8 +457,8 @@ const NodeAdded = () => {
         /> */}
         <GrayCard
           id="docker-command"
-          title="Docker run command"
-          subtitle="The command needed to start a Node on your machine of choice such as PC or VPS"
+          title="Select your Setup"
+          subtitle="We currently support Docker Run, Docker Compose, Binary and Dappnode."
         >
           <DockerRunCommandModal normalButton />
         </GrayCard>

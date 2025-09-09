@@ -479,7 +479,7 @@ const StakingLandingPage = () => {
             </Brand>
           </BrandsSection>
           <br />
-          <Title>Run a Node, earn hopr</Title>
+          <Title>Run a Node, earn HOPR</Title>
           <br />
           <SideToSideContainer>
             <div className="ImageSide">

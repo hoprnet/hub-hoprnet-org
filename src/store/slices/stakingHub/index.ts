@@ -110,6 +110,9 @@ const stakingHubSlice = createSlice({
     updateThreshold: (state, action) => {
       state.safeInfo.data.threshold = `${action.payload}`;
     },
+    updateAllowance: (state, action) => {
+      state.safeInfo.data.allowance.wxHoprAllowance = action.payload;
+    }
   },
   extraReducers: (builder) => {
     createAsyncReducer(builder);

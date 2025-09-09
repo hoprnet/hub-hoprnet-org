@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import WalletButton from '../../future-hopr-lib-components/Button/wallet-button';
 import Modal from '../../future-hopr-lib-components/Modal';
 import { Button, Menu, MenuItem, Tooltip } from '@mui/material';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -261,7 +262,12 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
           className={`web3-connect-btn`}
         >
           <div className="image-container">
-            <img src={walletIcon} />
+            {
+              !isConnected ?
+                <AccountBalanceWalletIcon style={{ width: '100%', height: '100%' }} />
+                :
+                <img src={walletIcon} />
+            }
           </div>
           {!isConnected ? (
             <Web3Button>Connect Wallet</Web3Button>

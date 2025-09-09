@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-//import { useRouter } from 'next/router';
+import { Link } from 'react-router-dom';
 import styled from '@emotion/styled';
 
 //import Sections from '../Sections';
@@ -72,19 +72,19 @@ const Logo = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  /* a {
-    width: 100%;
-    height: 100%;
+  a {
     display: flex;
+    /* width: 100%;
+    height: 100%;
     justify-content: center;
     align-items: center;
     overflow: hidden; */
-  img {
-    height: 50px;
-    width: auto;
-    margin-left: 10px;
-  }
-  //  }
+    img {
+      height: 50px;
+      width: auto;
+      margin-left: 10px;
+    }
+ }
 `;
 
 const NavBar: React.FC<{
@@ -134,13 +134,13 @@ const NavBar: React.FC<{
               <MenuIcon />
             </IconButton>
             <Logo className="logo-hopr">
-              {/* <a href="/"> */}
-              <img
-                className="logo-hopr-navbar"
-                alt={props.mainLogoAlt}
-                src={props.mainLogo}
-              />
-              {/* </a> */}
+              <Link to="/">
+                <img
+                  className="logo-hopr-navbar"
+                  alt={props.mainLogoAlt}
+                  src={props.mainLogo}
+                />
+              </Link>
             </Logo>
           </FlexBox>
           <div
