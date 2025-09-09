@@ -183,6 +183,18 @@ const StyledButton = styled(MuiButton)`
   background-color: #EDF2F7;
   display: flex;
   flex-direction: column;
+  border-radius: 30px;
+  color: #414141;
+  font-size: 18px;
+  &.selected {
+    border: 2px solid #000050;
+  }
+  img {
+    margin-bottom: 8px;
+  }
+  .MuiRadio-root {
+    color: #000050;
+  }
 `
 
 function NodeType(props: {
