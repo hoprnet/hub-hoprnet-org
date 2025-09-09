@@ -21,6 +21,7 @@ import { useState } from 'react';
 import SafeTransactionButton from '../../components/SafeTransactionButton';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { safeActionsAsync } from '../../store/slices/safe';
+import { stakingHubActions } from '../../store/slices/stakingHub';
 
 const StyledText = styled.h3`
   color: var(--414141, #414141);
@@ -59,6 +60,9 @@ export default function SetAllowance() {
         })
       )
         .unwrap()
+        .then(() => {
+          dispatch(stakingHubActions.updateAllowance(wxHoprValue));
+        })
         .finally(() => {
           set_loading(false);
         });

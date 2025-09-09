@@ -294,7 +294,7 @@ function Binary() {
   return (
     <SDialogContent>
       <div style={{ fontSize: '15px' }}>
-        Running HOPRd using a binary file::
+        Running HOPRd using a binary file:
         <ol>
           <li>Download binary file based on the arch and OS.</li>
           <li>Download & Edit config file</li>
