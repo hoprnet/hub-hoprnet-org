@@ -88,7 +88,7 @@ export const applicationMapStakingHub: ApplicationMapType = [
     icon: <DevelopIcon />,
     items: [
       {
-        name: 'Staking Hub',
+        name: 'Home',
         path: 'staking-hub-landing',
         overwritePath: '/',
         icon: <SavingsIcon />,

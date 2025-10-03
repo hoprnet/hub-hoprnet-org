@@ -1347,7 +1347,12 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         results: action.payload.results.map((result) => ({
           ...result,
           source: getSourceOfPendingTransaction(result) ?? '',
-          request: getRequestOfPendingTransaction(result) ?? '',
+          request: getRequestOfPendingTransaction(
+            result,
+            state.selectedSafe.data,
+            state.delegates.data,
+          )
+          ?? '',
         })),
       };
     }

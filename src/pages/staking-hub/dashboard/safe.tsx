@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { useEthersSigner } from '../../../hooks';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { safeActionsAsync } from '../../../store/slices/safe';
-import { encodeFunctionData } from 'viem';
+import { encodeFunctionData, getAddress } from 'viem';
 import { OperationType } from '@safe-global/safe-core-sdk-types';
 import { MULTISEND_CONTRACT_GNOSIS } from '../../../../config';
 import { web3 } from '@hoprnet/hopr-sdk';
@@ -290,7 +290,7 @@ function SafeDashboard() {
       >
         <ul>
           {safeOwners?.map((owner) => (
-            <li key={`safe_owner_${owner}`}>{owner}</li>
+            <li key={`safe_owner_${owner}`}>{getAddress(owner as `0x${string}`)}</li>
           ))}
         </ul>
         <div className="inline">

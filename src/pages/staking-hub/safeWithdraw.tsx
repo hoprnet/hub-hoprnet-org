@@ -18,10 +18,14 @@ import Card from '../../components/Card';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import Section from '../../future-hopr-lib-components/Section';
 import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
+import { MaxButton } from './wrapper';
 
 // Mui
 import { SelectChangeEvent } from '@mui/material/Select';
-import TextField from '@mui/material/TextField';
+import {
+  TextField,
+  InputAdornment
+ } from '@mui/material';
 import { FeedbackTransaction } from '../../components/FeedbackTransaction';
 import SafeTransactionButton from '../../components/SafeTransactionButton';
 import Select from '../../future-hopr-lib-components/Select';
@@ -38,20 +42,6 @@ const StyledForm = styled.div`
   padding-bottom: 16px;
 `;
 
-const StyledInstructions = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const StyledText = styled.h3`
-  color: var(--414141, #414141);
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 500;
-  letter-spacing: 0.35px;
-  text-align: end;
-`;
-
 const StyledDescription = styled.p`
   color: #414141;
   font-size: 12px;
@@ -66,6 +56,8 @@ const StyledInputGroup = styled.div`
   flex-direction: column;
   align-items: baseline;
   gap: 10px;
+  width: 100%;
+  max-width: 450px;
 `;
 
 const StyledCoinLabel = styled.p`
@@ -100,16 +92,34 @@ const SUPPORTED_TOKENS = {
   xdai: {
     value: 'xdai',
     name: 'xDai',
+    icon: (
+      <img
+        src="/assets/xDaiIcon.svg"
+        alt="Safe Icon"
+      />
+    ),
   },
   wxhopr: {
     name: 'wxHOPR',
     value: 'wxhopr',
     smartContract: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+    icon: (
+      <img
+        src="/assets/wxHoprIcon.svg"
+        alt="wxHOPR Icon"
+      />
+    ),
   },
   xhopr: {
     name: 'xHOPR',
     value: 'xhopr',
     smartContract: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+    icon: (
+      <img
+        src="/assets/xHoprIcon.svg"
+        alt="xHOPR Icon"
+      />
+    ),
   },
   // nft: {
   //   name: 'NFT',
@@ -271,7 +281,8 @@ function SafeWithdraw() {
 
   const createAndExecuteTx = async () => {
     set_error(null);
-    if (signer && selectedSafeAddress) {
+    if (!signer || !selectedSafeAddress) return;
+    try {
       set_isWalletLoading(true);
       if (token === 'xdai') {
         const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : 0;
@@ -325,8 +336,7 @@ function SafeWithdraw() {
           signer,
           safeAddress: getAddress(selectedSafeAddress),
           smartContractAddress,
-        })
-      )
+        }))
         .unwrap()
         .then((transactionResponse) => {
           set_transactionHash(transactionResponse as Address);
@@ -335,6 +345,12 @@ function SafeWithdraw() {
           set_isWalletLoading(false);
         });
       // }
+    } catch(e) {
+      console.log('Error occurred while creating and executing transaction:', e);
+      set_isWalletLoading(false);
+      if (typeof e === 'object' && e !== null && 'shortMessage' in e && typeof e.shortMessage === 'string') {
+        set_error((e as { shortMessage: string }).shortMessage);
+      }
     }
   };
 
@@ -421,6 +437,16 @@ function SafeWithdraw() {
     return false;
   };
 
+  const setMaxAmount = () => {
+    if (token === 'xdai' && safeBalances.xDai.formatted) {
+      set_ethValue(safeBalances.xDai.formatted);
+    } else if (token === 'wxhopr' && safeBalances.wxHopr.formatted) {
+      set_ethValue(safeBalances.wxHopr.formatted);
+    } else if (token === 'xhopr' && safeBalances.xHopr.formatted) {
+      set_ethValue(safeBalances.xHopr.formatted);
+    }
+  }
+
   return (
     <Section
       lightBlue
@@ -438,29 +464,34 @@ function SafeWithdraw() {
       >
         <div>
           <StyledForm>
-            <StyledInstructions>
-              <StyledText>WITHDRAW</StyledText>
-            </StyledInstructions>
             <StyledInputGroup>
-              <InputWithLabel>
+              <InputWithLabel
+                style={{
+                  width: '100%',
+                }}
+              >
                 <Select
                   size="small"
                   values={Object.values(SUPPORTED_TOKENS).map((t) => ({
                     name: t.name,
                     value: t.value,
                     disabled: !getTokenAvailable(t.value),
+                    icon: t.icon,
                   }))}
                   value={token}
                   onChange={handleChangeToken}
                   style={{
-                    width: '230px',
+                    width: '100%',
                     margin: 0,
                   }}
                   label="Token"
                 />
-                <StyledCoinLabel>Token</StyledCoinLabel>
               </InputWithLabel>
-              <InputWithLabel>
+              <InputWithLabel
+                style={{
+                  width: '100%',
+                }}
+              >
                 <TextField
                   variant="outlined"
                   placeholder="-"
@@ -470,9 +501,11 @@ function SafeWithdraw() {
                     if (error) set_error(null);
                     set_receiver(e.target.value);
                   }}
-                  InputProps={{ inputProps: { style: { textAlign: 'right' } } }}
+                  label="Receiver"
+                  fullWidth
+                  autoComplete="off"
+                  inputProps={{ autoComplete: 'off' }}
                 />
-                <StyledCoinLabel>Receiver</StyledCoinLabel>
               </InputWithLabel>
               {/* {token === 'nft' ? (
                 <InputWithLabel>
@@ -492,7 +525,11 @@ function SafeWithdraw() {
                   <StyledCoinLabel>NFT ID</StyledCoinLabel>
                 </InputWithLabel>
               ) : ( */}
-              <InputWithLabel>
+              <InputWithLabel
+                style={{
+                  width: '100%',
+                }}
+              >
                 <TextField
                   variant="outlined"
                   placeholder="-"
@@ -506,9 +543,19 @@ function SafeWithdraw() {
                     inputMode: 'numeric',
                     pattern: '[0-9]*',
                   }}
-                  InputProps={{ inputProps: { style: { textAlign: 'right' } } }}
+                  label={"Amount"}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {SUPPORTED_TOKENS[token].name}
+                        <span style={{ marginLeft: '16px' }}/>
+                        <MaxButton onClick={setMaxAmount}>Max</MaxButton>
+                      </InputAdornment>
+                    ),
+                    inputProps: { min: 0 },
+                  }}
+                  fullWidth
                 />
-                <StyledCoinLabel>{SUPPORTED_TOKENS[token].name}</StyledCoinLabel>
               </InputWithLabel>
               {/* )} */}
             </StyledInputGroup>
