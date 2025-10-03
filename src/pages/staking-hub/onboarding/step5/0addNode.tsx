@@ -31,9 +31,12 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
   const HOPRdNodeAddressForOnboarding = useAppSelector(
     (store) => store.stakingHub.onboarding.nodeAddressProvidedByMagicLink
   );
+  const delegates = useAppSelector((store) => store.safe.delegates.data);
+  const delegatesArray = delegates?.results.map((entry) => entry.delegate) || [];
   const nodesAddedToSafe =
     useAppSelector((store) => store.stakingHub.safeInfo.data.registeredNodesInNetworkRegistryParsed) || [];
-  const selectValues = nodesAddedToSafe.map((node) => ({
+  const nodesAddedToSafeThatAreNotDelegates = nodesAddedToSafe.filter((node) => !delegatesArray.includes(node));
+  const selectValues = nodesAddedToSafeThatAreNotDelegates.map((node) => ({
     name: node,
     value: node,
     icon: (
