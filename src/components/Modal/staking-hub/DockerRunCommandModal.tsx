@@ -271,19 +271,16 @@ function DockerCompose() {
   return (
     <SDialogContent>
       <div style={{ fontSize: '15px' }}>
-        Running HOPRd using Docker compose:
-        <ol>
-          <li>Download compose folder</li>
-          <li>Edit hoprd.cfg.yaml</li>
-          <li>Edit .env file</li>
-        </ol>
+        Best for advanced users, this setup uses Docker Compose for a customizable HOPR node. Includes configuration files and monitoring tools for enhanced node management.
+        <br /><br />
+        Install HOPR using Docker Compose: {' '}
         <a
-          href="https://docs-hoprnet-org-git-experiment-ui-tweak-300-hoprnet.vercel.app/node/node-docker-compose"
+          href="https://docs.hoprnet.org/node/node-docker-compose"
           target="_blank"
           rel="noreferrer"
           style={{ color: '#007bff', textDecoration: 'underline' }}
         >
-          Checkout the instructions in our docs
+          Follow our docs
         </a>
       </div>
     </SDialogContent>
@@ -294,18 +291,16 @@ function Binary() {
   return (
     <SDialogContent>
       <div style={{ fontSize: '15px' }}>
-        Running HOPRd using a binary file:
-        <ol>
-          <li>Download binary file based on the arch and OS.</li>
-          <li>Download & Edit config file</li>
-        </ol>
+        Run a HOPR node manually without containers. Ideal for minimal, hands-on setups on any compatible system, no extra tools required.
+        <br /><br />
+        Install HOPR using Binary: {' '}
         <a
-          href="https://docs-hoprnet-org-git-experiment-ui-tweak-300-hoprnet.vercel.app/node/node-binary"
+          href="https://docs.hoprnet.org/node/node-binary"
           target="_blank"
           rel="noreferrer"
           style={{ color: '#007bff', textDecoration: 'underline' }}
         >
-          Checkout the full instructions in our docs
+          Follow our docs
         </a>
       </div>
     </SDialogContent>
@@ -316,18 +311,16 @@ function DAppNode() {
   return (
     <SDialogContent>
       <div style={{ fontSize: '15px' }}>
-        Running HOPRd using a DAppNode:
-        <ol>
-          <li>Connect to your DAppNode</li>
-          <li>Install HOPR package using the DAppStore setup wizard on your DAppNode</li>
-        </ol>
+        Easily run a HOPR node using Dappnode, an open-source platform. No advanced skills needed — just install the HOPRd package on your hardware to manage blockchain nodes and dApps.
+        <br /><br />
+        Install HOPR using DappNode:  {' '}
         <a
-          href="https://docs-hoprnet-org-git-experiment-ui-tweak-300-hoprnet.vercel.app/node/node-dappnode"
+          href="https://docs.hoprnet.org/node/node-dappnode"
           target="_blank"
           rel="noreferrer"
           style={{ color: '#007bff', textDecoration: 'underline' }}
         >
-          Checkout the full instructions in our docs
+          Follow our docs
         </a>
       </div>
     </SDialogContent>
