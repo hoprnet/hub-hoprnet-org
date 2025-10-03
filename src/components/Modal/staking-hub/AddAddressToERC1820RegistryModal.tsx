@@ -77,7 +77,7 @@ const AddAddressToERC1820RegistryModal = ({
   const [error, set_error] = useState<string | null>(null);
   const signer = useEthersSigner();
   const walletAddress = useAppSelector((store) => store.web3.account);
-  const safeAddress = useAppSelector((state) => state.safe.selectedSafe.data.safeAddress);
+  const safeAddress = useAppSelector((state) => state.safe.selectedSafe.data.safeAddress || '0x0000000000000000000000000000000000000000');
 
   useEffect(() => {
     if (!walletAddress) return;
