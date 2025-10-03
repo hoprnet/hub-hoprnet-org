@@ -4,6 +4,7 @@ import {
   SafeInfoResponse,
   SafeModuleTransactionWithTransfersResponse,
   SafeMultisigTransactionWithTransfersResponse,
+  SafeDelegateListResponse,
 } from '@safe-global/api-kit';
 import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
 import { Address, decodeFunctionData, formatEther, formatUnits } from 'viem';
@@ -11,13 +12,25 @@ import { erc20Abi, erc4626Abi, erc721Abi } from 'viem';
 import { truncateEthereumAddress } from './blockchain';
 import { web3 } from '@hoprnet/hopr-sdk';
 import { wxHOPR_WRAPPER_SMART_CONTRACT_ADDRESS } from '../../config';
+import { createNewConfigTx } from '../pages/staking-hub/onboarding/step6/0configureModule';
+import { safe } from 'wagmi/connectors';
+import {
+  HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS,
+} from '../../config';
 
 /**
  * Pending transactions
  */
 
 /** Human readable explanation of what the transaction is going to do */
-export const getRequestOfPendingTransaction = (transaction: SafeMultisigTransactionResponse) => {
+export const getRequestOfPendingTransaction = (
+  transaction: SafeMultisigTransactionResponse,
+  safeInfo?: {
+    safeAddress: string | null;
+    moduleAddress: string | null;
+  } | null,
+  delegates?: SafeDelegateListResponse | null
+) => {
   if (transaction.data) {
     const safeAddress = transaction.safe;
     const dataDecoded = transaction?.dataDecoded as any;
@@ -52,6 +65,31 @@ export const getRequestOfPendingTransaction = (transaction: SafeMultisigTransact
     ) {
       // this is a wrapper transaction
       return 'Add Safe to ERC1820 Registry';
+    }
+
+    try {
+      if(!safeInfo?.moduleAddress) throw new Error("No module address");
+
+      const delegateAddreses = delegates?.results.map((delegate) => delegate.delegate);
+
+      for (const delegateAddress of delegateAddreses || []) {
+        if(!delegateAddress) continue;
+
+        const newConfigTx = createNewConfigTx(
+          safeInfo?.moduleAddress?.slice(2).toLowerCase(),
+          delegateAddress.slice(2).toLowerCase(),
+          HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS.slice(2).toLowerCase()
+        );
+
+        if (
+          transaction &&
+          transaction.data === newConfigTx
+        ) {
+          return `Node onboarding: Configure module for the ${delegateAddress} node `;
+        }
+      }
+    } catch (e) {
+      console.log('To a config tx', e);
     }
 
     try {
@@ -206,7 +244,7 @@ const getRequestFromHistoryMultisigTransaction = (transaction: SafeMultisigTrans
       const decodedData = decodeFunctionData({
         data: transaction.data as Address,
         // could be any sc so not sure on the abi
-        abi: [...erc20Abi, ...erc4626Abi, ...erc721Abi, ...web3.hoprSafeABI],
+        abi: [...erc20Abi, ...erc4626Abi, ...erc721Abi, ...web3.hoprSafeABI, ...web3.wrapperABI],
       });
       return decodedData.functionName;
     } catch (e) {

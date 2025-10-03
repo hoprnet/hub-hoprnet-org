@@ -25,6 +25,15 @@ export const SSafeTransactionButton = styled(SafeTransactionButton)`
   align-self: center;
 `;
 
+export const createNewConfigTx = (
+  moduleAddressWithout0x: string,
+  nodeAddressWithout0x: string,
+  HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS_Without0x: string
+) => {
+  const newConfig = `0x8d80ff0a000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000f200${moduleAddressWithout0x}00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000024b5736962${nodeAddressWithout0x}01020100000000000000000000${moduleAddressWithout0x}00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000024a76c9a2f${HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS_Without0x}0100030000000000000000000000000000000000000000000000`;
+  return newConfig;
+}
+
 export default function ConfigureModule(props?: {
   onDone?: Function;
   nodeAddress?: string | null;
@@ -133,6 +142,8 @@ export default function ConfigureModule(props?: {
     }
   }, [threshold, pendingTransations, moduleAddress, walletAddress, nodeAddress]);
 
+
+
   const createDataToIncludeNodeAndSetAnnoucmentContractAsTarget = () => {
     const moduleAddressWithout0x = moduleAddress.slice(2).toLocaleLowerCase();
     const nodeAddressWithout0x = nodeAddress.slice(2).toLocaleLowerCase();
@@ -140,7 +151,11 @@ export default function ConfigureModule(props?: {
       HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS.slice(2).toLocaleLowerCase();
     // so that node can announce itself thotugh the node managment module,
     // You need to sign a transaction to configure the announcement smart contract of the network as a target in your safe module.
-    const newConfig = `0x8d80ff0a000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000f200${moduleAddressWithout0x}00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000024b5736962${nodeAddressWithout0x}01020100000000000000000000${moduleAddressWithout0x}00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000024a76c9a2f${HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS_Without0x}0100030000000000000000000000000000000000000000000000`;
+    const newConfig = createNewConfigTx (
+      moduleAddressWithout0x,
+      nodeAddressWithout0x,
+      HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS_Without0x
+    );
     return newConfig;
 
     // To remove after it's te

@@ -153,6 +153,15 @@ const StyledHistoryTableRow = styled(TableRow)`
   }
 `;
 
+const RawTX = styled.div`
+  background-color: #f5f5f5;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 12px;
+  white-space: pre-wrap;
+  max-width: 500px;
+`;
+
 const GNOSIS_BASE_URL = 'https://gnosisscan.io';
 
 const TruncatedEthereumAddressWithTooltip = ({ address }: { address: string }) => {
@@ -587,6 +596,21 @@ const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisi
                   {!!transaction.dataDecoded && <p>data: {JSON.stringify(transaction.dataDecoded, null, 8)}</p>}
                 </StyledJSON>
               </List>
+              <Divider
+                orientation="vertical"
+                variant="middle"
+                flexItem
+              />
+              <RawTX>
+                <p>Raw transaction:</p>
+                <code style={{
+                  fontSize: '0.7rem',
+                  wordBreak: 'break-all',
+                  maxWidth: '300px',
+                }}>
+                  {transaction.data}
+                </code>
+              </RawTX>
               <Divider
                 orientation="vertical"
                 variant="middle"
