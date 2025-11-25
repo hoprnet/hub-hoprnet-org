@@ -27,7 +27,10 @@ const walletIsInBrowser =
 export const browserClient = walletIsInBrowser
   ? createWalletClient({
       chain: gnosis,
-      transport: custom((window as unknown as WindowWithEthereum).ethereum),
+      transport: fallback([unstable_connector(injected), http('https://rpc.gnosischain.com/')], {
+        rank: false,
+        retryCount: 3,
+      }),
     }).extend(publicActions)
   : null;
 
@@ -42,7 +45,7 @@ const config = createConfig({
   ],
   transports: {
     [gnosis.id]: fallback([unstable_connector(injected), http('https://rpc.gnosischain.com/')], {
-      rank: false,
+      rank: true,
       retryCount: 3,
     }),
   },
