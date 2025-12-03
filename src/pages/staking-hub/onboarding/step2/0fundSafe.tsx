@@ -7,6 +7,7 @@ import {
   useBlockNumber,
   useEstimateGas,
   useSimulateContract,
+  useReadContracts,
 } from 'wagmi';
 import { erc20Abi } from 'viem';
 import {
@@ -73,7 +74,7 @@ const BlueTooltip = styled(({ className, ...props }: TooltipProps) => (
 
 const FundsToSafe = () => {
   const dispatch = useAppDispatch();
-  const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
+  const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as `0x${string}`;
   const communityNftIdInSafe = useAppSelector((store) => !!store.safe.communityNftIds.data.length);
   const walletBalance = useAppSelector((store) => store.web3.balance);
   const walletwxHoprBalance = walletBalance.wxHopr.value;
@@ -93,13 +94,21 @@ const FundsToSafe = () => {
     },
   });
 
-  const { refetch: refetchWXHoprSafeBalance, data: wxHoprSafeBalance } = useBalance({
-    address: selectedSafeAddress as `0x${string}`,
-    token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    query: {
-      enabled: !!selectedSafeAddress,
-    },
+  const { data: tokenBalances, refetch: refetchWXHoprSafeBalance } = useReadContracts({
+    contracts: [
+      {
+        address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [selectedSafeAddress],
+      },
+    ],
   });
+  const wxHoprSafeBalance : bigint | null =
+    tokenBalances && tokenBalances[0] && tokenBalances[0]?.result
+      ? (tokenBalances[0]?.result)
+      : null;
+
   useEffect(() => {
     refetchXDaiSafeBalance();
   }, []);
@@ -201,7 +210,7 @@ const FundsToSafe = () => {
   };
 
   const wxhoprEnoughBalance = (): boolean => {
-    if (wxHoprSafeBalance?.value && BigInt(wxHoprSafeBalance.value) >= BigInt(wxhoprValueMin * 1e18)) {
+    if (wxHoprSafeBalance && wxHoprSafeBalance >= BigInt(wxhoprValueMin * 1e18)) {
       return true;
     }
     return false;

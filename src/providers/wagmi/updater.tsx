@@ -4,7 +4,7 @@ import { getChainName } from '../../utils/getChainName';
 import { erc721Abi } from 'viem';
 
 // wagmi
-import { useBalance, useAccount, useBlockNumber, useReadContracts } from 'wagmi';
+import { useBalance, useConnection, useBlockNumber, useReadContracts } from 'wagmi';
 import { useEthersSigner } from '../../hooks';
 
 // Redux
@@ -23,9 +23,7 @@ export default function WagmiUpdater() {
   const web3Disconnecting = useAppSelector((store) => store.web3.status.disconnecting);
 
   // Wallet Account
-  const { address, isConnected, connector } = useAccount();
-
-  const { chainId } = useAccount();
+  const { address, chainId, isConnected, connector } = useConnection();
 
   // **********************
   // Leaving for on-going testing of wagmi losing connection with wallet
@@ -74,8 +72,6 @@ export default function WagmiUpdater() {
     if (web3Disconnecting) return;
 
     if (isConnected && address) {
-      console.log('isConnected', isConnected);
-      console.log('address', address);
       //reset whole app
       dispatch(appActions.resetState());
       dispatch(web3Actions.resetState());

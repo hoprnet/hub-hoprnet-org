@@ -5,7 +5,7 @@ import {
   useWriteContract,
   useSimulateContract,
   useWaitForTransactionReceipt,
-  useAccount,
+  useConnection,
 } from 'wagmi';
 import { parseUnits, parseEther, toHex, parseTransaction, encodeFunctionData } from 'viem';
 import {
@@ -362,7 +362,7 @@ function WrapperPage() {
   const { data, isError, isLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
 
   // In case Safe free TX is used and we never get a TX under the received hash
-  const { connector } = useAccount();
+  const { connector } = useConnection();
   useEffect(() => {
     if (
       connector?.id === 'walletConnect' &&
