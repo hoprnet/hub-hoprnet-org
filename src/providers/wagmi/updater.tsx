@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, xHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
 import { getChainName } from '../../utils/getChainName';
+import { erc721Abi } from 'viem';
 
 // wagmi
-import { useBalance, useAccount, useBlockNumber } from 'wagmi';
-import { watchAccount } from '@wagmi/core';
+import { useBalance, useAccount, useBlockNumber, useReadContracts } from 'wagmi';
 import { useEthersSigner } from '../../hooks';
 
 // Redux
@@ -19,7 +18,7 @@ export default function WagmiUpdater() {
   // const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const signer = useEthersSigner();
-  const nodeHoprAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress); // Staking Hub
+  const nodeHoprAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress) as `0x${string}`; // Staking Hub
   const addressInStore = useAppSelector((store) => store.web3.account);
   const web3Disconnecting = useAppSelector((store) => store.web3.status.disconnecting);
 
@@ -103,46 +102,61 @@ export default function WagmiUpdater() {
   }, [isConnected, address, chainId]);
 
   // Balances
-  const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
+  const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as `0x${string}` ;
   const account = useAppSelector((store) => store.web3.account) as `0x${string}`;
 
   const { data: xDAI_balance, refetch: refetch_xDAI_balance } = useBalance({
     address: account,
   });
-  const { data: wxHopr_balance, refetch: refetch_wxHopr_balance } = useBalance({
-    address: account,
-    token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-  });
-  const { data: xHopr_balance, refetch: refetch_xHopr_balance } = useBalance({
-    address: account,
-    token: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+
+  const { data: tokenBalances, refetch: refetchERC20 } = useReadContracts({
+    contracts: [
+      {
+        address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc721Abi,
+        functionName: 'balanceOf',
+        args: [account],
+      },
+      {
+        address: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc721Abi,
+        functionName: 'balanceOf',
+        args: [account],
+      },
+      {
+        address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc721Abi,
+        functionName: 'balanceOf',
+        args: [selectedSafeAddress ],
+      },
+      {
+        address: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc721Abi,
+        functionName: 'balanceOf',
+        args: [selectedSafeAddress ],
+      },
+    ],
   });
 
+  const wxHopr_balance = tokenBalances && tokenBalances[0] && (tokenBalances[0]?.result?.toString()) ? (tokenBalances[0]?.result?.toString()) : null;
+  const xHopr_balance = tokenBalances && tokenBalances[1] && (tokenBalances[1]?.result?.toString()) ? (tokenBalances[1]?.result?.toString()) : null;
+  const safe_wxHopr_balance = tokenBalances && tokenBalances[2] && (tokenBalances[2]?.result?.toString()) ? (tokenBalances[2]?.result?.toString()) : null;
+  const safe_xHopr_balance = tokenBalances && tokenBalances[3] && (tokenBalances[3]?.result?.toString()) ? (tokenBalances[3]?.result?.toString()) : null;
+
   const { data: safe_xDAI_balance, refetch: refetch_safe_xDAI_balance } = useBalance({
-    address: selectedSafeAddress as `0x${string}`,
-  });
-  const { data: safe_wxHopr_balance, refetch: refetch_safe_wxHopr_balance } = useBalance({
-    address: selectedSafeAddress as `0x${string}`,
-    token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-  });
-  const { data: safe_xHopr_balance, refetch: refetch_safe_xHopr_balance } = useBalance({
-    address: selectedSafeAddress as `0x${string}`,
-    token: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+    address: selectedSafeAddress,
   });
 
   const { data: nodeLinkedToSafe_xDai_balance, refetch: refetch_nodeLinkedToSafe_xDai_balance } = useBalance({
-    address: nodeHoprAddress as `0x${string}`,
+    address: nodeHoprAddress,
   });
 
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
   useEffect(() => {
+    refetchERC20();
     refetch_xDAI_balance();
-    refetch_wxHopr_balance();
-    refetch_xHopr_balance();
     refetch_safe_xDAI_balance();
-    refetch_safe_wxHopr_balance();
-    refetch_safe_xHopr_balance();
     refetch_nodeLinkedToSafe_xDai_balance();
   }, [blockNumber]);
 
@@ -159,20 +173,14 @@ export default function WagmiUpdater() {
   useEffect(() => {
     if (wxHopr_balance)
       dispatch(
-        web3Actions.setWalletBalance_wxHopr({
-          ...wxHopr_balance,
-          value: wxHopr_balance.value.toString(),
-        })
+        web3Actions.setWalletBalance_wxHopr(wxHopr_balance)
       );
   }, [wxHopr_balance]);
 
   useEffect(() => {
     if (xHopr_balance)
       dispatch(
-        web3Actions.setWalletBalance_xHopr({
-          ...xHopr_balance,
-          value: xHopr_balance.value.toString(),
-        })
+        web3Actions.setWalletBalance_xHopr(xHopr_balance)
       );
   }, [xHopr_balance]);
 
@@ -181,7 +189,7 @@ export default function WagmiUpdater() {
       dispatch(
         safeActions.setSafeBalance_xDai({
           ...safe_xDAI_balance,
-          value: safe_xDAI_balance.value.toString(),
+          value: safe_xDAI_balance.toString(),
         })
       );
   }, [safe_xDAI_balance]);
@@ -189,20 +197,14 @@ export default function WagmiUpdater() {
   useEffect(() => {
     if (safe_wxHopr_balance)
       dispatch(
-        safeActions.setSafeBalance_wxHopr({
-          ...safe_wxHopr_balance,
-          value: safe_wxHopr_balance.value.toString(),
-        })
+        safeActions.setSafeBalance_wxHopr(safe_wxHopr_balance)
       );
   }, [safe_wxHopr_balance]);
 
   useEffect(() => {
     if (safe_xHopr_balance)
       dispatch(
-        safeActions.setSafeBalance_xHopr({
-          ...safe_xHopr_balance,
-          value: safe_xHopr_balance.value.toString(),
-        })
+        safeActions.setSafeBalance_xHopr(safe_xHopr_balance)
       );
   }, [safe_xHopr_balance]);
 

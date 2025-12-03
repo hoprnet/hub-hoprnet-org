@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { getAddress } from 'viem';
+import { getAddress, formatEther } from 'viem';
 import { actionsAsync, createAsyncReducer } from './actionsAsync';
 import { createFetchingReducer } from './actionsFetching';
 import { initialState } from './initialState';
@@ -27,15 +27,15 @@ const safeSlice = createSlice({
     },
     setSafeBalance_xDai(state, action) {
       state.balance.data.xDai.value = action.payload ? action.payload.value : null;
-      state.balance.data.xDai.formatted = action.payload ? action.payload.formatted : null;
+      state.balance.data.xDai.formatted = action.payload ? formatEther(action.payload.value) : null;
     },
     setSafeBalance_xHopr(state, action) {
-      state.balance.data.xHopr.value = action.payload ? action.payload.value : null;
-      state.balance.data.xHopr.formatted = action.payload ? action.payload.formatted : null;
+      state.balance.data.xHopr.value = action.payload ? action.payload : null;
+      state.balance.data.xHopr.formatted = action.payload ? formatEther(action.payload) : null;
     },
     setSafeBalance_wxHopr(state, action) {
-      state.balance.data.wxHopr.value = action.payload ? action.payload.value : null;
-      state.balance.data.wxHopr.formatted = action.payload ? action.payload.formatted : null;
+      state.balance.data.wxHopr.value = action.payload ? action.payload : null;
+      state.balance.data.wxHopr.formatted = action.payload ? formatEther(action.payload) : null;
     },
     setCommunityNftId(state, action: PayloadAction<number>) {
       state.communityNftIds.data = [{ id: String(action.payload) }];

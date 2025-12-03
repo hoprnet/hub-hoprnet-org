@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { useAccount, useSwitchChain } from 'wagmi';
+import { useSwitchChain } from 'wagmi';
 import { getChainName } from '../../utils/getChainName';
+
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -67,43 +73,17 @@ const css = `
 
 export default function NetworkOverlay() {
   const dispatch = useAppDispatch();
+  const { switchChain } = useSwitchChain();
   const chainId = useAppSelector((store) => store.web3.chainId);
   const chainName = useAppSelector((store) => store.web3.chain);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
   const loading = useAppSelector((store) => store.web3.status.loading);
 
-  const switchChain = async () => {
-    if (!window.ethereum) return;
-    const rawEthereumProvider = window.ethereum;
+  const handleSwitchChain = async () => {
     try {
-      await rawEthereumProvider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x64' }],
-      });
+      switchChain({ chainId: 100});
     } catch (error: any) {
-      try {
-        if (error.code === 4902) {
-          await rawEthereumProvider.request({
-            method: 'wallet_addEthereumChain',
-            params: [
-              {
-                chainId: '0x64',
-                chainName: 'Gnosis Chain',
-                nativeCurrency: {
-                  symbol: 'xDAI',
-                  name: 'xDAI',
-                  decimals: 18,
-                },
-                rpcUrls: ['https://rpc.gnosischain.com/'],
-              },
-            ],
-          });
-        } else {
-          console.log(error);
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      console.error('Error switching chain:', error);
     }
   };
 
@@ -140,7 +120,7 @@ export default function NetworkOverlay() {
         <div>
           Staking Hub is designed to work on <span className="bold">GNOSIS Chain</span>
         </div>
-        <Button onClick={switchChain}>Switch network to GNOSIS</Button>
+        <Button onClick={handleSwitchChain}>Switch network to GNOSIS</Button>
       </Overlay>
     );
   }
