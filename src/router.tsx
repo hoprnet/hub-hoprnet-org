@@ -254,9 +254,9 @@ const LayoutEnhanced = () => {
   const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
 
   const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
-  const onboardingNotFinished = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
+  const onboardingFinishedRedux = useAppSelector((store) => store.stakingHub.onboarding.finished);
   const onboardingNotStarted = useAppSelector((store) => store.stakingHub.onboarding.notStarted);
-  const onboardingFinished = onboardingIsFetching || onboardingNotStarted ? null : !onboardingNotFinished;
+  const onboardingFinished = onboardingIsFetching || onboardingNotStarted ? null : onboardingFinishedRedux;
 
   const numberForDrawer = {
     numberOfPeers,

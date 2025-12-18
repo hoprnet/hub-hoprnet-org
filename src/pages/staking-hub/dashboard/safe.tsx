@@ -100,12 +100,12 @@ function SafeDashboard() {
   const safeOwnersSubgraph = useAppSelector((store) => store.stakingHub.safeInfo.data.owners); // Subgraph
   const safeOwners = safeOwnersSubgraph.map((elem) => elem.owner.id);
   const safeThreshold = useAppSelector((store) => store.stakingHub.safeInfo.data.threshold);
-  const onboardingIsNotFinished = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
-  const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
+  const onboardingIsFinishedRedux = useAppSelector((store) => store.stakingHub.onboarding.finished);
+  const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
   const creatingNewSafePending = useAppSelector((store) => store.safe.creatingNewSafePending);
   const [updating, set_updating] = useState(false);
 
-  const onboardingIsFinished = !onboardingIsFetching && !onboardingIsNotFinished;
+  const onboardingIsFinished = !onboardingIsFetching && onboardingIsFinishedRedux;
 
   const executeUpdateConfig = async () => {
     if (!signer || !moduleAddress) return;

@@ -32,7 +32,7 @@ const StartOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const notFinished = useAppSelector((state) => state.stakingHub.onboarding.notFinished);
+  const finished = useAppSelector((state) => state.stakingHub.onboarding.finished);
   const notStarted = useAppSelector((state) => state.stakingHub.onboarding.notStarted);
   const modalToSartOnboardingDismissed = useAppSelector(
     (state) => state.stakingHub.onboarding.modalToSartOnboardingDismissed
@@ -51,10 +51,10 @@ const StartOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
       set_openModal(false);
       return;
     }
-    if ((!modalToSartOnboardingDismissed && web3connected && notStarted && !notFinished) || !moduleAddress)
+    if ((!modalToSartOnboardingDismissed && web3connected && notStarted && finished) || !moduleAddress)
       handleOpenModal();
     else set_openModal(false);
-  }, [web3connected, notFinished, notStarted, modalToSartOnboardingDismissed, moduleAddress]);
+  }, [web3connected, finished, notStarted, modalToSartOnboardingDismissed, moduleAddress]);
 
   const handleOpenModal = () => {
     // console.log('handleOpenModal')

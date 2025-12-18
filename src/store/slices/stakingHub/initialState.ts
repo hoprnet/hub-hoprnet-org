@@ -8,7 +8,8 @@ type InitialState = {
   };
   onboarding: {
     step: number;
-    notFinished: boolean;
+    finished: boolean;
+    notStarted: boolean | null;
     nodeAddress: string | null;
     nodeBalance: {
       xDai: {
@@ -17,7 +18,6 @@ type InitialState = {
       };
     };
     safeAddress: string | null;
-    notStarted: boolean | null;
     modalToSartOnboardingDismissed: boolean;
     moduleAddress: string | null;
     userIsInOnboarding: boolean;
@@ -147,7 +147,7 @@ export const initialState: InitialState = {
     nodeAddress: null,
     safeAddress: null,
     moduleAddress: null,
-    notFinished: false,
+    finished: false,
     userIsInOnboarding: false,
     nodeXDaiBalance: null,
     isFetching: true,

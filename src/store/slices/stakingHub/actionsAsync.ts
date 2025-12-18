@@ -599,10 +599,10 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.onboarding.step = action.payload;
       state.onboarding.isFetching = false;
       if (state.onboarding.step !== 0 && state.onboarding.step !== 16) {
-        state.onboarding.notFinished = true;
+        state.onboarding.finished = true;
         state.onboarding.notStarted = false;
       } else if (state.onboarding.step === 16) {
-        state.onboarding.notFinished = false;
+        state.onboarding.finished = false;
         state.onboarding.notStarted = false;
       }
     }

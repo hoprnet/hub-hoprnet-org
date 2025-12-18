@@ -291,7 +291,7 @@ const header = [
 ];
 
 const getOnboardingTooltip = (
-  onboardingNotFinished?: boolean,
+  onboardingIsFinished?: boolean,
   inNetworkRegistry?: boolean,
   isDelegate?: boolean,
   includedInModule?: boolean,
@@ -300,7 +300,7 @@ const getOnboardingTooltip = (
 ) => {
   if (finishMainOnboardingForThisNode) {
     return <span>Finish ONBOARDING for this node first</span>;
-  } else if (onboardingNotFinished) {
+  } else if (!onboardingIsFinished) {
     return (
       <span>
         Please finish the main
@@ -321,7 +321,7 @@ const getOnboardingTooltip = (
 const NodeAdded = () => {
   const navigate = useNavigate();
   const nodeHoprAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress);
-  const onboardingNotFinished = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
+  const onboardingFinished = useAppSelector((store) => store.stakingHub.onboarding.finished);
   const onboardingNodeAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress);
   const nodes = useAppSelector((store) => store.stakingHub.nodes.data);
   const delegates = useAppSelector((store) => store.safe.delegates.data);
@@ -342,7 +342,7 @@ const NodeAdded = () => {
         const availability30d = nodes[node]?.availability30d;
 
         const finishMainOnboardingForThisNode =
-          onboardingNotFinished && onboardingNodeAddress?.toLowerCase() === node?.toLowerCase();
+          !onboardingFinished && onboardingNodeAddress?.toLowerCase() === node?.toLowerCase();
 
         return {
           peerId: (
@@ -413,7 +413,7 @@ const NodeAdded = () => {
               <IconButton
                 iconComponent={<TrainIcon />}
                 tooltipText={getOnboardingTooltip(
-                  onboardingNotFinished,
+                  onboardingFinished,
                   inNetworkRegistry,
                   isDelegate,
                   includedInModule,
@@ -428,7 +428,7 @@ const NodeAdded = () => {
                   }
                 }}
                 disabled={
-                  (onboardingNotFinished ||
+                  (!onboardingFinished ||
                     (includedInModule && isDelegate && nodes[node]?.balanceFormatted !== '0')) &&
                   !finishMainOnboardingForThisNode
                 }
