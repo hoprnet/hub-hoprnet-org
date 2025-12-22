@@ -151,7 +151,12 @@ export default function ConnectSafe() {
 
   // If no selected safeAddress, choose 1st one
   useEffect(() => {
-    console.log({ safeFromUrl, moduleFromUrl });
+    console.log('x3 1. ConnectSafe useEffect checking selected safe', {
+      safes,
+      safeAddress,
+      signer,
+      ownerAddress,
+    });
     if (safeFromUrl && moduleFromUrl && !safeAddress) {
       console.log('useSelectedSafe from url', safeFromUrl, moduleFromUrl);
       useSelectedSafe({
@@ -159,6 +164,7 @@ export default function ConnectSafe() {
         moduleAddress: getAddress(moduleFromUrl),
       });
     } else if (safes.length > 0 && !safeAddress && signer && ownerAddress) {
+      console.log('x3 no safe selected yet, selecting...');
       try {
         //@ts-ignore
         let localStorage: { [key: string]: { safeAddress: string; moduleAddress: string } } =
@@ -181,6 +187,10 @@ export default function ConnectSafe() {
   // If safe got selected, update all and onboarding data
   useEffect(() => {
     if (selectedSafe && browserClient && selectedSafe.safeAddress) {
+      console.log('x3 2. here we start fetching onboarding data for selected safe', {
+        safeAddress,
+        browserClient,
+      });
       dispatch(
         stakingHubActionsAsync.getOnboardingDataThunk({
           browserClient,
@@ -188,7 +198,7 @@ export default function ConnectSafe() {
           moduleAddress: selectedSafe.moduleAddress as string,
         })
       );
-    }
+    } 
   }, [selectedSafe, browserClient]);
 
   const useSelectedSafe = async (safeObject: { safeAddress?: string | null; moduleAddress?: string | null }) => {

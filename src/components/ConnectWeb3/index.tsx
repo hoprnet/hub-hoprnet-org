@@ -143,6 +143,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
 
   useEffect(() => {
     if (isConnected && account && chain) {
+      console.log('x3 4. Account changed - fetching safes for owner:', isConnected, account, chain);
       dispatch(stakingHubActionsAsync.getHubSafesByOwnerThunk(account));
       handleClose();
     }

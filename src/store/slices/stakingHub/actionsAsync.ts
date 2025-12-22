@@ -31,6 +31,7 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
   'stakingHub/getHubSafesByOwner',
   async (payload, { rejectWithValue, dispatch }) => {
     dispatch(setHubSafesByOwnerFetching(true));
+    console.log('getHubSafesByOwnerThunk', payload);
     try {
       const resp = await fetch(`${WEBAPI_URL}/hub/getHubSafesByOwner`, {
         method: 'POST',
@@ -64,6 +65,7 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
   {
     condition: (_payload, { getState }) => {
       const isFetching = getState().stakingHub.safes.isFetching;
+      console.log('getHubSafesByOwnerThunk condition', isFetching);
       if (isFetching) {
         return false;
       }
