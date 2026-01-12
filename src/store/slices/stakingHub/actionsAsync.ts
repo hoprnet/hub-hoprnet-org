@@ -317,6 +317,8 @@ const goToStepWeShouldBeOnThunk = createAsyncThunk<number, undefined, { state: R
         return 11;
       }
 
+      console.log('[Onboarding check] Safe balance (xDai):', state.safe.balance.data.xDai.value);
+      console.log('[Onboarding check] Safe balance (wxHopr):', state.safe.balance.data.wxHopr.value);
       // Part of the onboarding before COMM registers you
       const xDaiInSafeCheck =
         state.safe.balance.data.xDai.value &&

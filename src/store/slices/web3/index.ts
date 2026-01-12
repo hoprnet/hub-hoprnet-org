@@ -41,16 +41,16 @@ const web3Slice = createSlice({
       state.communityNftTransferring = action.payload;
     },
     setWalletBalance_xDai(state, action) {
-      state.balance.xDai.value = action.payload ? action.payload.value : null;
-      state.balance.xDai.formatted = action.payload ? formatEther(action.payload.value) : null;
+      state.balance.xDai.value = action.payload ? action.payload : null;
+      state.balance.xDai.formatted = action.payload ? formatEther(BigInt(action.payload)) : null;
     },
     setWalletBalance_xHopr(state, action) {
-      state.balance.xHopr.value = action.payload ? action.payload.value : null;
-      state.balance.xHopr.formatted = action.payload ? formatEther(action.payload) : null;
+      state.balance.xHopr.value = action.payload ? action.payload : null;
+      state.balance.xHopr.formatted = action.payload ? formatEther(BigInt(action.payload)) : null;
     },
     setWalletBalance_wxHopr(state, action) {
       state.balance.wxHopr.value = action.payload ? action.payload : null;
-      state.balance.wxHopr.formatted = action.payload ? formatEther(action.payload) : null;
+      state.balance.wxHopr.formatted = action.payload ? formatEther(BigInt(action.payload)) : null;
     },
     setIcon(state, action) {
       state.walletIcon = action.payload ? action.payload : null;
