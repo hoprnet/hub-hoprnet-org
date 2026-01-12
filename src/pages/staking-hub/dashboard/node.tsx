@@ -291,7 +291,7 @@ const header = [
 ];
 
 const getOnboardingTooltip = (
-  onboardingIsFinished?: boolean,
+  onboardingCompleted?: boolean,
   inNetworkRegistry?: boolean,
   isDelegate?: boolean,
   includedInModule?: boolean,
@@ -300,7 +300,7 @@ const getOnboardingTooltip = (
 ) => {
   if (finishMainOnboardingForThisNode) {
     return <span>Finish ONBOARDING for this node first</span>;
-  } else if (!onboardingIsFinished) {
+  } else if (!onboardingCompleted) {
     return (
       <span>
         Please finish the main
@@ -321,10 +321,11 @@ const getOnboardingTooltip = (
 const NodeAdded = () => {
   const navigate = useNavigate();
   const nodeHoprAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress);
-  const onboardingFinished = useAppSelector((store) => store.stakingHub.onboarding.finished);
   const onboardingNodeAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress);
   const nodes = useAppSelector((store) => store.stakingHub.nodes.data);
   const delegates = useAppSelector((store) => store.safe.delegates.data);
+  const onboardingStatus = useAppSelector((store) => store.stakingHub.onboarding.status);
+  const onboardingCompleted = onboardingStatus === 'COMPLETED';
 
   const delegatesArray = delegates?.results?.map((elem) => elem.delegate.toLowerCase()) || [];
   const nodesPeerIdArr = Object.keys(nodes);
@@ -342,7 +343,7 @@ const NodeAdded = () => {
         const availability30d = nodes[node]?.availability30d;
 
         const finishMainOnboardingForThisNode =
-          !onboardingFinished && onboardingNodeAddress?.toLowerCase() === node?.toLowerCase();
+          !onboardingCompleted && onboardingNodeAddress?.toLowerCase() === node?.toLowerCase();
 
         return {
           peerId: (
@@ -413,7 +414,7 @@ const NodeAdded = () => {
               <IconButton
                 iconComponent={<TrainIcon />}
                 tooltipText={getOnboardingTooltip(
-                  onboardingFinished,
+                  onboardingCompleted,
                   inNetworkRegistry,
                   isDelegate,
                   includedInModule,
@@ -428,7 +429,7 @@ const NodeAdded = () => {
                   }
                 }}
                 disabled={
-                  (!onboardingFinished ||
+                  (!onboardingCompleted ||
                     (includedInModule && isDelegate && nodes[node]?.balanceFormatted !== '0')) &&
                   !finishMainOnboardingForThisNode
                 }

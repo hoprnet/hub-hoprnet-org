@@ -100,12 +100,11 @@ function SafeDashboard() {
   const safeOwnersSubgraph = useAppSelector((store) => store.stakingHub.safeInfo.data.owners); // Subgraph
   const safeOwners = safeOwnersSubgraph.map((elem) => elem.owner.id);
   const safeThreshold = useAppSelector((store) => store.stakingHub.safeInfo.data.threshold);
-  const onboardingIsFinishedRedux = useAppSelector((store) => store.stakingHub.onboarding.finished);
-  const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
+  const onboardingStatus = useAppSelector((store) => store.stakingHub.onboarding.status);
   const creatingNewSafePending = useAppSelector((store) => store.safe.creatingNewSafePending);
   const [updating, set_updating] = useState(false);
 
-  const onboardingIsFinished = !onboardingIsFetching && onboardingIsFinishedRedux;
+  const onboardingCompleted = onboardingStatus === 'COMPLETED';
 
   const executeUpdateConfig = async () => {
     if (!signer || !moduleAddress) return;
@@ -302,24 +301,24 @@ function SafeDashboard() {
         id="Update-Node-Configuration"
         title="Safe Configuration"
         currency={
-          needsUpdate && onboardingIsFinished ? (
+          needsUpdate && onboardingCompleted ? (
             <span style={{ color: 'red' }}>Update needed</span>
           ) : (
             <span style={{ color: 'darkGreen' }}>Current version</span>
           )
         }
       >
-        {needsUpdate && onboardingIsFinished && (
+        {needsUpdate && onboardingCompleted && (
           <SafeTransactionButton
             executeOptions={{
               pending: updating,
-              disabled: !(needsUpdate && onboardingIsFinished),
+              disabled: !(needsUpdate && onboardingCompleted),
               onClick: executeUpdateConfig,
               buttonText: 'Update',
             }}
             signOptions={{
               pending: updating,
-              disabled: !(needsUpdate && onboardingIsFinished),
+              disabled: !(needsUpdate && onboardingCompleted),
               onClick: signUpdateConfig,
               buttonText: 'Sign update',
             }}

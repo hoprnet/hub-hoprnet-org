@@ -610,10 +610,8 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       if (state.onboarding.step === 0) {
         state.onboarding.status = 'NOT_STARTED';
       } else if (state.onboarding.step === 16) {
-        state.onboarding.finished = false;
         state.onboarding.status = 'COMPLETED';
       } else {
-        state.onboarding.finished = false;
         state.onboarding.status = 'IN_PROGRESS';
       }
     }

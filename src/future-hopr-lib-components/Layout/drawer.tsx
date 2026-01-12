@@ -117,7 +117,7 @@ const StyledListItemButton = styled(ListItemButton)`
       fill: #0000b4;
     }
   }
-  &.onboardingNotFinished {
+  &.onboardingNotCompleted {
     ::after {
       content: '';
       background-image: url(/assets/Continue-Stamp.svg);
@@ -130,7 +130,7 @@ const StyledListItemButton = styled(ListItemButton)`
       background-size: contain;
     }
   }
-  &.onboardingFinished {
+  &.onboardingCompleted {
     opacity: 0.5;
     ::after {
       content: '';
@@ -282,13 +282,13 @@ const Drawer = ({
                             `${
                               item.path === 'onboarding' &&
                               onboardingStatus === 'COMPLETED'
-                                ? 'onboardingFinished'
+                                ? 'onboardingCompleted'
                                 : ''
                             }`,
                             `${
                               item.path === 'onboarding' &&
                              onboardingStatus === 'IN_PROGRESS'
-                                ? 'onboardingNotFinished'
+                                ? 'onboardingNotCompleted'
                                 : ''
                             }`,
                           ].join(' ')}
