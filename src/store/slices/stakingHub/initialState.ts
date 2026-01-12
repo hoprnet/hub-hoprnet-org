@@ -1,3 +1,5 @@
+export type OnboardingStatus = 'NOT_FETCHED' | 'FETCHING' | 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+
 type InitialState = {
   safes: {
     data: {
@@ -24,6 +26,7 @@ type InitialState = {
     nodeXDaiBalance: string | null;
     nodeAddressProvidedByMagicLink: string | null;
     startedFetching: boolean,
+    status: OnboardingStatus;
     isFetching: boolean;
   };
   safeInfo: {
@@ -152,6 +155,7 @@ export const initialState: InitialState = {
     userIsInOnboarding: false,
     nodeXDaiBalance: null,
     isFetching: false,
+    status: 'NOT_FETCHED',
     startedFetching: false,
     notStarted: null,
     modalToSartOnboardingDismissed: false,

@@ -9,7 +9,6 @@ import ContinueOnboarding from '../../components/Modal/staking-hub/ContinueOnboa
 import CardWithAccordionSteps from '../../components/CardWithAccordionSteps';
 import Footer from '../../future-hopr-lib-components/Layout/footer';
 import Section from '../../future-hopr-lib-components/Section';
-import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';

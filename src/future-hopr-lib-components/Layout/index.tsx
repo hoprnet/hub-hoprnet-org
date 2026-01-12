@@ -16,6 +16,7 @@ import Drawer from './drawer';
 import { ApplicationMapType } from '../../router';
 import { useAppSelector } from '../../store';
 import { loadStateFromLocalStorage, saveStateToLocalStorage } from '../../utils/localStorage';
+import { OnboardingStatus } from '../../store/slices/stakingHub/initialState';
 
 const SLayout = styled.div`
   &.webapp {
@@ -68,9 +69,7 @@ const Layout: React.FC<{
     node?: boolean;
     web3?: boolean;
     safe?: boolean;
-    onboardingFinished?: boolean | null;
-    onboardingNotStarted?: boolean | null;
-    onboaringDisabled?: boolean | null;
+    onboardingStatus: OnboardingStatus
   };
   drawerType?: 'blue' | 'white';
   drawerItems: ApplicationMapType;

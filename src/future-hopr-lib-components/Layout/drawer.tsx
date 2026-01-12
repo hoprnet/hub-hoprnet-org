@@ -16,6 +16,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ApplicationMapType } from '../../router';
 import Details from '../../components/InfoBar/details';
 import { rounder2 } from '../../utils/functions';
+import { OnboardingStatus } from '../../store/slices/stakingHub/initialState';
 
 const drawerWidth = 240;
 const minDrawerWidth = 56;
@@ -167,6 +168,7 @@ type DrawerProps = {
     onboardingFinished?: boolean | null;
     onboardingNotStarted?: boolean | null;
     onboaringDisabled?: boolean | null;
+    onboardingStatus: OnboardingStatus
   };
   drawerNumbers?: {
     [key: string]: number | string | undefined | null;
@@ -215,6 +217,7 @@ const Drawer = ({
 
   const preare = drawerFunctionItems ? drawerFunctionItems : [];
   const allItems = [...preare, ...drawerItems];
+  const onboardingStatus = drawerLoginState?.onboardingStatus;
 
   return (
     <StyledDrawer
@@ -273,22 +276,21 @@ const Drawer = ({
                               : (!item.element && !item.onClick) ||
                                 (item.loginNeeded && !drawerLoginState?.[item.loginNeeded])) ||
                             (item.path === 'onboarding' &&
-                              drawerLoginState &&
-                              !!drawerLoginState.onboaringDisabled
+                              onboardingStatus === 'COMPLETED'
                             )
                           }
                           onClick={item.onClick ? item.onClick : handleButtonClick}
                           className={[
                             'StyledListItemButton',
                             `${
-                              item.path === 'onboarding' && drawerLoginState && drawerLoginState.onboardingFinished
+                              item.path === 'onboarding' &&
+                              onboardingStatus === 'COMPLETED'
                                 ? 'onboardingFinished'
                                 : ''
                             }`,
                             `${
                               item.path === 'onboarding' &&
-                              drawerLoginState &&
-                              drawerLoginState.onboardingFinished === false
+                             onboardingStatus === 'IN_PROGRESS'
                                 ? 'onboardingNotFinished'
                                 : ''
                             }`,

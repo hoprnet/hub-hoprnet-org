@@ -30,7 +30,6 @@ const stakingHubSlice = createSlice({
         finished: false,
         userIsInOnboarding: false,
         nodeXDaiBalance: null,
-        isFetching: false,
         startedFetching: false,
         notStarted: null,
         modalToSartOnboardingDismissed: false,
@@ -40,6 +39,8 @@ const stakingHubSlice = createSlice({
             formatted: null,
           },
         },
+        status: 'NOT_FETCHED',
+        isFetching: false,
       };
     },
     dismissModalToSartOnboarding: (state) => {
@@ -81,6 +82,7 @@ const stakingHubSlice = createSlice({
       state.onboarding.step = action.payload;
       if (action.payload === 16) {
         state.onboarding.finished = false;
+        state.onboarding.status = 'COMPLETED';
       }
     },
     setNodeLinkedToSafeBalance_xDai: (state, action) => {

@@ -17,7 +17,6 @@ import { createSendNftTransactionData, createSendTokensTransactionData } from '.
 import Card from '../../components/Card';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import Section from '../../future-hopr-lib-components/Section';
-import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
 import { MaxButton } from './wrapper';
 
 // Mui
@@ -453,7 +452,6 @@ function SafeWithdraw() {
       center
       fullHeightMin
     >
-      <StartOnboarding />
       <Card
         image={{
           src: '/assets/funds-safe-withdraw.svg',

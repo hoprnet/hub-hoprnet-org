@@ -494,6 +494,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
     }
     if (action.payload.length === 0) {
       state.onboarding.notStarted = true;
+      state.onboarding.status = 'NOT_STARTED';
     } else {
       state.onboarding.notStarted = false;
     }
@@ -608,12 +609,16 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
     if (action.payload) {
       state.onboarding.step = action.payload;
       state.onboarding.isFetching = false;
-      if (state.onboarding.step !== 0 && state.onboarding.step !== 16) {
-        state.onboarding.finished = true;
-        state.onboarding.notStarted = false;
+      if (state.onboarding.step === 0) {
+        state.onboarding.status = 'NOT_STARTED';
       } else if (state.onboarding.step === 16) {
         state.onboarding.finished = false;
         state.onboarding.notStarted = false;
+        state.onboarding.status = 'COMPLETED';
+      } else {
+        state.onboarding.finished = false;
+        state.onboarding.notStarted = false;
+        state.onboarding.status = 'IN_PROGRESS';
       }
     }
   });
