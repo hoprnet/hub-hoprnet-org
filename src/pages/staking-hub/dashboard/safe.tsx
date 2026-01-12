@@ -98,7 +98,7 @@ function SafeDashboard() {
   const sendingNFT = useAppSelector((store) => store.web3.communityNftTransferring);
   //const safeOwners = useAppSelector((store) => store.safe.info.data?.owners); // Safe Infra
   const safeOwnersSubgraph = useAppSelector((store) => store.stakingHub.safeInfo.data.owners); // Subgraph
-  const safeOwners = safeOwnersSubgraph.map((elem) => elem.owner.id);
+  const safeOwners = safeOwnersSubgraph.map((elem) => elem.owner.id).filter((owner) => !!owner);
   const safeThreshold = useAppSelector((store) => store.stakingHub.safeInfo.data.threshold);
   const onboardingStatus = useAppSelector((store) => store.stakingHub.onboarding.status);
   const creatingNewSafePending = useAppSelector((store) => store.safe.creatingNewSafePending);
@@ -288,12 +288,13 @@ function SafeDashboard() {
         ]}
       >
         <ul>
+          {safeOwners.length === 0 && <li>Loading...</li>}
           {safeOwners?.map((owner) => (
-            <li key={`safe_owner_${owner}`}>{getAddress(owner as `0x${string}`)}</li>
+            owner && <li key={`safe_owner_${owner}`}>{getAddress(owner as `0x${string}`)}</li>
           ))}
         </ul>
         <div className="inline">
-          <h4 className="inline">Required confirmations:</h4> {safeThreshold} out of {safeOwners && safeOwners.length}{' '}
+          <h4 className="inline">Required confirmations:</h4> {safeThreshold ? safeThreshold : '...'} out of {safeOwners.length !== 0 ? safeOwners.length : '...'}{' '}
           owners.
         </div>
       </GrayCard>

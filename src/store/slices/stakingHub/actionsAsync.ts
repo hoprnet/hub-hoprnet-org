@@ -498,7 +498,6 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.onboarding.status = 'NOT_STARTED';
     }
     state.safes.isFetching = false;
-  //  state.onboarding.isFetching = false;
   });
   builder.addCase(getHubSafesByOwnerThunk.rejected, (state) => {
     state.safes.isFetching = false;
