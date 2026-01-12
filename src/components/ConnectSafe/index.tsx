@@ -187,10 +187,6 @@ export default function ConnectSafe() {
   // If safe got selected, update all and onboarding data
   useEffect(() => {
     if (selectedSafe && browserClient && selectedSafe.safeAddress) {
-      console.log('x3 2. here we start fetching onboarding data for selected safe', {
-        safeAddress,
-        browserClient,
-      });
       dispatch(
         stakingHubActionsAsync.getOnboardingDataThunk({
           browserClient,
@@ -198,7 +194,7 @@ export default function ConnectSafe() {
           moduleAddress: selectedSafe.moduleAddress as string,
         })
       );
-    } 
+    }
   }, [selectedSafe, browserClient]);
 
   const useSelectedSafe = async (safeObject: { safeAddress?: string | null; moduleAddress?: string | null }) => {

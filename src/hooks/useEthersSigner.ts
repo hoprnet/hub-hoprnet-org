@@ -5,6 +5,7 @@ import { Config, useConnectorClient } from 'wagmi';
 
 export function clientToSigner(client: Client<Transport, Chain, Account>) {
   const { account, chain, transport } = client;
+
   const network = {
     chainId: chain.id,
     name: chain.name,

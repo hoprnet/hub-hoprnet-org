@@ -70,6 +70,7 @@ const Layout: React.FC<{
     safe?: boolean;
     onboardingFinished?: boolean | null;
     onboardingNotStarted?: boolean | null;
+    onboaringDisabled?: boolean | null;
   };
   drawerType?: 'blue' | 'white';
   drawerItems: ApplicationMapType;

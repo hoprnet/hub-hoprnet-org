@@ -360,6 +360,7 @@ const StakingLandingPage = () => {
   const status = useAppSelector((store) => store.web3.status);
   const onboardingStep = useAppSelector((store) => store.stakingHub.onboarding.step);
   const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
+  const startedFetchingOnboarding = useAppSelector((store) => store.stakingHub.onboarding.startedFetching);
   const totalwxHoprStakeRaw = useAppSelector((store) => store.stakingHub.totalStaked.data?.wxHoprBalance);
 
   const totalwxHoprStake = totalwxHoprStakeRaw
@@ -409,24 +410,33 @@ const StakingLandingPage = () => {
             Earn $HOPR while providing web3 users with the data privacy and autonomy Web 2.0 never did. Create your HOPR
             Safe and start running a Node now!
           </Description>
-          {(!status.connected || onboardingIsFetching) && (
+          {(!status.connected || (startedFetchingOnboarding && onboardingIsFetching)) && (
             <StyledButton
               onClick={() => {
                 dispatch(web3Actions.setModalOpen(true));
               }}
               disabled={status.connected}
-              pending={status.connected && onboardingIsFetching}
+              pending={status.connected && startedFetchingOnboarding && onboardingIsFetching}
             >
               CONNECT WALLET
             </StyledButton>
           )}
-          {status.connected && onboardingStep !== 16 && !onboardingIsFetching && (
+          {status.connected && onboardingStep !== 16 && !onboardingIsFetching && startedFetchingOnboarding && (
             <StyledButton
               onClick={() => {
                 navigate('/staking/onboarding');
               }}
             >
               GO TO ONBOARDING
+            </StyledButton>
+          )}
+          {!startedFetchingOnboarding && (
+            <StyledButton
+              onClick={() => {
+                navigate('/staking/onboarding');
+              }}
+            >
+                     -
             </StyledButton>
           )}
           {status.connected && onboardingStep === 16 && !onboardingIsFetching && (

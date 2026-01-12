@@ -253,10 +253,13 @@ const LayoutEnhanced = () => {
   const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
   const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
 
+  const onboardingStartedFetching = useAppSelector((store) => store.stakingHub.onboarding.startedFetching)
   const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
   const onboardingFinishedRedux = useAppSelector((store) => store.stakingHub.onboarding.finished);
-  const onboardingNotStarted = useAppSelector((store) => store.stakingHub.onboarding.notStarted);
-  const onboardingFinished = onboardingIsFetching || onboardingNotStarted ? null : onboardingFinishedRedux;
+  const onboardingNotStartedRedux = useAppSelector((store) => store.stakingHub.onboarding.notStarted);
+  const onboardingNotStarted = onboardingStartedFetching && onboardingNotStartedRedux;
+  const onboardingFinished = onboardingIsFetching || onboardingNotStartedRedux ? null : onboardingFinishedRedux;
+  const onboaringDisabled = !onboardingStartedFetching;
 
   const numberForDrawer = {
     numberOfPeers,
@@ -324,6 +327,7 @@ const LayoutEnhanced = () => {
         safe: !!safeAddress && web3Connected,
         onboardingNotStarted,
         onboardingFinished,
+        onboaringDisabled
       }}
       className={environment}
       drawerType={environment === 'web3' ? 'blue' : undefined}

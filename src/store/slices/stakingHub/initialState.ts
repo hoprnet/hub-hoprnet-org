@@ -23,6 +23,7 @@ type InitialState = {
     userIsInOnboarding: boolean;
     nodeXDaiBalance: string | null;
     nodeAddressProvidedByMagicLink: string | null;
+    startedFetching: boolean,
     isFetching: boolean;
   };
   safeInfo: {
@@ -150,7 +151,8 @@ export const initialState: InitialState = {
     finished: false,
     userIsInOnboarding: false,
     nodeXDaiBalance: null,
-    isFetching: true,
+    isFetching: false,
+    startedFetching: false,
     notStarted: null,
     modalToSartOnboardingDismissed: false,
     nodeAddressProvidedByMagicLink: null,

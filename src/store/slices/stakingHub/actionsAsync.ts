@@ -365,7 +365,6 @@ const getOnboardingDataThunk = createAsyncThunk<
   { browserClient: PublicClient; safeAddress: string; moduleAddress: string },
   { state: RootState }
 >('stakingHub/getOnboardingData', async (payload, { rejectWithValue, dispatch }) => {
-  dispatch(stakingHubActions.onboardingIsFetching(true));
   // await dispatch(safeActionsAsync.getCommunityNftsOwnedBySafeThunk(payload.safeAddress)).unwrap();
   const moduleAddress = payload.moduleAddress;
 
@@ -409,7 +408,6 @@ const getOnboardingDataThunk = createAsyncThunk<
     })
   );
   dispatch(goToStepWeShouldBeOnThunk());
-  dispatch(stakingHubActions.onboardingIsFetching(false));
 });
 
 const getNodesDataThunk = createAsyncThunk<
@@ -496,10 +494,13 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
     }
     if (action.payload.length === 0) {
       state.onboarding.notStarted = true;
-      state.onboarding.isFetching = false;
     } else {
       state.onboarding.notStarted = false;
     }
+    state.safes.isFetching = false;
+  //  state.onboarding.isFetching = false;
+  });
+  builder.addCase(getHubSafesByOwnerThunk.rejected, (state) => {
     state.safes.isFetching = false;
   });
   builder.addCase(getSubgraphDataThunk.pending, (state, action) => {
@@ -593,6 +594,13 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.config.needsUpdate.isFetching = false;
     }
   });
+  builder.addCase(getOnboardingDataThunk.pending, (state) => {
+    state.onboarding.isFetching = true;
+    state.onboarding.startedFetching = true;
+  });
+  builder.addCase(getOnboardingDataThunk.rejected, (state) => {
+    state.onboarding.isFetching = false;
+  });
   builder.addCase(goToStepWeShouldBeOnThunk.pending, (state) => {
     state.onboarding.isFetching = true;
   });
@@ -608,6 +616,9 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         state.onboarding.notStarted = false;
       }
     }
+  });
+  builder.addCase(goToStepWeShouldBeOnThunk.rejected, (state) => {
+    state.onboarding.isFetching = false;
   });
   builder.addCase(getNodesDataThunk.fulfilled, (state, action) => {
     const nodesData = action.payload;
