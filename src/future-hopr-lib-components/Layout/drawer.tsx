@@ -165,9 +165,6 @@ type DrawerProps = {
     node?: boolean;
     web3?: boolean;
     safe?: boolean;
-    onboardingFinished?: boolean | null;
-    onboardingNotStarted?: boolean | null;
-    onboaringDisabled?: boolean | null;
     onboardingStatus: OnboardingStatus
   };
   drawerNumbers?: {

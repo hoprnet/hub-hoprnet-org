@@ -493,10 +493,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.safes.data = action.payload;
     }
     if (action.payload.length === 0) {
-      state.onboarding.notStarted = true;
       state.onboarding.status = 'NOT_STARTED';
-    } else {
-      state.onboarding.notStarted = false;
     }
     state.safes.isFetching = false;
   //  state.onboarding.isFetching = false;
@@ -597,13 +594,14 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   builder.addCase(getOnboardingDataThunk.pending, (state) => {
     state.onboarding.isFetching = true;
-    state.onboarding.startedFetching = true;
+    state.onboarding.status = 'FETCHING';
   });
   builder.addCase(getOnboardingDataThunk.rejected, (state) => {
     state.onboarding.isFetching = false;
+    state.onboarding.status = 'NOT_STARTED';
   });
+  // Called only from getOnboardingDataThunk
   builder.addCase(goToStepWeShouldBeOnThunk.pending, (state) => {
-    state.onboarding.isFetching = true;
   });
   builder.addCase(goToStepWeShouldBeOnThunk.fulfilled, (state, action) => {
     if (action.payload) {
@@ -613,11 +611,9 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         state.onboarding.status = 'NOT_STARTED';
       } else if (state.onboarding.step === 16) {
         state.onboarding.finished = false;
-        state.onboarding.notStarted = false;
         state.onboarding.status = 'COMPLETED';
       } else {
         state.onboarding.finished = false;
-        state.onboarding.notStarted = false;
         state.onboarding.status = 'IN_PROGRESS';
       }
     }

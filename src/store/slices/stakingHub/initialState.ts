@@ -11,7 +11,6 @@ type InitialState = {
   onboarding: {
     step: number;
     finished: boolean;
-    notStarted: boolean | null;
     nodeAddress: string | null;
     nodeBalance: {
       xDai: {
@@ -25,7 +24,6 @@ type InitialState = {
     userIsInOnboarding: boolean;
     nodeXDaiBalance: string | null;
     nodeAddressProvidedByMagicLink: string | null;
-    startedFetching: boolean,
     status: OnboardingStatus;
     isFetching: boolean;
   };
@@ -156,8 +154,6 @@ export const initialState: InitialState = {
     nodeXDaiBalance: null,
     isFetching: false,
     status: 'NOT_FETCHED',
-    startedFetching: false,
-    notStarted: null,
     modalToSartOnboardingDismissed: false,
     nodeAddressProvidedByMagicLink: null,
     nodeBalance: {

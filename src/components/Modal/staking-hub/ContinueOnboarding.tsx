@@ -28,20 +28,16 @@ const ContinueOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   // Onboarding state selectors
-  const finished = useAppSelector((state) => state.stakingHub.onboarding.finished);
-  const notStarted = useAppSelector((state) => state.stakingHub.onboarding.notStarted);
-  // Onboarding fetching state selectors
-  const startedFetchingOnboarding = useAppSelector((state) => state.stakingHub.onboarding.startedFetching);
-  const isFetchingOnboarding = useAppSelector((state) => state.stakingHub.onboarding.isFetching);
+  const onboardingStatus = useAppSelector((state) => state.stakingHub.onboarding.status);
   // Rest
   const onboardingStep = useAppSelector((state) => state.stakingHub.onboarding.step);
   const isConnected = useAppSelector((state) => state.web3.status.connected);
   const [openModal, set_openModal] = useState(false);
 
   useEffect(() => {
-    if (startedFetchingOnboarding &&!isFetchingOnboarding && !notStarted && !finished && isConnected) handleOpenModal();
+    if (isConnected && onboardingStatus === 'IN_PROGRESS' ) handleOpenModal();
     else handleCloseModal();
-  }, [finished, isFetchingOnboarding, notStarted, isConnected]);
+  }, [onboardingStatus, isConnected]);
 
   const handleOpenModal = () => {
     set_openModal(true);

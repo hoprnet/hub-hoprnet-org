@@ -30,8 +30,6 @@ const stakingHubSlice = createSlice({
         finished: false,
         userIsInOnboarding: false,
         nodeXDaiBalance: null,
-        startedFetching: false,
-        notStarted: null,
         modalToSartOnboardingDismissed: false,
         nodeBalance: {
           xDai: {
