@@ -63,7 +63,7 @@ export default function EditOwners() {
   const safeModules = useAppSelector((state) => state.safe.info.data?.modules);
   //const safeOwners = useAppSelector((store) => store.safe.info.data?.owners); // Safe Infra
   const safeOwnersSubgraph = useAppSelector((store) => store.stakingHub.safeInfo.data.owners); // Subgraph
-  const safeOwners = safeOwnersSubgraph.map((elem) => elem.owner.id);
+  const safeOwners = safeOwnersSubgraph.map((elem) => elem.owner.id).filter((owner) => !!owner);
   const safeThreshold = useAppSelector((store) => store.stakingHub.safeInfo.data.threshold);
   const walletAddress = useAppSelector((store) => store.web3.account);
   const signer = useEthersSigner();
@@ -286,7 +286,7 @@ export default function EditOwners() {
       >
         <br />
         <br />
-        <h4 className="inline">Owners ({safeOwners?.length}):</h4>
+        <h4 className="inline">Owners ({safeOwners.length !== 0 ? safeOwners.length : '...'}):</h4>
         <ul>
           {safeOwners?.map((owner) => (
             <li key={`safe_owner_${owner}`}>
@@ -314,6 +314,7 @@ export default function EditOwners() {
               )}
             </li>
           ))}
+          {safeOwners.length === 0 && <li>Loading...</li>}
         </ul>
         <StyledInputGroup style={{ alignItems: 'flex-start' }}>
           <StyledText>ADD OWNER</StyledText>
@@ -358,7 +359,7 @@ export default function EditOwners() {
               </MenuItem>
             ))}
           </Select>{' '}
-          out of {safeOwners?.length} owner(s)
+          out of  {safeOwners.length !== 0 ? safeOwners.length : '...'} owner(s)
         </div>
         <Button
           disabled={newThreshold === safeThreshold || newThreshold === '0'}
