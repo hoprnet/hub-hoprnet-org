@@ -238,7 +238,6 @@ const LayoutEnhanced = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const { disconnect } = useDisconnect();
-  const nodeConnected = useAppSelector((store) => store.auth.status.connected);
   const web3Connected = useAppSelector((store) => store.web3.status.connected);
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
@@ -258,8 +257,7 @@ const LayoutEnhanced = () => {
       (location.pathname === '/' || location.pathname === '/privacy-notice' || location.pathname === '/tos')
     )
       return false;
-    if (isConnected || nodeConnected) return true;
-    return false;
+    return isConnected;
   };
 
   const handleDisconnectMM = () => {
@@ -302,7 +300,6 @@ const LayoutEnhanced = () => {
       drawerFunctionItems={environment === 'web3' ? drawerFunctionItems : undefined}
       drawerNumbers={numberForDrawer}
       drawerLoginState={{
-        node: nodeConnected,
         web3: web3Connected,
         safe: !!safeAddress && web3Connected,
         onboardingStatus

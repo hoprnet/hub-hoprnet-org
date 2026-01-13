@@ -8,8 +8,6 @@ import { observeSafeInfo } from './safeInfo';
 
 export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: number }) => {
   const dispatch = useAppDispatch();
-  const { apiEndpoint, apiToken } = useAppSelector((store) => store.auth.loginData);
-  const connected = useAppSelector((store) => store.auth.status.connected);
 
   const signer = useEthersSigner();
   // flags to activate notifications
