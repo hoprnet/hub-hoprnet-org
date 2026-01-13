@@ -15,9 +15,9 @@ import { sendNotification } from '../../../../hooks/useWatcher/notifications';
 
 // Web3
 import { createIncludeNodeTransactionData } from '../../../../utils/blockchain';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 import { MULTISEND_CONTRACT_GNOSIS, HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS } from '../../../../../config';
-import { OperationType } from '@safe-global/safe-core-sdk-types';
+import { OperationType } from '@safe-global/types-kit';
 
 export const SSafeTransactionButton = styled(SafeTransactionButton)`
   max-width: 250px;

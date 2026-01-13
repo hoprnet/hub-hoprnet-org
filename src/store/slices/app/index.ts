@@ -1,9 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { initialState } from './initialState';
-import { GetBalancesResponseType, GetChannelsResponseType, GetInfoResponseType } from '@hoprnet/hopr-sdk';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 import { saveStateToLocalStorage } from '../../../utils/localStorage';
-import { ChannelsOutgoingType, ChannelsIncomingType } from '../../../store/slices/node/initialState';
 
 const appSlice = createSlice({
   name: 'app',
@@ -96,18 +94,6 @@ const appSlice = createSlice({
         ...notification,
         seen: true,
       }));
-    },
-    setPrevOutgoingChannels: (state, action: PayloadAction<ChannelsOutgoingType | null>) => {
-      state.previousStates.prevOutgoingChannels = action.payload;
-    },
-    setPrevIncomingChannels: (state, action: PayloadAction<ChannelsIncomingType | null>) => {
-      state.previousStates.prevIncomingChannels = action.payload;
-    },
-    setPrevNodeInfo: (state, action: PayloadAction<GetInfoResponseType | null>) => {
-      state.previousStates.prevNodeInfo = action.payload;
-    },
-    setPrevNodeBalances: (state, action: PayloadAction<GetBalancesResponseType | null>) => {
-      state.previousStates.prevNodeBalances = action.payload;
     },
     setPrevPendingSafeTransaction: (state, action: PayloadAction<SafeMultisigTransactionResponse | null>) => {
       state.previousStates.prevPendingSafeTransaction = action.payload;

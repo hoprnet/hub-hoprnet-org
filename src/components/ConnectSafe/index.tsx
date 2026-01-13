@@ -151,14 +151,20 @@ export default function ConnectSafe() {
 
   // If no selected safeAddress, choose 1st one
   useEffect(() => {
-    console.log({ safeFromUrl, moduleFromUrl });
-    if (safeFromUrl && moduleFromUrl && !safeAddress) {
+    console.log('x3 1. ConnectSafe useEffect checking selected safe', {
+      safes,
+      safeAddress,
+      signer,
+      ownerAddress,
+    });
+    if (safeFromUrl && moduleFromUrl && signer && !safeAddress) {
       console.log('useSelectedSafe from url', safeFromUrl, moduleFromUrl);
       useSelectedSafe({
         safeAddress: getAddress(safeFromUrl),
         moduleAddress: getAddress(moduleFromUrl),
       });
-    } else if (safes.length > 0 && !safeAddress && signer && ownerAddress) {
+    } else if (safes.length > 0 && !safeAddress && ownerAddress) {
+      console.log('x3 2. no safe selected yet, selecting...');
       try {
         //@ts-ignore
         let localStorage: { [key: string]: { safeAddress: string; moduleAddress: string } } =
@@ -169,12 +175,14 @@ export default function ConnectSafe() {
           safes.filter((safe) => safe?.safeAddress === localStorage[ownerAddress]?.safeAddress).length > 0
         ) {
           useSelectedSafe(localStorage[ownerAddress]);
-          console.log('useSelectedSafe from ls', localStorage[ownerAddress]);
+          console.log('x3 useSelectedSafe from ls', localStorage[ownerAddress]);
         } else {
           useSelectedSafe(safes[0]);
-          console.log('useSelectedSafe [0]', safes[0]);
+          console.log('x3 useSelectedSafe [0]', safes[0]);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('x3 Error parsing localStorage for chosen safe', e);
+      }
     }
   }, [safes, safeAddress, signer, ownerAddress, safeFromUrl, moduleFromUrl]);
 

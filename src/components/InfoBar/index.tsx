@@ -72,7 +72,6 @@ const Scroll = styled.div`
 
 export default function InfoBar(props: Props) {
   const web3Connected = useAppSelector((store) => store.web3.status.connected);
-  const nodeConnected = useAppSelector((store) => store.auth.status.connected);
   const currentRoute = useLocation().pathname;
   const currentHash = window.location.hash;
 
@@ -94,17 +93,10 @@ export default function InfoBar(props: Props) {
   };
 
   return (
-    <SInfoBar className={`InfoBar ${web3Connected ? 'web3' : ''} ${nodeConnected ? 'node' : ''}`}>
+    <SInfoBar className={`InfoBar ${web3Connected ? 'web3' : ''}`}>
       <Scroll>
         <div>
-          {(web3Connected || (nodeConnected && !web3Connected)) && <Details />}
-          {nodeConnected && pageHasNodeFAQ() && (
-            <FAQ
-              data={nodeInfoData[currentRoute]}
-              label={currentRoute.split('/')[currentRoute.split('/').length - 1]}
-              variant="blue"
-            />
-          )}
+          {(web3Connected || !web3Connected) && <Details />}
           {web3Connected && pageHasStakingFAQ() && (
             <FAQ
               data={completeHubFaq[`${currentRoute}${currentHash}`]}

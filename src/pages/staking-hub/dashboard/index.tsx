@@ -10,7 +10,6 @@ import { stakingHubActions, stakingHubActionsAsync } from '../../../store/slices
 
 // HOPR Components
 import NetworkOverlay from '../../../components/Overlays/NetworkOverlay';
-import StartOnboarding from '../../../components/Modal/staking-hub/StartOnboarding';
 
 // Mui
 import Paper from '@mui/material/Paper/Paper';
@@ -159,7 +158,6 @@ function Dashboard() {
       </SPaper>
 
       <NetworkOverlay />
-      <StartOnboarding />
     </DashboardContainer>
   );
 }

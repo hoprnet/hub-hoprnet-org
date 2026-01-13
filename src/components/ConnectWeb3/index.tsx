@@ -15,7 +15,7 @@ import { safeActions } from '../../store/slices/safe';
 import { stakingHubActions, stakingHubActionsAsync } from '../../store/slices/stakingHub';
 
 // wagmi
-import { type Connector, useConnect, useDisconnect, useAccount } from 'wagmi';
+import { type Connector, useConnect, useDisconnect, useConnection } from 'wagmi';
 import { truncateEthereumAddress } from '../../utils/blockchain';
 import { web3Actions } from '../../store/slices/web3';
 import { UserRejectedRequestError } from 'viem';
@@ -114,7 +114,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
     reset,
     //  pendingConnector,
   } = useConnect();
-  const { connector } = useAccount();
+  const { connector } = useConnection();
   const { disconnect } = useDisconnect();
 
   const account = useAppSelector((store) => store.web3.account);
@@ -143,6 +143,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
 
   useEffect(() => {
     if (isConnected && account && chain) {
+      console.log('x3 4. Account changed - fetching safes for owner:', isConnected, account, chain);
       dispatch(stakingHubActionsAsync.getHubSafesByOwnerThunk(account));
       handleClose();
     }
@@ -248,7 +249,6 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
     };
 
     const icon = setIcon(connector);
-    console.log('setIcon', icon);
     set_walletIcon(icon);
     dispatch(web3Actions.setIcon(icon));
   }, [connector, walletIconRedux]);

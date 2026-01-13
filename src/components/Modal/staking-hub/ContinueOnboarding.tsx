@@ -27,15 +27,17 @@ type WithdrawModalProps = {
 const ContinueOnboarding = ({ initialCurrency }: WithdrawModalProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const notFinished = useAppSelector((state) => state.stakingHub.onboarding.notFinished);
+  // Onboarding state selectors
+  const onboardingStatus = useAppSelector((state) => state.stakingHub.onboarding.status);
+  // Rest
   const onboardingStep = useAppSelector((state) => state.stakingHub.onboarding.step);
   const isConnected = useAppSelector((state) => state.web3.status.connected);
   const [openModal, set_openModal] = useState(false);
 
   useEffect(() => {
-    if (notFinished && isConnected) handleOpenModal();
+    if (isConnected && onboardingStatus === 'IN_PROGRESS' ) handleOpenModal();
     else handleCloseModal();
-  }, [notFinished, isConnected]);
+  }, [onboardingStatus, isConnected]);
 
   const handleOpenModal = () => {
     set_openModal(true);

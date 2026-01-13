@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { getAddress } from 'viem';
+import { getAddress, formatEther } from 'viem';
 import { actionsAsync, createAsyncReducer } from './actionsAsync';
 import { createFetchingReducer } from './actionsFetching';
 import { initialState } from './initialState';
@@ -26,16 +26,19 @@ const safeSlice = createSlice({
       state.selectedSafe.data.moduleAddress = getAddress(action.payload.moduleAddress);
     },
     setSafeBalance_xDai(state, action) {
-      state.balance.data.xDai.value = action.payload ? action.payload.value : null;
-      state.balance.data.xDai.formatted = action.payload ? action.payload.formatted : null;
+      console.log('[Safe balance update] xDai:', action.payload );
+      state.balance.data.xDai.value = action.payload ? action.payload : null;
+      state.balance.data.xDai.formatted = action.payload ? formatEther(BigInt(action.payload)) : null;
     },
     setSafeBalance_xHopr(state, action) {
-      state.balance.data.xHopr.value = action.payload ? action.payload.value : null;
-      state.balance.data.xHopr.formatted = action.payload ? action.payload.formatted : null;
+      console.log('[Safe balance update] xHopr:', action.payload );
+      state.balance.data.xHopr.value = action.payload ? action.payload : null;
+      state.balance.data.xHopr.formatted = action.payload ? formatEther(BigInt(action.payload)) : null;
     },
     setSafeBalance_wxHopr(state, action) {
-      state.balance.data.wxHopr.value = action.payload ? action.payload.value : null;
-      state.balance.data.wxHopr.formatted = action.payload ? action.payload.formatted : null;
+      console.log('[Safe balance update] wxHopr:', action.payload );
+      state.balance.data.wxHopr.value = action.payload ? action.payload : null;
+      state.balance.data.wxHopr.formatted = action.payload ? formatEther(BigInt(action.payload)) : null;
     },
     setCommunityNftId(state, action: PayloadAction<number>) {
       state.communityNftIds.data = [{ id: String(action.payload) }];

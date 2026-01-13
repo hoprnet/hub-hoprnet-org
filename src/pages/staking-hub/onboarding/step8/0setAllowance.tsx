@@ -17,7 +17,7 @@ import {
   wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
 } from '../../../../../config';
 import { createApproveTransactionData } from '../../../../utils/blockchain';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 import { formatEther } from 'viem';
 
 // Store
