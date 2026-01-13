@@ -30,7 +30,7 @@ import Button from '../../../future-hopr-lib-components/Button';
 
 // LIBS
 import styled from '@emotion/styled';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 import { erc20Abi } from 'viem';
 
 // HOOKS

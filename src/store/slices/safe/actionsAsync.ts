@@ -22,7 +22,7 @@ import {
   SafeTransaction,
   SafeTransactionData,
   SafeTransactionDataPartial,
-} from '@safe-global/safe-core-sdk-types';
+} from '@safe-global/types-kit';
 import { ethers } from 'ethers';
 import { Address, WalletClient, encodePacked, keccak256, publicActions, toBytes, toHex, getAddress } from 'viem';
 import { RootState } from '../..';
@@ -352,9 +352,11 @@ const createSafeTransactionThunk = createAsyncThunk<
       // create safe transaction
       console.log('safeTransactionData', payload.safeTransactionData);
       const safeTransaction = await safeSDK.createTransaction({
-        safeTransactionData: {
-          ...payload.safeTransactionData,
-          nonce: Number(nextSafeNonce),
+        safeTransactionData: [
+          payload.safeTransactionData,
+        ],
+        options: {
+          nonce: Number(nextSafeNonce)
         },
       });
       const safeTxHash = await safeSDK.getTransactionHash(safeTransaction);
@@ -569,7 +571,7 @@ const confirmTransactionThunk = createAsyncThunk<
     try {
       const safeSDK = await createSafeSDK(payload.signer, payload.safeAddress);
       const safeApi = await createSafeApiService();
-      const signature = await safeSDK.signTransactionHash(payload.safeTransactionHash);
+      const signature = await safeSDK.signHash(payload.safeTransactionHash);
       const confirmTransaction = await safeApi.confirmTransaction(payload.safeTransactionHash, signature.data);
       // re fetch all txs
       dispatch(
@@ -683,7 +685,9 @@ const createAndExecuteSafeTransactionThunk = createAsyncThunk<
     try {
       const safeSDK = await createSafeSDK(payload.signer, payload.safeAddress);
       // create safe transaction
-      const safeTransaction = await safeSDK.createTransaction({ safeTransactionData: payload.safeTransactionData });
+      const safeTransaction = await safeSDK.createTransaction({
+        safeTransactionData: [payload.safeTransactionData]
+      });
       console.log({ safeTransaction });
       const isValidTx = await safeSDK.isValidTransaction(safeTransaction);
       if (!isValidTx) {
@@ -781,7 +785,7 @@ const createAndExecuteSafeContractTransactionThunk = createAsyncThunk<
 const getAllSafeTransactionsThunk = createAsyncThunk<
   AllTransactionsListResponse | undefined,
   {
-    signer: JsonRpcSigner;
+    signer: ethers.providers.JsonRpcSigner;
     safeAddress: string;
     options?: AllTransactionsOptions;
   },
@@ -824,7 +828,7 @@ const getAllSafeTransactionsThunk = createAsyncThunk<
 const getPendingSafeTransactionsThunk = createAsyncThunk<
   SafeMultisigTransactionListResponse,
   {
-    signer: JsonRpcSigner;
+    signer: ethers.providers.JsonRpcSigner;
     safeAddress: string;
   },
   { state: RootState }
@@ -864,7 +868,7 @@ const addSafeDelegateThunk = createAsyncThunk<
   SafeDelegateResponse | undefined,
   {
     options: Omit<AddSafeDelegateProps, 'signer'>;
-    signer: JsonRpcSigner;
+    signer: ethers.providers.JsonRpcSigner;
   },
   { state: RootState }
 >(
@@ -913,7 +917,7 @@ const addSafeDelegateThunk = createAsyncThunk<
 
 const removeSafeDelegateThunk = createAsyncThunk<
   void | undefined,
-  { options: Omit<DeleteSafeDelegateProps, 'signer'>; signer: JsonRpcSigner },
+  { options: Omit<DeleteSafeDelegateProps, 'signer'>; signer: ethers.providers.JsonRpcSigner },
   { state: RootState }
 >(
   'safe/removeDelegate',
@@ -961,7 +965,7 @@ const removeSafeDelegateThunk = createAsyncThunk<
 
 const getSafeDelegatesThunk = createAsyncThunk<
   SafeDelegateListResponse | undefined,
-  { options: GetSafeDelegateProps; signer: JsonRpcSigner },
+  { options: GetSafeDelegateProps; signer: ethers.providers.JsonRpcSigner },
   { state: RootState }
 >(
   'safe/getDelegates',
@@ -999,7 +1003,7 @@ const getToken = createAsyncThunk<
   TokenInfoResponse | undefined,
   {
     tokenAddress: string;
-    signer: JsonRpcSigner;
+    signer: ethers.providers.JsonRpcSigner;
   },
   { state: RootState }
 >(
@@ -1037,7 +1041,7 @@ const getToken = createAsyncThunk<
 const getTokenList = createAsyncThunk<
   TokenInfoListResponse | undefined,
   {
-    signer: JsonRpcSigner;
+    signer: ethers.providers.JsonRpcSigner;
   },
   { state: RootState }
 >(

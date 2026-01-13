@@ -8,7 +8,7 @@ import {
   SafeMultisigTransactionWithTransfersResponse,
   TokenInfoListResponse,
 } from '@safe-global/api-kit';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 
 type AdditionalFieldsForPendingActions = {
   source: string;

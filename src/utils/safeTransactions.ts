@@ -6,7 +6,7 @@ import {
   SafeMultisigTransactionWithTransfersResponse,
   SafeDelegateListResponse,
 } from '@safe-global/api-kit';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 import { Address, decodeFunctionData, formatEther, formatUnits } from 'viem';
 import { erc20Abi, erc4626Abi, erc721Abi } from 'viem';
 import { truncateEthereumAddress } from './blockchain';

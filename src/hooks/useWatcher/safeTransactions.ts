@@ -1,5 +1,5 @@
 import { SafeMultisigTransactionListResponse } from '@safe-global/api-kit';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 import { ethers } from 'ethers';
 import { safeActionsAsync } from '../../store/slices/safe';
 import { useAppDispatch } from '../../store';

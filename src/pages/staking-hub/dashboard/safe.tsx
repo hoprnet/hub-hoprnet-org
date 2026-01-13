@@ -4,7 +4,7 @@ import { useEthersSigner } from '../../../hooks';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { safeActionsAsync } from '../../../store/slices/safe';
 import { encodeFunctionData, getAddress } from 'viem';
-import { OperationType } from '@safe-global/safe-core-sdk-types';
+import { OperationType } from '@safe-global/types-kit';
 import { MULTISEND_CONTRACT_GNOSIS } from '../../../../config';
 import { web3 } from '@hoprnet/hopr-sdk';
 
