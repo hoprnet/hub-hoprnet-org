@@ -2,17 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 import authSlice from './slices/auth';
-import nodeSlice from './slices/node';
 import safeSlice from './slices/safe';
 import stakingHubSlice from './slices/stakingHub';
 import web3Slice from './slices/web3';
 import appSlice from './slices/app';
-//import { websocketMiddleware } from './slices/node/websocketMiddleware';
 
 const store = configureStore({
   reducer: {
     auth: authSlice,
-    node: nodeSlice,
     safe: safeSlice,
     stakingHub: stakingHubSlice,
     web3: web3Slice,

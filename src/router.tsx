@@ -245,23 +245,7 @@ const LayoutEnhanced = () => {
   const [searchParams] = useSearchParams();
   const HOPRdNodeAddressForOnboarding = searchParams.get('HOPRdNodeAddressForOnboarding'); //Address given in HOPRd: https://hub.hoprnet.org/staking/onboarding?HOPRdNodeAddressForOnboarding={my_address}
 
-  const numberOfPeers = useAppSelector((store) => store.node.peers.data?.connected.length);
-  const numberOfAliases = useAppSelector(
-    (store) => store.node.aliases?.data && Object.keys(store.node.aliases?.data).length
-  );
-  const numberOfMessagesReceived = useAppSelector((store) => store.node.messages.data.length);
-  const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
-  const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
-
   const onboardingStatus = useAppSelector((store) => store.stakingHub.onboarding.status);
-
-  const numberForDrawer = {
-    numberOfPeers,
-    numberOfAliases,
-    numberOfMessagesReceived,
-    numberOfChannelsIn,
-    numberOfChannelsOut,
-  };
 
   useEffect(() => {
     if (!HOPRdNodeAddressForOnboarding) return;
@@ -307,6 +291,8 @@ const LayoutEnhanced = () => {
       ],
     },
   ];
+
+  const numberForDrawer: { [key: string]: number } = {};
 
   return (
     <Layout
