@@ -68,13 +68,11 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
       set_isLoading(true);
       await dispatch(
         safeActionsAsync.addSafeDelegateThunk({
+          safeAddress,
+          delegateAddress: getAddress(address),
+          delegatorAddress: account,
+          label: 'node',
           signer,
-          options: {
-            safeAddress,
-            delegateAddress: getAddress(address),
-            delegatorAddress: account,
-            label: 'node',
-          },
         })
       )
         .unwrap()

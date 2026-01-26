@@ -93,7 +93,7 @@ const Layout: React.FC<{
   drawerNumbers,
 }) => {
   const isMobile = !useMediaQuery('(min-width: 500px)');
-  const isConnected = useAppSelector((store) => store.auth.status.connected);
+  const isConnected = useAppSelector((store) => store.web3.status.connected);
   const initialDrawerState = loadStateFromLocalStorage('drawerState');
 
   // const [openedNavigationDrawerPC, set_openedNavigationDrawerPC] = useState(environment === 'web3' || environment === 'dev' ? true : false);

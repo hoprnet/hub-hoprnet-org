@@ -243,10 +243,7 @@ export default function ConnectSafe() {
         })
       );
       dispatch(
-        safeActionsAsync.getSafeDelegatesThunk({
-          signer,
-          options: { safeAddress },
-        })
+        safeActionsAsync.getSafeDelegatesThunk({safeAddress})
       );
       // dispatch(
       //   safeActionsAsync.getGnoAidropThunk(safeAddress)
