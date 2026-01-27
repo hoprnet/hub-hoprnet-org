@@ -59,7 +59,7 @@ import {
 } from '../../../utils/safeTransactions';
 import { stakingHubActions } from '../stakingHub';
 import { initialState } from './initialState';
-import { UseEthersSigner } from '../../../hooks';
+import { useWalletClient } from 'wagmi';
 import { CustomTransport } from 'viem'
 import { useConnectorClient, UseConnectorClientReturnType, UseWalletClientReturnType } from 'wagmi'
 

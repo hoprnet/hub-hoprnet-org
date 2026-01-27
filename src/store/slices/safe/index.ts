@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getAddress, formatEther } from 'viem';
 import { actionsAsync, createAsyncReducer } from './actionsAsync';
-import { createFetchingReducer } from './actionsFetching';
 import { initialState } from './initialState';
 
 const safeSlice = createSlice({
@@ -70,7 +69,7 @@ const safeSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    createAsyncReducer(builder), createFetchingReducer(builder);
+    createAsyncReducer(builder);
   },
 });
 

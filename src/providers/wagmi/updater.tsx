@@ -5,7 +5,7 @@ import { erc721Abi } from 'viem';
 
 // wagmi
 import { useBalance, useConnection, useBlockNumber, useReadContracts } from 'wagmi';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient } from 'wagmi';
 
 // Redux
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -17,7 +17,7 @@ import { stakingHubActions, stakingHubActionsAsync } from '../../store/slices/st
 export default function WagmiUpdater() {
   // const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const nodeHoprAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress) as `0x${string}`; // Staking Hub
   const addressInStore = useAppSelector((store) => store.web3.account);
   const web3Disconnecting = useAppSelector((store) => store.web3.status.disconnecting);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient } from 'wagmi';
 import { StepContainer } from './onboarding/components';
 import { StyledInputGroup, StyledTextField } from './onboarding/styled';
 import { browserClient } from '../../providers/wagmi';
@@ -66,7 +66,7 @@ export default function EditOwners() {
   const safeOwners = safeOwnersSubgraph.map((elem) => elem.owner.id).filter((owner) => !!owner);
   const safeThreshold = useAppSelector((store) => store.stakingHub.safeInfo.data.threshold);
   const walletAddress = useAppSelector((store) => store.web3.account);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const [newOwner, set_newOwner] = useState('');
   const [newThreshold, set_newThreshold] = useState<null | string>(null);
   const [updateSafeThresholdConfirm, set_updateSafeThresholdConfirm] = useState(false);

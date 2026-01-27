@@ -8,10 +8,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 
-import { useReadContract, useWriteContract, useSimulateContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useSimulateContract, useWalletClient } from 'wagmi';
 import { ERC1820_REGISTRY } from '../../../../config';
 import { ERC1820RegistryAbi } from '../../../utils/abis/ERC1820RegistryAbi';
-import { useEthersSigner } from '../../../hooks';
 import { safeActions, safeActionsAsync } from '../../../store/slices/safe';
 import { Address, encodeFunctionData, encodePacked, getAddress } from 'viem';
 import { type UseSimulateContractParameters } from 'wagmi';
@@ -75,7 +74,7 @@ const AddAddressToERC1820RegistryModal = ({
   const [txStarted, set_txStarted] = useState<boolean>(false);
   const [success, set_success] = useState<boolean | null>(null);
   const [error, set_error] = useState<string | null>(null);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const walletAddress = useAppSelector((store) => store.web3.account);
   const safeAddress = useAppSelector((state) => state.safe.selectedSafe.data.safeAddress || '0x0000000000000000000000000000000000000000');
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { Address, getAddress } from 'viem';
 import { StepContainer } from '../components';
-import { useEthersSigner } from '../../../../hooks';
+import { useWalletClient} from 'wagmi';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../../future-hopr-lib-components/Button';
 
@@ -41,7 +41,7 @@ export default function ConfigureModule(props?: {
 }) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const safeInfo = useAppSelector((store) => store.safe.info.data);
   const walletAddress = useAppSelector((store) => store.web3.account);
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as Address;

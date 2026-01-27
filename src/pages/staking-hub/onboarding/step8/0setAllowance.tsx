@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 // UI
 import styled from '@emotion/styled';
 import Button from '../../../../future-hopr-lib-components/Button';
-import { useEthersSigner } from '../../../../hooks';
+import { useWalletClient} from 'wagmi';
 import { StepContainer } from '../components';
 import { Lowercase, StyledCoinLabel, StyledInputGroup, StyledTextField } from '../styled';
 import { useNavigate } from 'react-router-dom';
@@ -53,7 +53,7 @@ export default function SetAllowance() {
   const pendingTransations = useAppSelector((store) => store.safe.pendingTransactions.data?.results);
   const safeInfo = useAppSelector((store) => store.safe.info.data);
   const threshold = safeInfo?.threshold;
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const [wxHoprValue, set_wxHoprValue] = useState('');
   const [isWalletLoading, set_isWalletLoading] = useState(false);
   const [transactionHash, set_transactionHash] = useState<Address>();

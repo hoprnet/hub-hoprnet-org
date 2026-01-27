@@ -17,7 +17,7 @@ import {
 } from '../../../config';
 import { safeActions, safeActionsAsync } from '../../store/slices/safe';
 import { useAppDispatch, useAppSelector } from '../../store';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient } from 'wagmi';
 
 // Abis
 import { MultiSendAbi } from '../../utils/abis/MultiSendAbi';
@@ -160,7 +160,7 @@ function TransactionLink({ isSuccess, hash }: TransactionLinkProps) {
 
 function WrapperPage() {
   const dispatch = useAppDispatch();
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const [fundsSource, set_fundsSource] = useState<'wallet' | 'safe'>('safe');
   const [xhoprValue, set_xhoprValue] = useState('');
   const [wxhoprValue, set_wxhoprValue] = useState('');

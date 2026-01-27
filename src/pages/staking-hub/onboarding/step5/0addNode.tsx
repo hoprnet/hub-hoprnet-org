@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from '@emotion/styled';
 import { StepContainer, ConfirmButton } from '../components';
-import { useEthersSigner } from '../../../../hooks';
+import { useWalletClient} from 'wagmi';
 import { getAddress } from 'viem';
 
 // Mui
@@ -49,7 +49,7 @@ export default function AddNode(props?: { onDone?: Function; onBack?: Function; 
   const ownerAddress = useAppSelector((store) => store.stakingHub.safeInfo.data.owners[0].owner.id);
   const account = useAppSelector((store) => store.web3.account);
   const safeIndexed = useAppSelector((store) => store.safe.info.safeIndexed);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const [isLoading, set_isLoading] = useState(false);
   const [address, set_address] = useState(
     HOPRdNodeAddressForOnboarding

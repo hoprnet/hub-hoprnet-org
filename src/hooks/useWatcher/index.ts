@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { parseEther } from 'viem';
-import { useEthersSigner } from '..';
+import { useWalletClient} from 'wagmi';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { appActions } from '../../store/slices/app';
 import { observePendingSafeTransactions } from './safeTransactions';
@@ -9,7 +8,7 @@ import { observeSafeInfo } from './safeInfo';
 export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: number }) => {
   const dispatch = useAppDispatch();
 
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   // flags to activate notifications
   const activePendingSafeTransaction = useAppSelector(
     (store) => store.app.configuration.notifications.pendingSafeTransaction

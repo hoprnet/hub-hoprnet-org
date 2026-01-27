@@ -3,7 +3,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { truncateHOPRPeerId } from '../../../utils/helpers';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { safeActionsAsync } from '../../../store/slices/safe';
-import { useEthersSigner } from '../../../hooks';
+import { useWalletClient } from 'wagmi';
 import { rounder } from '../../../utils/functions';
 import { getAddress } from 'viem';
 

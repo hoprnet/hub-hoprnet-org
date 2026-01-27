@@ -19,7 +19,7 @@ import { truncateEthereumAddress } from '../../utils/blockchain';
 
 //web3
 import { browserClient } from '../../providers/wagmi';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient } from 'wagmi';
 import { getAddress } from 'viem';
 
 const AppBarContainer = styled(Button)`
@@ -114,7 +114,7 @@ export default function ConnectSafe() {
   useWatcher({});
   const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const isConnected = useAppSelector((store) => store.web3.status.connected);
   const ownerAddress = useAppSelector((store) => store.web3.account);
   const safes = useAppSelector((store) => store.stakingHub.safes.data);
@@ -227,12 +227,12 @@ export default function ConnectSafe() {
       });
       dispatch(
         safeActionsAsync.getSafesByOwnerThunk({
-          signer: signer,
+          signer,
         })
       );
       dispatch(
         safeActionsAsync.getSafeInfoThunk({
-          signer: signer,
+          signer,
           safeAddress,
         })
       );

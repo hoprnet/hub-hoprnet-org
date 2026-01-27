@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { useEthersSigner } from '../../../hooks';
+import { useWalletClient } from 'wagmi';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { safeActionsAsync } from '../../../store/slices/safe';
 import { encodeFunctionData, getAddress } from 'viem';
@@ -13,7 +13,6 @@ import Button from '../../../future-hopr-lib-components/Button';
 import { GrayCard } from '../../../future-hopr-lib-components/Cards/GrayCard';
 import { stakingHubActions } from '../../../store/slices/stakingHub';
 import { web3ActionsAsync } from '../../../store/slices/web3';
-import { useWalletClient } from 'wagmi';
 import SafeTransactionButton from '../../../components/SafeTransactionButton';
 
 const Container = styled.div`
@@ -86,7 +85,7 @@ const TransferNFT = styled.div`
 
 function SafeDashboard() {
   const dispatch = useAppDispatch();
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const walletAddress = useAppSelector((store) => store.web3.account);
   const { data: walletClient } = useWalletClient();
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as `0x${string}`;
