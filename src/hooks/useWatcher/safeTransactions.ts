@@ -1,10 +1,10 @@
 import { SafeMultisigTransactionListResponse } from '@safe-global/api-kit';
 import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
-import { ethers } from 'ethers';
 import { safeActionsAsync } from '../../store/slices/safe';
 import { useAppDispatch } from '../../store';
 import { sendNotification } from './notifications';
 import { observeData } from './observeData';
+import { WalletClient } from 'viem';
 
 /**
  * Checks if there's a new pending transaction based on the submission date.
@@ -60,7 +60,7 @@ export const observePendingSafeTransactions = ({
 }: {
   selectedSafeAddress: string | null;
   previousState: SafeMultisigTransactionResponse | null;
-  signer: ethers.providers.JsonRpcSigner | undefined;
+  signer: WalletClient | undefined;
   active: boolean;
   updatePreviousData: (currentData: SafeMultisigTransactionResponse) => void;
   dispatch: ReturnType<typeof useAppDispatch>;

@@ -869,16 +869,20 @@ const getPendingSafeTransactionsThunk = createAsyncThunk<
   }
 );
 
+type AddSafeDelegateProps2 = Omit<AddSafeDelegateProps, 'signer'> & {
+  signer: WalletClient;
+};
+
 const addSafeDelegateThunk = createAsyncThunk<
   SafeDelegateResponse | undefined,
-  AddSafeDelegateProps,
+  AddSafeDelegateProps2,
   { state: RootState }
 >(
   'safe/addDelegate',
   async (payload, { rejectWithValue, dispatch }) => {
     try {
       const safeApi = await createSafeApiService();
-      const response = await safeApi.addSafeDelegate(payload);
+      const response = await safeApi.addSafeDelegate(payload as AddSafeDelegateProps);
 
       // update delegate list
       dispatch(
@@ -914,6 +918,7 @@ const addSafeDelegateThunk = createAsyncThunk<
 
 type DeleteSafeDelegateProps2 = DeleteSafeDelegateProps & {
   safeAddress: `0x${string}`;
+  signer: WalletClient;
 };
 
 const removeSafeDelegateThunk = createAsyncThunk<

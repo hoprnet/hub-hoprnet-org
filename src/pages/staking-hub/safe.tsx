@@ -47,7 +47,7 @@ function SafeSection() {
   const prevPendingSafeTransaction = useAppSelector((store) => store.app.previousStates.prevPendingSafeTransaction);
   const safeModules = useAppSelector((state) => state.safe.info.data?.modules);
   const { account } = useAppSelector((store) => store.web3);
-  const { data: walletClient } = useWalletClient();
+  const { data: signer } = useWalletClient();
   const [createSafeThreshold, set_createSafeThreshold] = useState(1);
   const [owners, set_owners] = useState('');
   const [nodeAddress, set_nodeAddress] = useState('');
@@ -99,25 +99,25 @@ function SafeSection() {
   });
 
   useEffect(() => {
-    fetchInitialStateForSigner(walletClient);
-  }, [walletClient]);
+    fetchInitialStateForSigner(signer);
+  }, [signer]);
 
   useEffect(() => {
     refetchIsNodeSafeRegistered();
     refetchIsNodeResponse();
   }, [blockNumber]);
 
-  const fetchInitialStateForSigner = async (walletClient: WalletClient | undefined) => {
-    if (walletClient) {
-      dispatch(safeActionsAsync.getSafesByOwnerThunk({ signer: walletClient as Eip1193Provider}));
+  const fetchInitialStateForSigner = async (signer: WalletClient | undefined) => {
+    if (signer) {
+      dispatch(safeActionsAsync.getSafesByOwnerThunk({ signer }));
     }
   };
 
   const updateSafeThreshold = async (safeAddress: string) => {
-    if (walletClient && safeAddress) {
+    if (signer && safeAddress) {
       const removeTransactionData = await dispatch(
         safeActionsAsync.createSetThresholdToSafeTransactionDataThunk({
-          signer: walletClient,
+          signer,
           newThreshold: newThreshold,
           safeAddress: safeAddress,
         })
@@ -126,7 +126,7 @@ function SafeSection() {
       if (removeTransactionData) {
         await dispatch(
           safeActionsAsync.createSafeTransactionThunk({
-            signer: walletClient,
+            signer,
             safeAddress: safeAddress,
             safeTransactionData: removeTransactionData,
           })
@@ -141,12 +141,12 @@ function SafeSection() {
   };
 
   const removeOwner = async (address: string, safeAddress: string, threshold?: number) => {
-    if (walletClient && safeAddress) {
+    if (signer && safeAddress) {
       const transactionData = await dispatch(
         safeActionsAsync.createRemoveOwnerFromSafeTransactionDataThunk({
           ownerAddress: address,
           safeAddress: safeAddress,
-          signer: walletClient,
+          signer,
           threshold: threshold,
         })
       ).unwrap();
@@ -156,7 +156,7 @@ function SafeSection() {
       const transactionHash = await dispatch(
         safeActionsAsync.createAndExecuteSafeTransactionThunk({
           safeAddress: safeAddress,
-          signer: walletClient,
+          signer,
           safeTransactionData: transactionData,
         })
       ).unwrap();
@@ -166,12 +166,12 @@ function SafeSection() {
   };
 
   const addOwner = async (safeAddress: string) => {
-    if (walletClient && safeAddress) {
+    if (signer && safeAddress) {
       const transactionData = await dispatch(
         safeActionsAsync.createAddOwnerToSafeTransactionDataThunk({
           ownerAddress: newOwner,
           safeAddress: safeAddress,
-          signer: walletClient,
+          signer,
         })
       ).unwrap();
 
@@ -179,7 +179,7 @@ function SafeSection() {
         const transactionHash = await dispatch(
           safeActionsAsync.createAndExecuteSafeTransactionThunk({
             safeAddress: safeAddress,
-            signer: walletClient,
+            signer,
             safeTransactionData: transactionData,
           })
         ).unwrap();
@@ -212,27 +212,27 @@ function SafeSection() {
         <button
           key={safeAddress}
           onClick={() => {
-            if (walletClient) {
+            if (signer) {
               dispatch(appActions.resetState());
               observePendingSafeTransactions({
                 dispatch,
                 active: activePendingSafeTransaction,
                 previousState: prevPendingSafeTransaction,
                 selectedSafeAddress: safeAddress,
-                signer: walletClient,
+                signer,
                 updatePreviousData: (newData) => {
                   dispatch(appActions.setPrevPendingSafeTransaction(newData));
                 },
               });
               dispatch(
                 safeActionsAsync.getSafeInfoThunk({
-                  signer: walletClient,
+                  signer,
                   safeAddress,
                 })
               );
               dispatch(
                 safeActionsAsync.getAllSafeTransactionsThunk({
-                  signer: walletClient,
+                  signer,
                   safeAddress,
                 })
               );
@@ -268,14 +268,14 @@ function SafeSection() {
       />
       <button
         onClick={() => {
-          if (walletClient) {
+          if (signer) {
             dispatch(
               safeActionsAsync.createVanillaSafeWithConfigThunk({
                 config: {
                   owners: owners.split(','),
                   threshold: createSafeThreshold,
                 },
-                signer: walletClient,
+                signer,
               })
             );
           }
@@ -285,14 +285,14 @@ function SafeSection() {
       </button>
       <button
         onClick={() => {
-          if (walletClient) {
+          if (signer) {
             dispatch(
               safeActionsAsync.createSafeWithConfigThunk({
                 config: {
                   owners: owners.split(','),
                   threshold: createSafeThreshold,
                 },
-                walletClient,
+                walletClient: signer,
               })
             );
           }
@@ -313,11 +313,11 @@ function SafeSection() {
       <button
         disabled={!selectedSafeAddress}
         onClick={() => {
-          if (walletClient && selectedSafeAddress) {
+          if (signer && selectedSafeAddress) {
             dispatch(
               safeActionsAsync.getSafeInfoThunk({
                 safeAddress: selectedSafeAddress,
-                signer: walletClient,
+                signer,
               })
             );
           }
@@ -328,13 +328,13 @@ function SafeSection() {
       <button
         disabled={!safeModules?.length}
         onClick={() => {
-          if (walletClient && selectedSafeAddress && safeModules && safeModules.at(0) && nodeAddress) {
+          if (signer && selectedSafeAddress && safeModules && safeModules.at(0) && nodeAddress) {
             dispatch(
               safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
                 smartContractAddress: safeModules.at(0) as Address,
                 data: createIncludeNodeTransactionData(nodeAddress),
                 safeAddress: selectedSafeAddress,
-                signer: walletClient,
+                signer,
               })
             )
               .unwrap()
@@ -369,12 +369,12 @@ function SafeSection() {
       <button
         disabled={!safeAddressForRegistry || !nodeAddressForRegistry}
         onClick={() => {
-          if (walletClient && safeAddressForRegistry && nodeAddressForRegistry) {
+          if (signer && safeAddressForRegistry && nodeAddressForRegistry) {
             dispatch(
               stakingHubActionsAsync.registerNodeAndSafeToNRThunk({
                 safeAddress: safeAddressForRegistry,
                 nodeAddress: nodeAddressForRegistry,
-                walletClient,
+                walletClient: signer,
               })
             );
           }
@@ -386,12 +386,12 @@ function SafeSection() {
       <button
         disabled={!selectedSafeAddress}
         onClick={async () => {
-          if (selectedSafeAddress && walletClient) {
-            const [signerAddress] = await walletClient.getAddresses();
+          if (selectedSafeAddress && signer) {
+            const [signerAddress] = await signer.getAddresses();
             dispatch(
               safeActionsAsync.createSafeTransactionThunk({
                 safeAddress: selectedSafeAddress,
-                signer: walletClient,
+                signer,
                 safeTransactionData: {
                   value: parseEther('0.001').toString(),
                   to: signerAddress,
@@ -489,10 +489,10 @@ function SafeSection() {
             transaction.confirmationsRequired === transaction.confirmations?.length ? (
               <button
                 onClick={() => {
-                  if (walletClient) {
+                  if (signer) {
                     dispatch(
                       safeActionsAsync.executePendingTransactionThunk({
-                        signer: walletClient,
+                        signer,
                         safeAddress: transaction.safe,
                         safeTransaction: transaction,
                       })
@@ -505,10 +505,10 @@ function SafeSection() {
             ) : (
               <button
                 onClick={() => {
-                  if (walletClient) {
+                  if (signer) {
                     dispatch(
                       safeActionsAsync.confirmTransactionThunk({
-                        signer: walletClient,
+                        signer,
                         safeAddress: transaction.safe,
                         safeTransactionHash: transaction.safeTxHash,
                       })
@@ -525,13 +525,13 @@ function SafeSection() {
       <h2>approve hopr token to hopr channels</h2>
       <span>allowance: {formatEther(BigInt(allowanceData?.toString() ?? '0'))}</span>
       <button
-        disabled={!selectedSafeAddress || !walletClient}
+        disabled={!selectedSafeAddress || !signer}
         onClick={() => {
-          if (walletClient && selectedSafeAddress) {
+          if (signer && selectedSafeAddress) {
             dispatch(
               safeActionsAsync.createSafeContractTransactionThunk({
                 data: createApproveTransactionData(HOPR_CHANNELS_SMART_CONTRACT_ADDRESS, MAX_UINT256),
-                signer: walletClient,
+                signer,
                 safeAddress: selectedSafeAddress,
                 smartContractAddress: HOPR_TOKEN_USED_CONTRACT_ADDRESS,
               })

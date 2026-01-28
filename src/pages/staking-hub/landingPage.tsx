@@ -18,7 +18,6 @@ import { stakingHubActions, stakingHubActionsAsync } from '../../store/slices/st
 // Mui
 import { Accordion, AccordionDetails, AccordionSummary, Card, Chip } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { on } from 'events';
 
 const StyledContainer = styled.div`
   align-items: center;

@@ -28,7 +28,7 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
         previousState: prevPendingSafeTransaction,
         selectedSafeAddress,
         active: activePendingSafeTransaction,
-        signer: signer,
+        signer,
         updatePreviousData: (newSafeTransactions) => {
           dispatch(appActions.setPrevPendingSafeTransaction(newSafeTransactions));
         },

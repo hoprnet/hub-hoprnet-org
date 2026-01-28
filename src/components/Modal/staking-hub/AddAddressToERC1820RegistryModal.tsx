@@ -11,10 +11,8 @@ import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { useWriteContract, useSimulateContract, useWalletClient } from 'wagmi';
 import { ERC1820_REGISTRY } from '../../../../config';
 import { ERC1820RegistryAbi } from '../../../utils/abis/ERC1820RegistryAbi';
-import { safeActions, safeActionsAsync } from '../../../store/slices/safe';
-import { Address, encodeFunctionData, encodePacked, getAddress } from 'viem';
-import { type UseSimulateContractParameters } from 'wagmi';
-import { encode } from 'punycode';
+import { safeActionsAsync } from '../../../store/slices/safe';
+import { encodeFunctionData, } from 'viem';
 import SafeTransactionButton from '../../../components/SafeTransactionButton';
 import { useNavigate } from 'react-router-dom';
 
