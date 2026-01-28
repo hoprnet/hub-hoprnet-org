@@ -31,6 +31,7 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
   'stakingHub/getHubSafesByOwner',
   async (payload, { rejectWithValue, dispatch }) => {
     dispatch(setHubSafesByOwnerFetching(true));
+    console.log('getHubSafesByOwnerThunk', payload);
     try {
       const resp = await fetch(`${WEBAPI_URL}/hub/getHubSafesByOwner`, {
         method: 'POST',
@@ -64,6 +65,7 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
   {
     condition: (_payload, { getState }) => {
       const isFetching = getState().stakingHub.safes.isFetching;
+      console.log('getHubSafesByOwnerThunk condition', isFetching);
       if (isFetching) {
         return false;
       }
@@ -315,6 +317,8 @@ const goToStepWeShouldBeOnThunk = createAsyncThunk<number, undefined, { state: R
         return 11;
       }
 
+      console.log('[Onboarding check] Safe balance (xDai):', state.safe.balance.data.xDai.value);
+      console.log('[Onboarding check] Safe balance (wxHopr):', state.safe.balance.data.wxHopr.value);
       // Part of the onboarding before COMM registers you
       const xDaiInSafeCheck =
         state.safe.balance.data.xDai.value &&
@@ -363,7 +367,6 @@ const getOnboardingDataThunk = createAsyncThunk<
   { browserClient: PublicClient; safeAddress: string; moduleAddress: string },
   { state: RootState }
 >('stakingHub/getOnboardingData', async (payload, { rejectWithValue, dispatch }) => {
-  dispatch(stakingHubActions.onboardingIsFetching(true));
   // await dispatch(safeActionsAsync.getCommunityNftsOwnedBySafeThunk(payload.safeAddress)).unwrap();
   const moduleAddress = payload.moduleAddress;
 
@@ -407,7 +410,6 @@ const getOnboardingDataThunk = createAsyncThunk<
     })
   );
   dispatch(goToStepWeShouldBeOnThunk());
-  dispatch(stakingHubActions.onboardingIsFetching(false));
 });
 
 const getNodesDataThunk = createAsyncThunk<
@@ -493,11 +495,11 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.safes.data = action.payload;
     }
     if (action.payload.length === 0) {
-      state.onboarding.notStarted = true;
-      state.onboarding.isFetching = false;
-    } else {
-      state.onboarding.notStarted = false;
+      state.onboarding.status = 'NOT_STARTED';
     }
+    state.safes.isFetching = false;
+  });
+  builder.addCase(getHubSafesByOwnerThunk.rejected, (state) => {
     state.safes.isFetching = false;
   });
   builder.addCase(getSubgraphDataThunk.pending, (state, action) => {
@@ -591,21 +593,32 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.config.needsUpdate.isFetching = false;
     }
   });
-  builder.addCase(goToStepWeShouldBeOnThunk.pending, (state) => {
+  builder.addCase(getOnboardingDataThunk.pending, (state) => {
     state.onboarding.isFetching = true;
+    state.onboarding.status = 'FETCHING';
+  });
+  builder.addCase(getOnboardingDataThunk.rejected, (state) => {
+    state.onboarding.isFetching = false;
+    state.onboarding.status = 'NOT_STARTED';
+  });
+  // Called only from getOnboardingDataThunk
+  builder.addCase(goToStepWeShouldBeOnThunk.pending, (state) => {
   });
   builder.addCase(goToStepWeShouldBeOnThunk.fulfilled, (state, action) => {
     if (action.payload) {
       state.onboarding.step = action.payload;
       state.onboarding.isFetching = false;
-      if (state.onboarding.step !== 0 && state.onboarding.step !== 16) {
-        state.onboarding.notFinished = true;
-        state.onboarding.notStarted = false;
+      if (state.onboarding.step === 0) {
+        state.onboarding.status = 'NOT_STARTED';
       } else if (state.onboarding.step === 16) {
-        state.onboarding.notFinished = false;
-        state.onboarding.notStarted = false;
+        state.onboarding.status = 'COMPLETED';
+      } else {
+        state.onboarding.status = 'IN_PROGRESS';
       }
     }
+  });
+  builder.addCase(goToStepWeShouldBeOnThunk.rejected, (state) => {
+    state.onboarding.isFetching = false;
   });
   builder.addCase(getNodesDataThunk.fulfilled, (state, action) => {
     const nodesData = action.payload;

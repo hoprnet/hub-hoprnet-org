@@ -27,11 +27,8 @@ const stakingHubSlice = createSlice({
         nodeAddressProvidedByMagicLink: null,
         safeAddress: null,
         moduleAddress: null,
-        notFinished: false,
         userIsInOnboarding: false,
         nodeXDaiBalance: null,
-        isFetching: false,
-        notStarted: null,
         modalToSartOnboardingDismissed: false,
         nodeBalance: {
           xDai: {
@@ -39,6 +36,8 @@ const stakingHubSlice = createSlice({
             formatted: null,
           },
         },
+        status: 'NOT_FETCHED',
+        isFetching: false,
       };
     },
     dismissModalToSartOnboarding: (state) => {
@@ -79,7 +78,7 @@ const stakingHubSlice = createSlice({
     setOnboardingStep: (state, action) => {
       state.onboarding.step = action.payload;
       if (action.payload === 16) {
-        state.onboarding.notFinished = false;
+        state.onboarding.status = 'COMPLETED';
       }
     },
     setNodeLinkedToSafeBalance_xDai: (state, action) => {

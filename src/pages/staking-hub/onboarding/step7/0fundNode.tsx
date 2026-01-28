@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Address, parseUnits, getAddress } from 'viem';
 import { MINIMUM_XDAI_TO_FUND_NODE } from '../../../../../config';
 import GrayButton from '../../../../future-hopr-lib-components/Button/gray';
-import { useEthersSigner } from '../../../../hooks';
+import { useWalletClient} from 'wagmi';
 import { StepContainer } from '../components';
 import { StyledTextField } from '../styled';
 
@@ -92,7 +92,7 @@ export default function FundNode(props?: { onDone?: Function; nodeAddress?: stri
   const [txError, set_txError] = useState<string | null>(null);
   const [transactionHash, set_transactionHash] = useState<Address>();
   const [isWalletLoading, set_isWalletLoading] = useState(false);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
 
   const nodeAddress: string = props?.nodeAddress ? props.nodeAddress : nodeAddressFromStore;
 

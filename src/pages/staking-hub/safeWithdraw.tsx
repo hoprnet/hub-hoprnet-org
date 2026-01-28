@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Address, parseUnits, getAddress } from 'viem';
@@ -8,7 +8,7 @@ import {
   wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
   xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
 } from '../../../config';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient } from 'wagmi';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { safeActions, safeActionsAsync } from '../../store/slices/safe';
 import { createSendNftTransactionData, createSendTokensTransactionData } from '../../utils/blockchain';
@@ -17,7 +17,6 @@ import { createSendNftTransactionData, createSendTokensTransactionData } from '.
 import Card from '../../components/Card';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import Section from '../../future-hopr-lib-components/Section';
-import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
 import { MaxButton } from './wrapper';
 
 // Mui
@@ -140,7 +139,7 @@ function SafeWithdraw() {
   const address = useAppSelector((store) => store.web3.account);
   const communityNftIds = useAppSelector((store) => store.safe.communityNftIds.data);
   const safeBalances = useAppSelector((store) => store.safe.balance.data);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   // local state
   const [userAction, set_userAction] = useState<'EXECUTE' | 'SIGN' | null>(null);
   const [ethValue, set_ethValue] = useState<string>('');
@@ -453,7 +452,6 @@ function SafeWithdraw() {
       center
       fullHeightMin
     >
-      <StartOnboarding />
       <Card
         image={{
           src: '/assets/funds-safe-withdraw.svg',

@@ -1,9 +1,9 @@
 import { observeData } from './observeData';
-import { ethers } from 'ethers';
 import { sendNotification } from './notifications';
 import { useAppDispatch } from '../../store';
 import { safeActionsAsync } from '../../store/slices/safe';
 import { SafeInfoResponse } from '@safe-global/api-kit';
+import { WalletClient } from 'viem';
 
 /**
  * Observes Safe Information for making sure if safe is already indexed by HOPR Safe Infra.
@@ -18,7 +18,7 @@ export const observeSafeInfo = ({
 }: {
   selectedSafeAddress: string | null;
   safeIndexed?: boolean | null;
-  signer: ethers.providers.JsonRpcSigner | undefined;
+  signer: WalletClient | undefined;
   active: boolean;
   dispatch: ReturnType<typeof useAppDispatch>;
 }) =>

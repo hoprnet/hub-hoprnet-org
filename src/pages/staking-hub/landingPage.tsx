@@ -9,12 +9,11 @@ import ContinueOnboarding from '../../components/Modal/staking-hub/ContinueOnboa
 import CardWithAccordionSteps from '../../components/CardWithAccordionSteps';
 import Footer from '../../future-hopr-lib-components/Layout/footer';
 import Section from '../../future-hopr-lib-components/Section';
-import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
 import { web3Actions } from '../../store/slices/web3';
-import { stakingHubActionsAsync } from '../../store/slices/stakingHub';
+import { stakingHubActions, stakingHubActionsAsync } from '../../store/slices/stakingHub';
 
 // Mui
 import { Accordion, AccordionDetails, AccordionSummary, Card, Chip } from '@mui/material';
@@ -358,8 +357,7 @@ const StakingLandingPage = () => {
   const dispatch = useAppDispatch();
   const [expandedId, set_expandedId] = useState<number | false>(false);
   const status = useAppSelector((store) => store.web3.status);
-  const onboardingStep = useAppSelector((store) => store.stakingHub.onboarding.step);
-  const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
+  const onboardingStatus = useAppSelector((store) => store.stakingHub.onboarding.status);
   const totalwxHoprStakeRaw = useAppSelector((store) => store.stakingHub.totalStaked.data?.wxHoprBalance);
 
   const totalwxHoprStake = totalwxHoprStakeRaw
@@ -409,27 +407,45 @@ const StakingLandingPage = () => {
             Earn $HOPR while providing web3 users with the data privacy and autonomy Web 2.0 never did. Create your HOPR
             Safe and start running a Node now!
           </Description>
-          {(!status.connected || onboardingIsFetching) && (
+          {
+            ( !status.connected
+            || onboardingStatus === 'NOT_FETCHED') &&
             <StyledButton
               onClick={() => {
                 dispatch(web3Actions.setModalOpen(true));
               }}
               disabled={status.connected}
-              pending={status.connected && onboardingIsFetching}
+              pending={status.connected && onboardingStatus === 'NOT_FETCHED'}
             >
               CONNECT WALLET
             </StyledButton>
-          )}
-          {status.connected && onboardingStep !== 16 && !onboardingIsFetching && (
+          }
+          {
+            status.connected &&
+            onboardingStatus === 'NOT_STARTED' &&
+            <StyledButton
+              onClick={() => {
+                navigate('/staking/onboarding');
+                dispatch(stakingHubActions.setOnboardingStep(0));
+              }}
+            >
+              START ONBOARDING
+            </StyledButton>
+          }
+          {
+            status.connected &&
+            onboardingStatus === 'IN_PROGRESS' &&
             <StyledButton
               onClick={() => {
                 navigate('/staking/onboarding');
               }}
             >
-              GO TO ONBOARDING
+              CONTINUE ONBOARDING
             </StyledButton>
-          )}
-          {status.connected && onboardingStep === 16 && !onboardingIsFetching && (
+          }
+          {
+            status.connected &&
+            onboardingStatus === 'COMPLETED' &&
             <StyledButton
               onClick={() => {
                 navigate('/staking/dashboard');
@@ -438,8 +454,7 @@ const StakingLandingPage = () => {
             >
               VIEW STAKING OVERVIEW
             </StyledButton>
-          )}
-
+          }
           <BrandsSection>
             <Brand>
               <BrandText>DEVELOPED USING</BrandText>

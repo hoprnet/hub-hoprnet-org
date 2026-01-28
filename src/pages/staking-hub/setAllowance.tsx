@@ -8,7 +8,7 @@ import {
 } from '../../../config';
 import Button from '../../future-hopr-lib-components/Button';
 import Section from '../../future-hopr-lib-components/Section';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient } from 'wagmi';
 import { StepContainer } from './onboarding/components';
 import { Lowercase, StyledCoinLabel, StyledInputGroup, StyledTextField } from './onboarding/styled';
 
@@ -44,7 +44,7 @@ export default function SetAllowance() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as Address;
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const [wxHoprValue, set_wxHoprValue] = useState('');
   const [loading, set_loading] = useState(false);
 

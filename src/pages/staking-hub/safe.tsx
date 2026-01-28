@@ -1,6 +1,5 @@
-import { utils } from 'ethers';
 import { useEffect, useState } from 'react';
-import { Address, formatEther } from 'viem';
+import { Address, formatEther, parseEther } from 'viem';
 import { useReadContract, useWalletClient, useBlockNumber } from 'wagmi';
 import { erc20Abi } from 'viem';
 import { web3 } from '@hoprnet/hopr-sdk';
@@ -9,7 +8,6 @@ import {
   HOPR_NODE_SAFE_REGISTRY,
   HOPR_TOKEN_USED_CONTRACT_ADDRESS,
 } from '../../../config';
-import { useEthersSigner } from '../../hooks';
 import { observePendingSafeTransactions } from '../../hooks/useWatcher/safeTransactions';
 import { appActions } from '../../store/slices/app';
 import {
@@ -19,6 +17,9 @@ import {
   encodeDefaultPermissions,
 } from '../../utils/blockchain';
 import { Container, FlexContainer, Text } from './onboarding/styled';
+import { useConnectorClient, UseConnectorClientReturnType } from 'wagmi'
+import { WalletClient } from 'viem';
+import Safe, { PredictedSafeProps, SafeAccountConfig, Eip1193Provider } from '@safe-global/protocol-kit';
 
 //Stores
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -46,8 +47,7 @@ function SafeSection() {
   const prevPendingSafeTransaction = useAppSelector((store) => store.app.previousStates.prevPendingSafeTransaction);
   const safeModules = useAppSelector((state) => state.safe.info.data?.modules);
   const { account } = useAppSelector((store) => store.web3);
-  const signer = useEthersSigner();
-  const { data: walletClient } = useWalletClient();
+  const { data: signer } = useWalletClient();
   const [createSafeThreshold, set_createSafeThreshold] = useState(1);
   const [owners, set_owners] = useState('');
   const [nodeAddress, set_nodeAddress] = useState('');
@@ -99,7 +99,7 @@ function SafeSection() {
   });
 
   useEffect(() => {
-    fetchInitialStateForSigner();
+    fetchInitialStateForSigner(signer);
   }, [signer]);
 
   useEffect(() => {
@@ -107,7 +107,7 @@ function SafeSection() {
     refetchIsNodeResponse();
   }, [blockNumber]);
 
-  const fetchInitialStateForSigner = async () => {
+  const fetchInitialStateForSigner = async (signer: WalletClient | undefined) => {
     if (signer) {
       dispatch(safeActionsAsync.getSafesByOwnerThunk({ signer }));
     }
@@ -117,7 +117,7 @@ function SafeSection() {
     if (signer && safeAddress) {
       const removeTransactionData = await dispatch(
         safeActionsAsync.createSetThresholdToSafeTransactionDataThunk({
-          signer: signer,
+          signer,
           newThreshold: newThreshold,
           safeAddress: safeAddress,
         })
@@ -126,7 +126,7 @@ function SafeSection() {
       if (removeTransactionData) {
         await dispatch(
           safeActionsAsync.createSafeTransactionThunk({
-            signer: signer,
+            signer,
             safeAddress: safeAddress,
             safeTransactionData: removeTransactionData,
           })
@@ -171,7 +171,7 @@ function SafeSection() {
         safeActionsAsync.createAddOwnerToSafeTransactionDataThunk({
           ownerAddress: newOwner,
           safeAddress: safeAddress,
-          signer: signer,
+          signer,
         })
       ).unwrap();
 
@@ -194,7 +194,7 @@ function SafeSection() {
         id="Section--safe"
         yellow
       >
-        <h2>connect signer</h2>
+        <h2>connect walletClient</h2>
       </Section>
     );
   }
@@ -237,10 +237,7 @@ function SafeSection() {
                 })
               );
               dispatch(
-                safeActionsAsync.getSafeDelegatesThunk({
-                  signer,
-                  options: { safeAddress },
-                })
+                safeActionsAsync.getSafeDelegatesThunk({safeAddress})
               );
               dispatch(safeActionsAsync.getGnoAidropThunk(safeAddress));
             }
@@ -288,14 +285,14 @@ function SafeSection() {
       </button>
       <button
         onClick={() => {
-          if (walletClient) {
+          if (signer) {
             dispatch(
               safeActionsAsync.createSafeWithConfigThunk({
                 config: {
                   owners: owners.split(','),
                   threshold: createSafeThreshold,
                 },
-                walletClient,
+                walletClient: signer,
               })
             );
           }
@@ -372,12 +369,12 @@ function SafeSection() {
       <button
         disabled={!safeAddressForRegistry || !nodeAddressForRegistry}
         onClick={() => {
-          if (walletClient && safeAddressForRegistry && nodeAddressForRegistry) {
+          if (signer && safeAddressForRegistry && nodeAddressForRegistry) {
             dispatch(
               stakingHubActionsAsync.registerNodeAndSafeToNRThunk({
                 safeAddress: safeAddressForRegistry,
                 nodeAddress: nodeAddressForRegistry,
-                walletClient,
+                walletClient: signer,
               })
             );
           }
@@ -390,13 +387,13 @@ function SafeSection() {
         disabled={!selectedSafeAddress}
         onClick={async () => {
           if (selectedSafeAddress && signer) {
-            const signerAddress = await signer.getAddress();
+            const [signerAddress] = await signer.getAddresses();
             dispatch(
               safeActionsAsync.createSafeTransactionThunk({
                 safeAddress: selectedSafeAddress,
                 signer,
                 safeTransactionData: {
-                  value: utils.parseEther('0.001').toString(),
+                  value: parseEther('0.001').toString(),
                   to: signerAddress,
                   data: '0x',
                 },

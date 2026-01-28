@@ -238,33 +238,13 @@ const LayoutEnhanced = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const { disconnect } = useDisconnect();
-  const nodeConnected = useAppSelector((store) => store.auth.status.connected);
   const web3Connected = useAppSelector((store) => store.web3.status.connected);
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
   const [searchParams] = useSearchParams();
   const HOPRdNodeAddressForOnboarding = searchParams.get('HOPRdNodeAddressForOnboarding'); //Address given in HOPRd: https://hub.hoprnet.org/staking/onboarding?HOPRdNodeAddressForOnboarding={my_address}
 
-  const numberOfPeers = useAppSelector((store) => store.node.peers.data?.connected.length);
-  const numberOfAliases = useAppSelector(
-    (store) => store.node.aliases?.data && Object.keys(store.node.aliases?.data).length
-  );
-  const numberOfMessagesReceived = useAppSelector((store) => store.node.messages.data.length);
-  const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
-  const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
-
-  const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
-  const onboardingNotFinished = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
-  const onboardingNotStarted = useAppSelector((store) => store.stakingHub.onboarding.notStarted);
-  const onboardingFinished = onboardingIsFetching || onboardingNotStarted ? null : !onboardingNotFinished;
-
-  const numberForDrawer = {
-    numberOfPeers,
-    numberOfAliases,
-    numberOfMessagesReceived,
-    numberOfChannelsIn,
-    numberOfChannelsOut,
-  };
+  const onboardingStatus = useAppSelector((store) => store.stakingHub.onboarding.status);
 
   useEffect(() => {
     if (!HOPRdNodeAddressForOnboarding) return;
@@ -277,8 +257,7 @@ const LayoutEnhanced = () => {
       (location.pathname === '/' || location.pathname === '/privacy-notice' || location.pathname === '/tos')
     )
       return false;
-    if (isConnected || nodeConnected) return true;
-    return false;
+    return isConnected;
   };
 
   const handleDisconnectMM = () => {
@@ -311,6 +290,8 @@ const LayoutEnhanced = () => {
     },
   ];
 
+  const numberForDrawer: { [key: string]: number } = {};
+
   return (
     <Layout
       drawer
@@ -319,11 +300,9 @@ const LayoutEnhanced = () => {
       drawerFunctionItems={environment === 'web3' ? drawerFunctionItems : undefined}
       drawerNumbers={numberForDrawer}
       drawerLoginState={{
-        node: nodeConnected,
         web3: web3Connected,
         safe: !!safeAddress && web3Connected,
-        onboardingNotStarted,
-        onboardingFinished,
+        onboardingStatus
       }}
       className={environment}
       drawerType={environment === 'web3' ? 'blue' : undefined}
