@@ -67,7 +67,7 @@ const createSafeApiService = async () => {
   const chainId: bigint = 100n;
   const apiKit = new SafeApiKit({
     chainId,
-    txServiceUrl: SAFE_SERVICE_URL
+    txServiceUrl: SAFE_SERVICE_URL,
   })
   return apiKit;
 };

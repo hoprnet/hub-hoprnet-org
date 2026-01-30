@@ -75,6 +75,7 @@ type Owner = {
 };
 
 export type SubgraphParsedOutput = {
+  id: string | null;
   balance: {
     mHoprBalance: string | null;
     wxHoprBalance: string | null;
@@ -163,6 +164,7 @@ export const initialState: InitialState = {
   },
   safeInfo: {
     data: {
+      id: null,
       balance: {
         mHoprBalance: null,
         wxHoprBalance: null,

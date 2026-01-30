@@ -108,9 +108,23 @@ const stakingHubSlice = createSlice({
     },
     updateThreshold: (state, action) => {
       state.safeInfo.data.threshold = `${action.payload}`;
+      const safeAddress = state.safeInfo.data.id;
+      if (safeAddress) {
+        localStorage.setItem(`$${safeAddress.toLowerCase()}_threshold_updated`, JSON.stringify({
+          threshold: action.payload,
+          updated: Date.now(),
+        }));
+      }
     },
     updateAllowance: (state, action) => {
-      state.safeInfo.data.allowance.wxHoprAllowance = action.payload;
+      state.safeInfo.data.allowance.wxHoprAllowance = `${action.payload}`;
+      const safeAddress = state.safeInfo.data.id;
+      if (safeAddress) {
+        localStorage.setItem(`$${safeAddress.toLowerCase()}_allowance_updated`, JSON.stringify({
+          allowance: `${action.payload}`,
+          updated: Date.now(),
+        }));
+      }
     }
   },
   extraReducers: (builder) => {

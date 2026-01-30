@@ -51,6 +51,7 @@ export default function SetAllowance() {
   const executeAllowance = async () => {
     if (signer && selectedSafeAddress && HOPR_CHANNELS_SMART_CONTRACT_ADDRESS) {
       set_loading(true);
+      console.log('xxxxx Allowance', wxHoprValue);
       await dispatch(
         safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
           data: createApproveTransactionData(HOPR_CHANNELS_SMART_CONTRACT_ADDRESS, parseUnits(wxHoprValue, 18)),
@@ -61,6 +62,7 @@ export default function SetAllowance() {
       )
         .unwrap()
         .then(() => {
+          console.log('xxxxx Allowance set to ', wxHoprValue);
           dispatch(stakingHubActions.updateAllowance(wxHoprValue));
         })
         .finally(() => {

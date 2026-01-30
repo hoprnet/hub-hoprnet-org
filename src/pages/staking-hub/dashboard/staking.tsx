@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useAppSelector } from '../../../store';
 import styled from '@emotion/styled';
 import { rounder } from '../../../utils/functions';
@@ -173,7 +173,6 @@ const StakingScreen = () => {
   const safeBalance = useAppSelector((store) => store.safe.balance.data);
   const wxHoprAllowance = useAppSelector((store) => store.stakingHub.safeInfo.data.allowance.wxHoprAllowance);
   const [openBuyModal, set_openBuyModal] = useState(false);
-
   const safeBalancewxHoprShrunk = shrinkNumber(safeBalance.wxHopr.formatted);
   const safeBalancexDaiShrunk = shrinkNumber(safeBalance.xDai.formatted);
   const wxHoprAllowanceShrunk = shrinkNumber(wxHoprAllowance);
