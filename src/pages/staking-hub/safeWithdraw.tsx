@@ -119,11 +119,6 @@ const SUPPORTED_TOKENS = {
       />
     ),
   },
-  // nft: {
-  //   name: 'NFT',
-  //   value: 'nft',
-  //   smartContract: GNOSIS_CHAIN_HOPR_BOOST_NFT,
-  // },
 } as const;
 
 function SafeWithdraw() {
@@ -222,35 +217,6 @@ function SafeWithdraw() {
             set_isWalletLoading(false);
           });
       }
-
-      // if (token === 'nft') {
-      //   const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
-      //   return dispatch(
-      //     safeActionsAsync.createSafeContractTransactionThunk({
-      //       data: createSendNftTransactionData(
-      //         getAddress(selectedSafeAddress) as Address,
-      //         getAddress(receiver) as Address,
-      //         Number(nftId)
-      //       ),
-      //       signer,
-      //       safeAddress: getAddress(selectedSafeAddress),
-      //       smartContractAddress,
-      //     })
-      //   )
-      //     .unwrap()
-      //     .then((transactionResponse) => {
-      //       set_proposedTxHash(transactionResponse);
-      //       navigate('/staking/dashboard#transactions');
-      //     })
-      //     .catch((e) => {
-      //       if (e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`);
-      //       else set_error(`ERROR: ${JSON.stringify(e)}`);
-      //     })
-      //     .finally(() => {
-      //       set_isWalletLoading(false);
-      //     });
-      // }
-      // else {
       const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
       const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
       return dispatch(
@@ -273,7 +239,6 @@ function SafeWithdraw() {
         .finally(() => {
           set_isWalletLoading(false);
         });
-      //}
     }
   };
 
@@ -481,24 +446,6 @@ function SafeWithdraw() {
                   inputProps={{ autoComplete: 'off' }}
                 />
               </InputWithLabel>
-              {/* {token === 'nft' ? (
-                <InputWithLabel>
-                  <Select
-                    size="small"
-                    values={Object.values(communityNftIds).map((nft) => ({
-                      name: nft.id,
-                      value: nft.id,
-                    }))}
-                    value={nftId}
-                    onChange={handleChangeNftId}
-                    style={{
-                      width: '230px',
-                      margin: 0,
-                    }}
-                  />
-                  <StyledCoinLabel>NFT ID</StyledCoinLabel>
-                </InputWithLabel>
-              ) : ( */}
               <InputWithLabel
                 style={{
                   width: '100%',
