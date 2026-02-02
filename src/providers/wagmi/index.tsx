@@ -33,8 +33,12 @@ const config = createConfig({
     }),
   ],
   transports: {
-    [gnosis.id]: fallback([unstable_connector(injected), http('https://rpc.gnosischain.com/')], {
-      rank: true,
+    [gnosis.id]: fallback([
+      unstable_connector(injected),
+      http('https://rpc.gnosischain.com/'),
+      http('https://gnosis-rpc.publicnode.com/'),
+    ], {
+      rank: false,
       retryCount: 3,
     }),
   },
