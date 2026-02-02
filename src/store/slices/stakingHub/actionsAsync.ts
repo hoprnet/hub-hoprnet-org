@@ -567,8 +567,8 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
 
       // In case the subgraph data is outdated, we check localStorage for recent updates
       const safeAddress = action.meta.arg.safeAddress.toLowerCase();
-      const thresholdUpdated = localStorage.getItem(`$${safeAddress}_threshold_updated`);
-      const allowanceUpdated = localStorage.getItem(`$${safeAddress}_allowance_updated`);
+      const thresholdUpdated = localStorage.getItem(`${safeAddress}_threshold_updated`);
+      const allowanceUpdated = localStorage.getItem(`${safeAddress}_allowance_updated`);
 
       if(thresholdUpdated && typeof thresholdUpdated === 'string'){
         const object = JSON.parse(thresholdUpdated);
@@ -576,7 +576,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
           console.log('Using locally stored updated threshold value:', object);
           state.safeInfo.data.threshold = `${object.threshold}`;
         } else {
-          localStorage.removeItem(`$${safeAddress}_threshold_updated`);
+          localStorage.removeItem(`${safeAddress}_threshold_updated`);
         }
       }
       if(allowanceUpdated && typeof allowanceUpdated === 'string'){
@@ -585,7 +585,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
           console.log('Using locally stored updated allowance value:', object);
           state.safeInfo.data.allowance.wxHoprAllowance = `${object.allowance}`;
         } else {
-          localStorage.removeItem(`$${safeAddress}_allowance_updated`);
+          localStorage.removeItem(`${safeAddress}_allowance_updated`);
         }
       }
 
