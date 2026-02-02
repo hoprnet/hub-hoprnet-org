@@ -31,11 +31,6 @@ import { DockerRunCommandModal } from '../../../components/Modal/staking-hub/Doc
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
 import TrainIcon from '../../../future-hopr-lib-components/Icons/TrainIcon';
 
-//web3
-import { Address } from 'viem';
-import { browserClient } from '../../../providers/wagmi';
-import { Dock } from '@mui/icons-material';
-
 const Container = styled.section`
   padding: 1rem;
 

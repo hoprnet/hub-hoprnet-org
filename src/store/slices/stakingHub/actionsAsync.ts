@@ -113,11 +113,11 @@ const registerNodeAndSafeToNRThunk = createAsyncThunk<
 
 const getSubgraphDataThunk = createAsyncThunk<
   SubgraphParsedOutput,
-  { safeAddress: string; moduleAddress: string; browserClient: PublicClient },
+  { safeAddress: string; moduleAddress: string; publicClient: PublicClient },
   { state: RootState }
 >(
   'stakingHub/getSubgraphData',
-  async ({ safeAddress, moduleAddress, browserClient }, { rejectWithValue, dispatch }) => {
+  async ({ safeAddress, moduleAddress, publicClient }, { rejectWithValue, dispatch }) => {
     try {
       const resp = await fetch(`${WEBAPI_URL}/hub/getSafeInfo`, {
         method: 'POST',
@@ -152,9 +152,9 @@ const getSubgraphDataThunk = createAsyncThunk<
 
       console.log('nodeAddress', nodesAddressesFiltered);
 
-      dispatch(getNodesDataThunk({ nodesAddresses: nodesAddressesFiltered, browserClient }));
+      dispatch(getNodesDataThunk({ nodesAddresses: nodesAddressesFiltered, publicClient }));
       nodesAddressesFiltered.map((nodeAddress) => {
-        dispatch(getNodeBalanceThunk({ nodeAddress, browserClient }));
+        dispatch(getNodeBalanceThunk({ nodeAddress, publicClient }));
       });
 
       console.log('SubgraphParsedOutput', output);
@@ -364,7 +364,7 @@ const goToStepWeShouldBeOnThunk = createAsyncThunk<number, undefined, { state: R
 
 const getOnboardingDataThunk = createAsyncThunk<
   void,
-  { browserClient: PublicClient; safeAddress: string; moduleAddress: string },
+  { publicClient: PublicClient; safeAddress: string; moduleAddress: string },
   { state: RootState }
 >('stakingHub/getOnboardingData', async (payload, { rejectWithValue, dispatch }) => {
   // await dispatch(safeActionsAsync.getCommunityNftsOwnedBySafeThunk(payload.safeAddress)).unwrap();
@@ -378,7 +378,7 @@ const getOnboardingDataThunk = createAsyncThunk<
     getModuleTargetsThunk({
       safeAddress: payload.safeAddress,
       moduleAddress,
-      walletClient: payload.browserClient,
+      walletClient: payload.publicClient,
     })
   );
 
@@ -386,7 +386,7 @@ const getOnboardingDataThunk = createAsyncThunk<
     getSubgraphDataThunk({
       safeAddress: payload.safeAddress,
       moduleAddress,
-      browserClient: payload.browserClient,
+      publicClient: payload.publicClient,
     })
   ).unwrap();
 
@@ -396,7 +396,7 @@ const getOnboardingDataThunk = createAsyncThunk<
     subgraphResponse.registeredNodesInNetworkRegistryParsed?.length > 0 &&
     subgraphResponse.registeredNodesInNetworkRegistryParsed[0] !== null
   ) {
-    const nodeBalanceInBigInt = await payload.browserClient?.getBalance({
+    const nodeBalanceInBigInt = await payload.publicClient?.getBalance({
       address: subgraphResponse.registeredNodesInNetworkRegistryParsed[0] as Address,
     });
     nodeXDaiBalance = nodeBalanceInBigInt?.toString() ?? '0';
@@ -414,7 +414,7 @@ const getOnboardingDataThunk = createAsyncThunk<
 
 const getNodesDataThunk = createAsyncThunk<
   NodePayload[],
-  { nodesAddresses: string[]; browserClient: PublicClient },
+  { nodesAddresses: string[]; publicClient: PublicClient },
   { state: RootState }
 >(
   'stakingHub/getNodesData',
@@ -440,12 +440,12 @@ const getNodesDataThunk = createAsyncThunk<
 
 const getNodeBalanceThunk = createAsyncThunk<
   NodePayload,
-  { nodeAddress: string; browserClient: PublicClient },
+  { nodeAddress: string; publicClient: PublicClient },
   { state: RootState }
 >(
   'stakingHub/getNodeBalance',
   async (payload, { rejectWithValue, dispatch }) => {
-    const nodeBalanceInBigInt = await payload.browserClient?.getBalance({ address: payload.nodeAddress as Address });
+    const nodeBalanceInBigInt = await payload.publicClient?.getBalance({ address: payload.nodeAddress as Address });
     const nodeXDaiBalance = nodeBalanceInBigInt?.toString() ?? '0';
     const nodeXDaiBalanceFormatted = formatEther(nodeBalanceInBigInt);
     let nodeBalance = {

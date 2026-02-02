@@ -18,8 +18,7 @@ import { appActions } from '../../store/slices/app';
 import { truncateEthereumAddress } from '../../utils/blockchain';
 
 //web3
-import { browserClient } from '../../providers/wagmi';
-import { useWalletClient } from 'wagmi';
+import { useWalletClient, usePublicClient } from 'wagmi';
 import { getAddress } from 'viem';
 
 const AppBarContainer = styled(Button)`
@@ -115,6 +114,7 @@ export default function ConnectSafe() {
   const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
   const { data: signer } = useWalletClient();
+  const publicClient = usePublicClient();
   const isConnected = useAppSelector((store) => store.web3.status.connected);
   const ownerAddress = useAppSelector((store) => store.web3.account);
   const safes = useAppSelector((store) => store.stakingHub.safes.data);
@@ -156,9 +156,10 @@ export default function ConnectSafe() {
       safeAddress,
       signer,
       ownerAddress,
+      isConnected
     });
     if (safeFromUrl && moduleFromUrl && signer && !safeAddress) {
-      console.log('useSelectedSafe from url', safeFromUrl, moduleFromUrl);
+      console.log('x3 useSelectedSafe from url', safeFromUrl, moduleFromUrl);
       useSelectedSafe({
         safeAddress: getAddress(safeFromUrl),
         moduleAddress: getAddress(moduleFromUrl),
@@ -188,16 +189,17 @@ export default function ConnectSafe() {
 
   // If safe got selected, update all and onboarding data
   useEffect(() => {
-    if (selectedSafe && browserClient && selectedSafe.safeAddress) {
+    console.log('x3 getOnboardingDataThunk [selectedSafe, publicClient]', { selectedSafe, publicClient });
+    if (selectedSafe && publicClient && selectedSafe.safeAddress) {
       dispatch(
         stakingHubActionsAsync.getOnboardingDataThunk({
-          browserClient,
+          publicClient,
           safeAddress: selectedSafe.safeAddress as string,
           moduleAddress: selectedSafe.moduleAddress as string,
         })
       );
     }
-  }, [selectedSafe, browserClient]);
+  }, [selectedSafe, publicClient]);
 
   const useSelectedSafe = async (safeObject: { safeAddress?: string | null; moduleAddress?: string | null }) => {
     if (!safeObject.safeAddress || !safeObject.moduleAddress) return;

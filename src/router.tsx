@@ -237,7 +237,7 @@ const LayoutEnhanced = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const { disconnect } = useDisconnect();
+  const disconnect = useDisconnect();
   const web3Connected = useAppSelector((store) => store.web3.status.connected);
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
@@ -261,7 +261,7 @@ const LayoutEnhanced = () => {
   };
 
   const handleDisconnectMM = () => {
-    disconnect();
+    disconnect.mutate();
     dispatch(appActions.resetState());
     dispatch(web3Actions.resetState());
     dispatch(safeActions.resetState());

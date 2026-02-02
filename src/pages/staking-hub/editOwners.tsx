@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { useWalletClient } from 'wagmi';
+import { useWalletClient, usePublicClient } from 'wagmi';
 import { StepContainer } from './onboarding/components';
 import { StyledInputGroup, StyledTextField } from './onboarding/styled';
-import { browserClient } from '../../providers/wagmi';
 
 // Components
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
@@ -67,6 +66,7 @@ export default function EditOwners() {
   const safeThreshold = useAppSelector((store) => store.stakingHub.safeInfo.data.threshold);
   const walletAddress = useAppSelector((store) => store.web3.account);
   const { data: signer } = useWalletClient();
+  const publicClient = usePublicClient();
   const [newOwner, set_newOwner] = useState('');
   const [newThreshold, set_newThreshold] = useState<null | string>(null);
   const [updateSafeThresholdConfirm, set_updateSafeThresholdConfirm] = useState(false);
@@ -99,8 +99,8 @@ export default function EditOwners() {
         )
           .unwrap()
           .then(async (transactionHash) => {
-            browserClient &&
-              (await browserClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
+            publicClient &&
+              (await publicClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
             dispatch(safeActions.addOwnerToSafe(newOwner));
             dispatch(stakingHubActions.addOwnerToSafe(newOwner));
             set_newOwner('');
@@ -163,8 +163,8 @@ export default function EditOwners() {
         )
           .unwrap()
           .then(async (transactionHash) => {
-            browserClient &&
-              (await browserClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
+            publicClient &&
+              (await publicClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
             set_updateSafeThresholdConfirm(false);
             dispatch(stakingHubActions.updateThreshold(newThreshold));
             dispatch(safeActions.updateThreshold(newThreshold));
@@ -229,7 +229,7 @@ export default function EditOwners() {
       )
         .unwrap()
         .then(async (transactionHash) => {
-          browserClient && (await browserClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
+          publicClient && (await publicClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
           dispatch(safeActions.removeOwnerFromSafe(confirmRemoveOwner));
         })
         .finally(async () => {

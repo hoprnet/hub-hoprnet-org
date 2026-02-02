@@ -28,7 +28,6 @@ import {
 import { FeedbackTransaction } from '../../components/FeedbackTransaction';
 import SafeTransactionButton from '../../components/SafeTransactionButton';
 import Select from '../../future-hopr-lib-components/Select';
-import { browserClient } from '../../providers/wagmi';
 import { getUserActionForPendingTransaction } from '../../utils/safeTransactions';
 
 const StyledForm = styled.div`
@@ -304,29 +303,6 @@ function SafeWithdraw() {
             set_isWalletLoading(false);
           });
       }
-      // if (token === 'nft') {
-      //   const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
-
-      //   await dispatch(
-      //     safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
-      //       data: createSendNftTransactionData(getAddress(selectedSafeAddress) as Address, getAddress(receiver) as Address, Number(nftId)),
-      //       signer,
-      //       safeAddress: getAddress(selectedSafeAddress),
-      //       smartContractAddress,
-      //     }),
-      //   )
-      //     .unwrap()
-      //     .then((transactionResponse) => {
-      //       browserClient?.waitForTransactionReceipt({ hash: transactionResponse as Address }).then(() => {
-      //         dispatch(safeActions.removeCommunityNftsOwnedBySafe(nftId));
-      //       });
-      //       set_proposedTxHash(transactionResponse);
-      //     })
-      //     .finally(() => {
-      //       set_isWalletLoading(false);
-      //     });
-      // }
-      // else {
       const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
       const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
       return dispatch(

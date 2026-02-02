@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import WalletButton from '../../future-hopr-lib-components/Button/wallet-button';
 import Modal from '../../future-hopr-lib-components/Modal';
 import { Button, Menu, MenuItem, Tooltip } from '@mui/material';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -15,7 +14,7 @@ import { safeActions } from '../../store/slices/safe';
 import { stakingHubActions, stakingHubActionsAsync } from '../../store/slices/stakingHub';
 
 // wagmi
-import { type Connector, useConnect, useDisconnect, useConnection } from 'wagmi';
+import { type Connector, useConnect, useDisconnect, useConnection, useConnectors  } from 'wagmi';
 import { truncateEthereumAddress } from '../../utils/blockchain';
 import { web3Actions } from '../../store/slices/web3';
 import { UserRejectedRequestError } from 'viem';
@@ -107,15 +106,10 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
   const dispatch = useAppDispatch();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null); // State variable to hold the anchor element for the menu
-  const {
-    connectors,
-    connect,
-    error,
-    reset,
-    //  pendingConnector,
-  } = useConnect();
+  const connect = useConnect();
+  const connectors = useConnectors();
   const { connector } = useConnection();
-  const { disconnect } = useDisconnect();
+  const disconnect = useDisconnect();
 
   const account = useAppSelector((store) => store.web3.account);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
@@ -160,6 +154,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
   }, [connectors]);
 
   useEffect(() => {
+    const error = connect.failureReason;
     if (error) {
       if (error instanceof UserRejectedRequestError) {
         let parsedError = error.shortMessage;
@@ -176,7 +171,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
       //   reset()
       // }
     } else set_localError(false);
-  }, [error]);
+  }, [connect.failureReason]);
 
   const handleClose = () => {
     if (onClose) {
@@ -192,7 +187,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
     dispatch(web3Actions.setLoading(true));
     dispatch(web3Actions.setDisconnecting(false));
 
-    connect({ connector });
+    connect.mutate({ connector })
 
     // wallet connect opens another modal
     if (isConnected || connector.id === 'walletConnect') {
@@ -202,7 +197,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
 
   const handleDisconnectMM = () => {
     console.log('handleDisconnectMM');
-    disconnect();
+    disconnect.mutate();
     dispatch(appActions.resetState());
     dispatch(web3Actions.resetState());
     dispatch(safeActions.resetState());
