@@ -226,18 +226,16 @@ const AddAddressToERC1820RegistryModal = ({
       </STopBar>
       <Content>
         <p>
-          A one time, additional transaction must be done prior to the wrapping.
+          Wrapping will fail for this account due to the lack of a callback handler.
           <br />
-          Without it, the wrapping of xHOPR to wxHOPR in this account will fail due to the lack of a callback handler.
-          You need to set interface implementer in the{' '}
+          To fix this, a one-time transaction will be performed before wrapping to set the interface implementer in the{' '}
           <a
             href="https://gnosisscan.io/address/0x1820a4b7618bde71dce8cdc73aab6c95905fad24#code"
             target="_blank"
             style={{ textDecoration: 'underline' }}
           >
             ERC1820 Registry
-          </a>{' '}
-          to be able to continue with this transition.
+          </a>
         </p>
         <div>
           <Button
