@@ -21,6 +21,8 @@ type InfoData = {
 
 interface Props {}
 
+export const WidthShowInfoBar = '740px';
+
 const SInfoBar = styled.div`
   display: none;
   width: 233px;
@@ -38,7 +40,7 @@ const SInfoBar = styled.div`
     background: #edfbff;
     border: 0;
   }
-  @media (min-width: 740px) {
+  @media (min-width: ${WidthShowInfoBar}) {
     display: block;
   }
 `;

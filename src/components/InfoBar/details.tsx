@@ -2,13 +2,16 @@ import { useAppSelector } from '../../store';
 import styled from '@emotion/styled';
 import Tooltip from '@mui/material/Tooltip';
 import numbro from 'numbro';
+import { WidthShowInfoBar } from './index';
 
 interface Props {
   style?: object;
+  inTheDrawer?: boolean;
 }
 
 const Web3Container = styled.div`
   background-color: #cadeff;
+  color: #000;
   border-radius: 1rem;
   display: flex;
   gap: 8px;
@@ -18,6 +21,11 @@ const Web3Container = styled.div`
   /* margin-right: 8px; */
   box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
     0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  &.inTheDrawer {
+    @media (min-width: ${WidthShowInfoBar}) {
+      display: none;
+    }
+  }
 `;
 
 const IconContainer = styled.div`
@@ -150,7 +158,10 @@ export default function Details(props: Props) {
   const safeBalance = useAppSelector((store) => store.safe.balance.data);
 
   const web3Drawer = (
-    <Web3Container style={props.style}>
+    <Web3Container
+      className={ `Details ${props.inTheDrawer ? 'inTheDrawer' : ''}` }
+      style={props.style}
+    >
       <TitleColumn className="web3">
         <IconAndText>
           <IconContainer>

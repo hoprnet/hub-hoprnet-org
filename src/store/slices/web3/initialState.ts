@@ -7,7 +7,7 @@ export const initialState = {
     walletPresent: false as boolean,
   },
   account: null as string | null,
-  walletIcon: null as string | null,
+  walletIcon: '/assets/wallet-icon.svg' as string,
   communityNftId: null as number | null,
   communityNftTransferring: false as boolean,
   chainId: null as string | null,

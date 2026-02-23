@@ -94,7 +94,11 @@ const StyledListItemButton = styled(ListItemButton)`
   width: 100%;
   padding-right: 10px;
   .MuiListItemIcon-root {
-    min-width: 48px;
+    min-width: 36px;
+    margin-right: 12px;
+    &.GroupIcon {
+      color: rgba(0, 0, 0, 0.2);
+    }
     svg {
       width: 24px;
       height: 24px;
@@ -147,9 +151,6 @@ const StyledListItemButton = styled(ListItemButton)`
 ` as typeof ListItemButton;
 
 const SListItemIcon = styled(ListItemIcon)`
-  &.GroupIcon {
-    color: rgba(0, 0, 0, 0.2);
-  }
 `;
 
 const Numbers = styled.div`
@@ -223,6 +224,10 @@ const Drawer = ({
       onClose={() => set_openedNavigationDrawer(false)}
       className={drawerType === 'blue' ? 'type-blue' : 'type-white'}
     >
+      <Details
+        inTheDrawer={true}
+        style={{ margin: '16px auto' }}
+      />
       {allItems.map(
         (group) =>
           ((group.mobileOnly === true && isMobile) || !group.mobileOnly) && (
@@ -310,7 +315,6 @@ const Drawer = ({
             </div>
           )
       )}
-      {drawerVariant === 'temporary' && <Details style={{ margin: '0 auto 16px' }} />}
     </StyledDrawer>
   );
 };

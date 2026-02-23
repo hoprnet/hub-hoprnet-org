@@ -117,7 +117,6 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
   const chain = useAppSelector((store) => store.web3.chain);
   const walletPresent = useAppSelector((store) => store.web3.status.walletPresent);
   const [localError, set_localError] = useState<false | string>(false);
-  const [walletIcon, set_walletIcon] = useState('/assets/wallets/MetaMask_Fox.svg');
   const walletIconRedux = useAppSelector((store) => store.web3.walletIcon);
   const containerRef = useRef<HTMLButtonElement>(null);
 
@@ -229,7 +228,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
 
     const setIcon = (connector: Connector | undefined) => {
       if (!connector?.id) {
-        return '/assets/wallets/MetaMask_Fox.svg';
+        return '/assets/wallet-icon.svg';
       }
 
       switch (connector.id) {
@@ -238,15 +237,14 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
         case 'walletConnect':
           return '/assets/wallets/WalletConnect-Icon.svg';
         default:
-          if (!connector.icon) return '/assets/wallets/MetaMask_Fox.svg';
+          if (!connector.icon) return '/assets/wallet-icon.svg';
           else return connector.icon;
       }
     };
 
     const icon = setIcon(connector);
-    set_walletIcon(icon);
     dispatch(web3Actions.setIcon(icon));
-  }, [connector, walletIconRedux]);
+  }, [connector]);
 
   return (
     <>
@@ -258,10 +256,10 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
         >
           <div className="image-container">
             {
-              !isConnected ?
-                <img src={'/assets/wallet-icon.svg'} />
+              isConnected && walletIconRedux ?
+                <img src={walletIconRedux} />
                 :
-                <img src={walletIcon} />
+                <img src={'/assets/wallet-icon.svg'} />
             }
           </div>
           {!isConnected ? (

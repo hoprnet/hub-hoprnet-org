@@ -10,7 +10,6 @@ import store from './store';
 import { ToastContainer } from 'react-toastify';
 import theme from './theme';
 import * as Fathom from 'fathom-client';
-import { environment } from '../config';
 import packageJson from '../package.json';
 
 const VersionComponent = styled.div`

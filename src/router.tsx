@@ -9,8 +9,6 @@ import {
 } from 'react-router-dom';
 import { environment } from '../config';
 import { useDisconnect } from 'wagmi';
-import { parseAndFormatUrl } from './utils/parseAndFormatUrl';
-import { trackGoal } from 'fathom-client';
 
 // Store
 import { useAppDispatch, useAppSelector } from './store';
@@ -241,6 +239,7 @@ const LayoutEnhanced = () => {
   const web3Connected = useAppSelector((store) => store.web3.status.connected);
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
+  const walletIconRedux = useAppSelector((store) => store.web3.walletIcon);
   const [searchParams] = useSearchParams();
   const HOPRdNodeAddressForOnboarding = searchParams.get('HOPRdNodeAddressForOnboarding'); //Address given in HOPRd: https://hub.hoprnet.org/staking/onboarding?HOPRdNodeAddressForOnboarding={my_address}
 
@@ -279,8 +278,15 @@ const LayoutEnhanced = () => {
         {
           name: web3Connected ? 'Disconnect' : 'Connect Wallet',
           path: 'function',
-          icon: <MetaMaskFox />,
-          onClick: () => {
+          icon: <img
+            src={walletIconRedux}
+            alt="wallet icon"
+            style={ walletIconRedux === '/assets/wallet-icon.svg' ?
+              {     filter: 'brightness(0) invert(1)' } :
+              {}
+            }
+          />,
+          onClick:()=>{
             if (web3Connected) handleDisconnectMM();
             else dispatch(web3Actions.setModalOpen(true));
           },
