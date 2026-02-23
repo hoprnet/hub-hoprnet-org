@@ -53,6 +53,7 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import PaidIcon from '@mui/icons-material/Paid';
 import WalletIcon from '@mui/icons-material/Wallet';
 import TrainIcon from './future-hopr-lib-components/Icons/TrainIcon';
+import OnboardingIcon from './future-hopr-lib-components/Icons/OnboardingIcon';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyNotice from './pages/PrivacyNotice';
@@ -95,7 +96,7 @@ export const applicationMapStakingHub: ApplicationMapType = [
       {
         name: 'Onboarding',
         path: 'onboarding',
-        icon: <TrainIcon />,
+        icon: <OnboardingIcon />,
         element: <Onboarding />,
         loginNeeded: 'web3',
       },
