@@ -235,7 +235,6 @@ const LayoutEnhanced = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const disconnect = useDisconnect();
-  const web3Connected = useAppSelector((store) => store.web3.status.connected);
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
   const walletIconRedux = useAppSelector((store) => store.web3.walletIcon);
@@ -275,7 +274,7 @@ const LayoutEnhanced = () => {
       mobileOnly: true,
       items: [
         {
-          name: web3Connected ? 'Disconnect' : 'Connect Wallet',
+          name: isConnected ? 'Disconnect' : 'Connect Wallet',
           path: 'function',
           icon: <img
             src={walletIconRedux}
@@ -286,7 +285,7 @@ const LayoutEnhanced = () => {
             }
           />,
           onClick:()=>{
-            if (web3Connected) handleDisconnectMM();
+            if (isConnected) handleDisconnectMM();
             else dispatch(web3Actions.setModalOpen(true));
           },
           mobileOnly: true,
@@ -305,8 +304,8 @@ const LayoutEnhanced = () => {
       drawerFunctionItems={environment === 'web3' ? drawerFunctionItems : undefined}
       drawerNumbers={numberForDrawer}
       drawerLoginState={{
-        web3: web3Connected,
-        safe: !!safeAddress && web3Connected,
+        web3: isConnected,
+        safe: !!safeAddress && isConnected,
         onboardingStatus
       }}
       className={environment}

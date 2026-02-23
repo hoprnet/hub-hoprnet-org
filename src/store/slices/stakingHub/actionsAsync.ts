@@ -566,27 +566,31 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       }
 
       // In case the subgraph data is outdated, we check localStorage for recent updates
-      const safeAddress = action.meta.arg.safeAddress.toLowerCase();
-      const thresholdUpdated = localStorage.getItem(`${safeAddress}_threshold_updated`);
-      const allowanceUpdated = localStorage.getItem(`${safeAddress}_allowance_updated`);
+      try {
+        const safeAddress = action.meta.arg.safeAddress.toLowerCase();
+        const thresholdUpdated = localStorage.getItem(`${safeAddress}_threshold_updated`);
+        const allowanceUpdated = localStorage.getItem(`${safeAddress}_allowance_updated`);
 
-      if(thresholdUpdated && typeof thresholdUpdated === 'string'){
-        const object = JSON.parse(thresholdUpdated);
-        if(object.updated && typeof object.updated === 'number' && Date.now() - object.updated < 15_000){
-          console.log('Using locally stored updated threshold value:', object);
-          state.safeInfo.data.threshold = `${object.threshold}`;
-        } else {
-          localStorage.removeItem(`${safeAddress}_threshold_updated`);
+        if(thresholdUpdated && typeof thresholdUpdated === 'string'){
+          const object = JSON.parse(thresholdUpdated);
+          if(object.updated && typeof object.updated === 'number' && Date.now() - object.updated < 15_000){
+            console.log('Using locally stored updated threshold value:', object);
+            state.safeInfo.data.threshold = `${object.threshold}`;
+          } else {
+            localStorage.removeItem(`${safeAddress}_threshold_updated`);
+          }
         }
-      }
-      if(allowanceUpdated && typeof allowanceUpdated === 'string'){
-        const object = JSON.parse(allowanceUpdated);
-        if(object.updated && typeof object.updated === 'number' && Date.now() - object.updated < 15_000){
-          console.log('Using locally stored updated allowance value:', object);
-          state.safeInfo.data.allowance.wxHoprAllowance = `${object.allowance}`;
-        } else {
-          localStorage.removeItem(`${safeAddress}_allowance_updated`);
+        if(allowanceUpdated && typeof allowanceUpdated === 'string'){
+          const object = JSON.parse(allowanceUpdated);
+          if(object.updated && typeof object.updated === 'number' && Date.now() - object.updated < 15_000){
+            console.log('Using locally stored updated allowance value:', object);
+            state.safeInfo.data.allowance.wxHoprAllowance = `${object.allowance}`;
+          } else {
+            localStorage.removeItem(`${safeAddress}_allowance_updated`);
+          }
         }
+      } catch (e) {
+        console.warn('Error parsing localStorage data for threshold and allowance updates', e);
       }
 
     }

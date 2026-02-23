@@ -384,7 +384,7 @@ const StakingLandingPage = () => {
   }, [totalwxHoprStakeRaw, dispatch]);
 
   useEffect(() => {
-     if (!status.connected) {
+    if (!status.connected) {
       set_buttonToShow('CONNECT_WALLET');
     } else if (status.connected && walletChainId !== 100) {
       set_buttonToShow('SWITCH_TO_GNOSIS');

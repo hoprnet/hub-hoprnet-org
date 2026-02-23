@@ -96,9 +96,6 @@ const StyledListItemButton = styled(ListItemButton)`
   .MuiListItemIcon-root {
     min-width: 36px;
     margin-right: 12px;
-    &.GroupIcon {
-      color: rgba(0, 0, 0, 0.2);
-    }
     svg {
       width: 24px;
       height: 24px;
@@ -151,6 +148,9 @@ const StyledListItemButton = styled(ListItemButton)`
 ` as typeof ListItemButton;
 
 const SListItemIcon = styled(ListItemIcon)`
+  &.GroupIcon {
+    color: rgba(0, 0, 0, 0.2);
+  }
 `;
 
 const Numbers = styled.div`

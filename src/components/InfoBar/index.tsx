@@ -98,7 +98,7 @@ export default function InfoBar(props: Props) {
     <SInfoBar className={`InfoBar ${web3Connected ? 'web3' : ''}`}>
       <Scroll>
         <div>
-          {(web3Connected || !web3Connected) && <Details />}
+          <Details />
           {web3Connected && pageHasStakingFAQ() && (
             <FAQ
               data={completeHubFaq[`${currentRoute}${currentHash}`]}

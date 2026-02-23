@@ -79,6 +79,8 @@ const stakingHubSlice = createSlice({
       state.onboarding.step = action.payload;
       if (action.payload === 16) {
         state.onboarding.status = 'COMPLETED';
+      } else if (action.payload > 1) {
+        state.onboarding.status = 'IN_PROGRESS';
       }
     },
     setNodeLinkedToSafeBalance_xDai: (state, action) => {
