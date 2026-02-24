@@ -24,18 +24,7 @@ type WindowWithEthereum = { ethereum: EthereumProvider };
 const walletIsInBrowser =
   typeof window !== 'undefined' && typeof (window as unknown as WindowWithEthereum).ethereum !== 'undefined';
 
-export const browserClient = walletIsInBrowser
-  ? createWalletClient({
-      chain: gnosis,
-      transport: fallback([unstable_connector(injected), http('https://rpc.gnosischain.com/')], {
-        rank: false,
-        retryCount: 3,
-      }),
-    }).extend(publicActions)
-  : null;
-
 const config = createConfig({
-  //  autoConnect: true, // TODO: TEST OUT AFTER autoConnect was removed from v1 https://wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-suspense-property
   chains: [gnosis],
   connectors: [
     injected(),
@@ -44,8 +33,12 @@ const config = createConfig({
     }),
   ],
   transports: {
-    [gnosis.id]: fallback([unstable_connector(injected), http('https://rpc.gnosischain.com/')], {
-      rank: true,
+    [gnosis.id]: fallback([
+      unstable_connector(injected),
+      http('https://rpc.gnosischain.com/'),
+      http('https://gnosis-rpc.publicnode.com/'),
+    ], {
+      rank: false,
       retryCount: 3,
     }),
   },

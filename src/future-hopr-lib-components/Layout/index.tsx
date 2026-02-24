@@ -16,6 +16,7 @@ import Drawer from './drawer';
 import { ApplicationMapType } from '../../router';
 import { useAppSelector } from '../../store';
 import { loadStateFromLocalStorage, saveStateToLocalStorage } from '../../utils/localStorage';
+import { OnboardingStatus } from '../../store/slices/stakingHub/initialState';
 
 const SLayout = styled.div`
   &.webapp {
@@ -68,8 +69,7 @@ const Layout: React.FC<{
     node?: boolean;
     web3?: boolean;
     safe?: boolean;
-    onboardingFinished?: boolean | null;
-    onboardingNotStarted?: boolean | null;
+    onboardingStatus: OnboardingStatus
   };
   drawerType?: 'blue' | 'white';
   drawerItems: ApplicationMapType;
@@ -93,7 +93,7 @@ const Layout: React.FC<{
   drawerNumbers,
 }) => {
   const isMobile = !useMediaQuery('(min-width: 500px)');
-  const isConnected = useAppSelector((store) => store.auth.status.connected);
+  const isConnected = useAppSelector((store) => store.web3.status.connected);
   const initialDrawerState = loadStateFromLocalStorage('drawerState');
 
   // const [openedNavigationDrawerPC, set_openedNavigationDrawerPC] = useState(environment === 'web3' || environment === 'dev' ? true : false);

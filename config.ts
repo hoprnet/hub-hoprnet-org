@@ -14,7 +14,17 @@ export const HOPR_TOKEN_USED = 'wxHOPR';
 export const HOPR_TOKEN_USED_CONTRACT_ADDRESS = wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS;
 
 // Safe Contracts
-export const SAFE_SERVICE_URL = import.meta.env.VITE_SAFE_SERVICE_URL;
+
+export const SAFE_SERVICE_URL = (() => {
+  let url = import.meta.env.VITE_SAFE_SERVICE_URL;
+  if (url && url.endsWith('/')) {
+    url = url.slice(0, -1);
+  }
+  if (url && !url.endsWith('/api')) {
+    url += '/api';
+  }
+  return url;
+})();
 export const HOPR_NODE_STAKE_FACTORY = import.meta.env.VITE_HOPR_NODE_STAKE_FACTORY;
 export const HOPR_NODE_MANAGEMENT_MODULE = import.meta.env.VITE_HOPR_NODE_MANAGEMENT_MODULE;
 export const HOPR_NODE_SAFE_REGISTRY = import.meta.env.VITE_HOPR_NODE_SAFE_REGISTRY;

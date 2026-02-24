@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Address, parseUnits, getAddress } from 'viem';
 import { MINIMUM_XDAI_TO_FUND_NODE } from '../../../config';
 import Section from '../../future-hopr-lib-components/Section';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient } from 'wagmi';
 import { StepContainer } from './onboarding/components';
 import { StyledTextField } from './onboarding/styled';
 
@@ -13,9 +13,6 @@ import { FeedbackTransaction } from '../../components/FeedbackTransaction';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { safeActionsAsync } from '../../store/slices/safe';
 import SafeTransactionButton from '../../components/SafeTransactionButton';
-
-// HOPR Components
-import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
 
 const StyledForm = styled.div`
   width: 100%;
@@ -77,7 +74,7 @@ export default function FundNode() {
   const [lowBalanceError, set_lowBalanceError] = useState<boolean>(false);
   const [txError, set_txError] = useState<string | null>(null);
   const [transactionHash, set_transactionHash] = useState<Address>();
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
 
   const nodeAddress = nodeAddressFromParams ? nodeAddressFromParams : nodeAddressFromTheStore;
 
@@ -155,7 +152,6 @@ export default function FundNode() {
       fullHeightMin
       lightBlue
     >
-      <StartOnboarding />
       <StepContainer
         title="FUND YOUR NODE WITH xDAI"
         image={{

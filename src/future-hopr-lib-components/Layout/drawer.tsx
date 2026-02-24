@@ -16,6 +16,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ApplicationMapType } from '../../router';
 import Details from '../../components/InfoBar/details';
 import { rounder2 } from '../../utils/functions';
+import { OnboardingStatus } from '../../store/slices/stakingHub/initialState';
 
 const drawerWidth = 240;
 const minDrawerWidth = 56;
@@ -93,7 +94,8 @@ const StyledListItemButton = styled(ListItemButton)`
   width: 100%;
   padding-right: 10px;
   .MuiListItemIcon-root {
-    min-width: 48px;
+    min-width: 36px;
+    margin-right: 12px;
     svg {
       width: 24px;
       height: 24px;
@@ -116,7 +118,7 @@ const StyledListItemButton = styled(ListItemButton)`
       fill: #0000b4;
     }
   }
-  &.onboardingNotFinished {
+  &.onboardingNotCompleted {
     ::after {
       content: '';
       background-image: url(/assets/Continue-Stamp.svg);
@@ -129,7 +131,7 @@ const StyledListItemButton = styled(ListItemButton)`
       background-size: contain;
     }
   }
-  &.onboardingFinished {
+  &.onboardingCompleted {
     opacity: 0.5;
     ::after {
       content: '';
@@ -164,8 +166,7 @@ type DrawerProps = {
     node?: boolean;
     web3?: boolean;
     safe?: boolean;
-    onboardingFinished?: boolean | null;
-    onboardingNotStarted?: boolean | null;
+    onboardingStatus: OnboardingStatus
   };
   drawerNumbers?: {
     [key: string]: number | string | undefined | null;
@@ -214,6 +215,7 @@ const Drawer = ({
 
   const preare = drawerFunctionItems ? drawerFunctionItems : [];
   const allItems = [...preare, ...drawerItems];
+  const onboardingStatus = drawerLoginState?.onboardingStatus;
 
   return (
     <StyledDrawer
@@ -222,6 +224,10 @@ const Drawer = ({
       onClose={() => set_openedNavigationDrawer(false)}
       className={drawerType === 'blue' ? 'type-blue' : 'type-white'}
     >
+      <Details
+        inTheDrawer={true}
+        style={{ margin: '16px auto' }}
+      />
       {allItems.map(
         (group) =>
           ((group.mobileOnly === true && isMobile) || !group.mobileOnly) && (
@@ -272,23 +278,22 @@ const Drawer = ({
                               : (!item.element && !item.onClick) ||
                                 (item.loginNeeded && !drawerLoginState?.[item.loginNeeded])) ||
                             (item.path === 'onboarding' &&
-                              drawerLoginState &&
-                              drawerLoginState.onboardingFinished !== false &&
-                              drawerLoginState.onboardingNotStarted === false)
+                              onboardingStatus === 'COMPLETED'
+                            )
                           }
                           onClick={item.onClick ? item.onClick : handleButtonClick}
                           className={[
                             'StyledListItemButton',
                             `${
-                              item.path === 'onboarding' && drawerLoginState && drawerLoginState.onboardingFinished
-                                ? 'onboardingFinished'
+                              item.path === 'onboarding' &&
+                              onboardingStatus === 'COMPLETED'
+                                ? 'onboardingCompleted'
                                 : ''
                             }`,
                             `${
                               item.path === 'onboarding' &&
-                              drawerLoginState &&
-                              drawerLoginState.onboardingFinished === false
-                                ? 'onboardingNotFinished'
+                             onboardingStatus === 'IN_PROGRESS'
+                                ? 'onboardingNotCompleted'
                                 : ''
                             }`,
                           ].join(' ')}
@@ -310,7 +315,6 @@ const Drawer = ({
             </div>
           )
       )}
-      {drawerVariant === 'temporary' && <Details style={{ margin: '0 auto 16px' }} />}
     </StyledDrawer>
   );
 };

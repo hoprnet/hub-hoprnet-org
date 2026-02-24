@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS, xHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
 import { getChainName } from '../../utils/getChainName';
+import { erc721Abi } from 'viem';
 
 // wagmi
-import { useBalance, useAccount, useBlockNumber } from 'wagmi';
-import { watchAccount } from '@wagmi/core';
-import { useEthersSigner } from '../../hooks';
+import { useBalance, useConnection, useBlockNumber, useReadContracts } from 'wagmi';
+import { useWalletClient } from 'wagmi';
 
 // Redux
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -18,15 +17,13 @@ import { stakingHubActions, stakingHubActionsAsync } from '../../store/slices/st
 export default function WagmiUpdater() {
   // const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const signer = useEthersSigner();
-  const nodeHoprAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress); // Staking Hub
+  const { data: signer } = useWalletClient();
+  const nodeHoprAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress) as `0x${string}`; // Staking Hub
   const addressInStore = useAppSelector((store) => store.web3.account);
   const web3Disconnecting = useAppSelector((store) => store.web3.status.disconnecting);
 
   // Wallet Account
-  const { address, isConnected, connector } = useAccount();
-
-  const { chainId } = useAccount();
+  const { address, chainId, isConnected, connector } = useConnection();
 
   // **********************
   // Leaving for on-going testing of wagmi losing connection with wallet
@@ -75,8 +72,6 @@ export default function WagmiUpdater() {
     if (web3Disconnecting) return;
 
     if (isConnected && address) {
-      console.log('isConnected', isConnected);
-      console.log('address', address);
       //reset whole app
       dispatch(appActions.resetState());
       dispatch(web3Actions.resetState());
@@ -103,118 +98,120 @@ export default function WagmiUpdater() {
   }, [isConnected, address, chainId]);
 
   // Balances
-  const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
+  const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as `0x${string}`;
   const account = useAppSelector((store) => store.web3.account) as `0x${string}`;
 
   const { data: xDAI_balance, refetch: refetch_xDAI_balance } = useBalance({
     address: account,
   });
-  const { data: wxHopr_balance, refetch: refetch_wxHopr_balance } = useBalance({
-    address: account,
-    token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+  const xDAI_balance_string = typeof xDAI_balance?.value === 'bigint' ? xDAI_balance.value.toString() : null;
+
+  const { data: tokenBalances, refetch: refetchERC20 } = useReadContracts({
+    contracts: [
+      {
+        address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc721Abi,
+        functionName: 'balanceOf',
+        args: [account],
+      },
+      {
+        address: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc721Abi,
+        functionName: 'balanceOf',
+        args: [account],
+      },
+      {
+        address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc721Abi,
+        functionName: 'balanceOf',
+        args: [selectedSafeAddress],
+      },
+      {
+        address: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc721Abi,
+        functionName: 'balanceOf',
+        args: [selectedSafeAddress],
+      },
+    ],
   });
-  const { data: xHopr_balance, refetch: refetch_xHopr_balance } = useBalance({
-    address: account,
-    token: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-  });
+
+  const wxHopr_balance_string = tokenBalances && tokenBalances[0] && (tokenBalances[0]?.result?.toString()) ? (tokenBalances[0]?.result?.toString()) : null;
+  const xHopr_balance_string = tokenBalances && tokenBalances[1] && (tokenBalances[1]?.result?.toString()) ? (tokenBalances[1]?.result?.toString()) : null;
+  const safe_wxHopr_balance_string = tokenBalances && tokenBalances[2] && (tokenBalances[2]?.result?.toString()) ? (tokenBalances[2]?.result?.toString()) : null;
+  const safe_xHopr_balance_string = tokenBalances && tokenBalances[3] && (tokenBalances[3]?.result?.toString()) ? (tokenBalances[3]?.result?.toString()) : null;
 
   const { data: safe_xDAI_balance, refetch: refetch_safe_xDAI_balance } = useBalance({
-    address: selectedSafeAddress as `0x${string}`,
+    address: selectedSafeAddress,
   });
-  const { data: safe_wxHopr_balance, refetch: refetch_safe_wxHopr_balance } = useBalance({
-    address: selectedSafeAddress as `0x${string}`,
-    token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-  });
-  const { data: safe_xHopr_balance, refetch: refetch_safe_xHopr_balance } = useBalance({
-    address: selectedSafeAddress as `0x${string}`,
-    token: xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-  });
-
   const { data: nodeLinkedToSafe_xDai_balance, refetch: refetch_nodeLinkedToSafe_xDai_balance } = useBalance({
-    address: nodeHoprAddress as `0x${string}`,
+    address: nodeHoprAddress,
   });
+  const safe_xDAI_balance_string = typeof safe_xDAI_balance?.value === 'bigint' ? safe_xDAI_balance.value.toString() : null;
+  const nodeLinkedToSafe_xDai_balance_string = typeof nodeLinkedToSafe_xDai_balance?.value === 'bigint' ? nodeLinkedToSafe_xDai_balance.value.toString() : null;
 
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
   useEffect(() => {
+    refetchERC20();
     refetch_xDAI_balance();
-    refetch_wxHopr_balance();
-    refetch_xHopr_balance();
     refetch_safe_xDAI_balance();
-    refetch_safe_wxHopr_balance();
-    refetch_safe_xHopr_balance();
     refetch_nodeLinkedToSafe_xDai_balance();
   }, [blockNumber]);
 
   useEffect(() => {
-    if (xDAI_balance)
+    if (xDAI_balance_string) {
       dispatch(
-        web3Actions.setWalletBalance_xDai({
-          ...xDAI_balance,
-          value: xDAI_balance.value.toString(),
-        })
+        web3Actions.setWalletBalance_xDai(xDAI_balance_string)
       );
-  }, [xDAI_balance]);
+    }
+  }, [xDAI_balance_string]);
 
   useEffect(() => {
-    if (wxHopr_balance)
+    if (wxHopr_balance_string) {
       dispatch(
-        web3Actions.setWalletBalance_wxHopr({
-          ...wxHopr_balance,
-          value: wxHopr_balance.value.toString(),
-        })
+        web3Actions.setWalletBalance_wxHopr(wxHopr_balance_string)
       );
-  }, [wxHopr_balance]);
+    }
+  }, [wxHopr_balance_string]);
 
   useEffect(() => {
-    if (xHopr_balance)
+    if (xHopr_balance_string) {
       dispatch(
-        web3Actions.setWalletBalance_xHopr({
-          ...xHopr_balance,
-          value: xHopr_balance.value.toString(),
-        })
+        web3Actions.setWalletBalance_xHopr(xHopr_balance_string)
       );
-  }, [xHopr_balance]);
+    }
+  }, [xHopr_balance_string]);
+  useEffect(() => {
+    if (safe_xDAI_balance_string) {
+      console.log('Updating safe xDAI balance in store:', safe_xDAI_balance_string);
+      dispatch(
+        safeActions.setSafeBalance_xDai(safe_xDAI_balance_string)
+      );
+    }
+  }, [safe_xDAI_balance_string]);
 
   useEffect(() => {
-    if (safe_xDAI_balance)
+    if (safe_wxHopr_balance_string) {
       dispatch(
-        safeActions.setSafeBalance_xDai({
-          ...safe_xDAI_balance,
-          value: safe_xDAI_balance.value.toString(),
-        })
+        safeActions.setSafeBalance_wxHopr(safe_wxHopr_balance_string)
       );
-  }, [safe_xDAI_balance]);
-
+    }
+  }, [safe_wxHopr_balance_string]);
   useEffect(() => {
-    if (safe_wxHopr_balance)
-      dispatch(
-        safeActions.setSafeBalance_wxHopr({
-          ...safe_wxHopr_balance,
-          value: safe_wxHopr_balance.value.toString(),
-        })
-      );
-  }, [safe_wxHopr_balance]);
+    if (safe_xHopr_balance_string) {
+    dispatch(
+      safeActions.setSafeBalance_xHopr(safe_xHopr_balance_string)
+    );
+  }
+  }, [safe_xHopr_balance_string]);
 
-  useEffect(() => {
-    if (safe_xHopr_balance)
-      dispatch(
-        safeActions.setSafeBalance_xHopr({
-          ...safe_xHopr_balance,
-          value: safe_xHopr_balance.value.toString(),
-        })
-      );
-  }, [safe_xHopr_balance]);
+useEffect(() => {
+  if (nodeLinkedToSafe_xDai_balance_string) {
+    dispatch(
+      stakingHubActions.setNodeLinkedToSafeBalance_xDai(nodeLinkedToSafe_xDai_balance_string)
+    );
+  }
+}, [nodeLinkedToSafe_xDai_balance_string]);
 
-  useEffect(() => {
-    if (nodeLinkedToSafe_xDai_balance)
-      dispatch(
-        stakingHubActions.setNodeLinkedToSafeBalance_xDai({
-          ...nodeLinkedToSafe_xDai_balance,
-          value: nodeLinkedToSafe_xDai_balance.value.toString(),
-        })
-      );
-  }, [nodeLinkedToSafe_xDai_balance]);
-
-  return <></>;
+return <></>;
 }

@@ -9,16 +9,18 @@ import ContinueOnboarding from '../../components/Modal/staking-hub/ContinueOnboa
 import CardWithAccordionSteps from '../../components/CardWithAccordionSteps';
 import Footer from '../../future-hopr-lib-components/Layout/footer';
 import Section from '../../future-hopr-lib-components/Section';
-import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../store';
 import { web3Actions } from '../../store/slices/web3';
-import { stakingHubActionsAsync } from '../../store/slices/stakingHub';
+import { stakingHubActions, stakingHubActionsAsync } from '../../store/slices/stakingHub';
 
 // Mui
 import { Accordion, AccordionDetails, AccordionSummary, Card, Chip } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+// Web3
+import { useSwitchChain, usePublicClient, useWalletClient, useChainId, useConnection,   } from 'wagmi'
 
 const StyledContainer = styled.div`
   align-items: center;
@@ -356,11 +358,14 @@ type FaqData = FaqElement[];
 const StakingLandingPage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { chainId: walletChainId } = useConnection();
+  const switchChain = useSwitchChain();
   const [expandedId, set_expandedId] = useState<number | false>(false);
   const status = useAppSelector((store) => store.web3.status);
-  const onboardingStep = useAppSelector((store) => store.stakingHub.onboarding.step);
-  const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
+  const onboardingStatus = useAppSelector((store) => store.stakingHub.onboarding.status);
   const totalwxHoprStakeRaw = useAppSelector((store) => store.stakingHub.totalStaked.data?.wxHoprBalance);
+  const [buttonToShow, set_buttonToShow] = useState<'CONNECT_WALLET' | 'START_ONBOARDING' | 'CONTINUE_ONBOARDING' | 'VIEW_DASHBOARD' | 'SWITCH_TO_GNOSIS'>('CONNECT_WALLET');
+  const [switchingChainStarted, set_switchingChainStarted] = useState(false);
 
   const totalwxHoprStake = totalwxHoprStakeRaw
     ? Math.floor(parseFloat(totalwxHoprStakeRaw)).toLocaleString()
@@ -377,6 +382,20 @@ const StakingLandingPage = () => {
       dispatch(stakingHubActionsAsync.getTotalStakedwxHoprThunk());
     }
   }, [totalwxHoprStakeRaw, dispatch]);
+
+  useEffect(() => {
+    if (!status.connected) {
+      set_buttonToShow('CONNECT_WALLET');
+    } else if (status.connected && walletChainId !== 100) {
+      set_buttonToShow('SWITCH_TO_GNOSIS');
+    } else if (onboardingStatus === 'COMPLETED') {
+      set_buttonToShow('VIEW_DASHBOARD');
+    } else if (onboardingStatus === 'IN_PROGRESS') {
+      set_buttonToShow('CONTINUE_ONBOARDING');
+    } else if (onboardingStatus === 'NOT_STARTED') {
+      set_buttonToShow('START_ONBOARDING');
+    }
+  }, [status.connected, walletChainId, onboardingStatus]);
 
   return (
     <>
@@ -409,27 +428,49 @@ const StakingLandingPage = () => {
             Earn $HOPR while providing web3 users with the data privacy and autonomy Web 2.0 never did. Create your HOPR
             Safe and start running a Node now!
           </Description>
-          {(!status.connected || onboardingIsFetching) && (
+          {buttonToShow === 'SWITCH_TO_GNOSIS' && (
+            <StyledButton
+              onClick={() => {
+                set_switchingChainStarted(true);
+                switchChain.mutate({ chainId: 100 });
+                setTimeout(() => {
+                  set_switchingChainStarted(false);
+                }, 30_000);
+              }}
+              pending={switchingChainStarted || onboardingStatus === 'FETCHING'}
+            >
+              Switch to Gnosis
+            </StyledButton>
+          )}
+          {buttonToShow === 'CONNECT_WALLET' && (
             <StyledButton
               onClick={() => {
                 dispatch(web3Actions.setModalOpen(true));
               }}
-              disabled={status.connected}
-              pending={status.connected && onboardingIsFetching}
             >
               CONNECT WALLET
             </StyledButton>
           )}
-          {status.connected && onboardingStep !== 16 && !onboardingIsFetching && (
+          {buttonToShow === 'START_ONBOARDING' && (
+            <StyledButton
+              onClick={() => {
+                navigate('/staking/onboarding');
+                dispatch(stakingHubActions.setOnboardingStep(0));
+              }}
+            >
+              START ONBOARDING
+            </StyledButton>
+          )}
+          {buttonToShow === 'CONTINUE_ONBOARDING' && (
             <StyledButton
               onClick={() => {
                 navigate('/staking/onboarding');
               }}
             >
-              GO TO ONBOARDING
+              CONTINUE ONBOARDING
             </StyledButton>
           )}
-          {status.connected && onboardingStep === 16 && !onboardingIsFetching && (
+          {buttonToShow === 'VIEW_DASHBOARD' && (
             <StyledButton
               onClick={() => {
                 navigate('/staking/dashboard');
@@ -439,7 +480,6 @@ const StakingLandingPage = () => {
               VIEW STAKING OVERVIEW
             </StyledButton>
           )}
-
           <BrandsSection>
             <Brand>
               <BrandText>DEVELOPED USING</BrandText>

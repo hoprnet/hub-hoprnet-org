@@ -27,11 +27,8 @@ const stakingHubSlice = createSlice({
         nodeAddressProvidedByMagicLink: null,
         safeAddress: null,
         moduleAddress: null,
-        notFinished: false,
         userIsInOnboarding: false,
         nodeXDaiBalance: null,
-        isFetching: false,
-        notStarted: null,
         modalToSartOnboardingDismissed: false,
         nodeBalance: {
           xDai: {
@@ -39,6 +36,8 @@ const stakingHubSlice = createSlice({
             formatted: null,
           },
         },
+        status: 'NOT_FETCHED',
+        isFetching: false,
       };
     },
     dismissModalToSartOnboarding: (state) => {
@@ -79,7 +78,9 @@ const stakingHubSlice = createSlice({
     setOnboardingStep: (state, action) => {
       state.onboarding.step = action.payload;
       if (action.payload === 16) {
-        state.onboarding.notFinished = false;
+        state.onboarding.status = 'COMPLETED';
+      } else if (action.payload > 1) {
+        state.onboarding.status = 'IN_PROGRESS';
       }
     },
     setNodeLinkedToSafeBalance_xDai: (state, action) => {
@@ -109,9 +110,31 @@ const stakingHubSlice = createSlice({
     },
     updateThreshold: (state, action) => {
       state.safeInfo.data.threshold = `${action.payload}`;
+      const safeAddress = state.safeInfo.data.id;
+      if (safeAddress) {
+        try {
+          localStorage.setItem(`${safeAddress.toLowerCase()}_threshold_updated`, JSON.stringify({
+            threshold: action.payload,
+            updated: Date.now(),
+          }));
+        } catch (error) {
+          console.error('Error saving threshold update to localStorage:', error);
+        }
+      }
     },
     updateAllowance: (state, action) => {
-      state.safeInfo.data.allowance.wxHoprAllowance = action.payload;
+      state.safeInfo.data.allowance.wxHoprAllowance = `${action.payload}`;
+      const safeAddress = state.safeInfo.data.id;
+      if (safeAddress) {
+        try {
+          localStorage.setItem(`${safeAddress.toLowerCase()}_allowance_updated`, JSON.stringify({
+            allowance: `${action.payload}`,
+            updated: Date.now(),
+          }));
+        } catch (error) {
+          console.error('Error saving allowance update to localStorage:', error);
+        }
+      }
     }
   },
   extraReducers: (builder) => {

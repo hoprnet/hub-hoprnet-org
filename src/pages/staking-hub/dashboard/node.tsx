@@ -3,7 +3,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { truncateHOPRPeerId } from '../../../utils/helpers';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { safeActionsAsync } from '../../../store/slices/safe';
-import { useEthersSigner } from '../../../hooks';
+import { useWalletClient } from 'wagmi';
 import { rounder } from '../../../utils/functions';
 import { getAddress } from 'viem';
 
@@ -30,11 +30,6 @@ import Tooltip from '../../../future-hopr-lib-components/Tooltip/tooltip-fixed-w
 import { DockerRunCommandModal } from '../../../components/Modal/staking-hub/DockerRunCommandModal';
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
 import TrainIcon from '../../../future-hopr-lib-components/Icons/TrainIcon';
-
-//web3
-import { Address } from 'viem';
-import { browserClient } from '../../../providers/wagmi';
-import { Dock } from '@mui/icons-material';
 
 const Container = styled.section`
   padding: 1rem;
@@ -291,7 +286,7 @@ const header = [
 ];
 
 const getOnboardingTooltip = (
-  onboardingNotFinished?: boolean,
+  onboardingCompleted?: boolean,
   inNetworkRegistry?: boolean,
   isDelegate?: boolean,
   includedInModule?: boolean,
@@ -300,7 +295,7 @@ const getOnboardingTooltip = (
 ) => {
   if (finishMainOnboardingForThisNode) {
     return <span>Finish ONBOARDING for this node first</span>;
-  } else if (onboardingNotFinished) {
+  } else if (!onboardingCompleted) {
     return (
       <span>
         Please finish the main
@@ -321,10 +316,11 @@ const getOnboardingTooltip = (
 const NodeAdded = () => {
   const navigate = useNavigate();
   const nodeHoprAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress);
-  const onboardingNotFinished = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
   const onboardingNodeAddress = useAppSelector((store) => store.stakingHub.onboarding.nodeAddress);
   const nodes = useAppSelector((store) => store.stakingHub.nodes.data);
   const delegates = useAppSelector((store) => store.safe.delegates.data);
+  const onboardingStatus = useAppSelector((store) => store.stakingHub.onboarding.status);
+  const onboardingCompleted = onboardingStatus === 'COMPLETED';
 
   const delegatesArray = delegates?.results?.map((elem) => elem.delegate.toLowerCase()) || [];
   const nodesPeerIdArr = Object.keys(nodes);
@@ -342,7 +338,7 @@ const NodeAdded = () => {
         const availability30d = nodes[node]?.availability30d;
 
         const finishMainOnboardingForThisNode =
-          onboardingNotFinished && onboardingNodeAddress?.toLowerCase() === node?.toLowerCase();
+          !onboardingCompleted && onboardingNodeAddress?.toLowerCase() === node?.toLowerCase();
 
         return {
           peerId: (
@@ -413,7 +409,7 @@ const NodeAdded = () => {
               <IconButton
                 iconComponent={<TrainIcon />}
                 tooltipText={getOnboardingTooltip(
-                  onboardingNotFinished,
+                  onboardingCompleted,
                   inNetworkRegistry,
                   isDelegate,
                   includedInModule,
@@ -428,7 +424,7 @@ const NodeAdded = () => {
                   }
                 }}
                 disabled={
-                  (onboardingNotFinished ||
+                  (!onboardingCompleted ||
                     (includedInModule && isDelegate && nodes[node]?.balanceFormatted !== '0')) &&
                   !finishMainOnboardingForThisNode
                 }

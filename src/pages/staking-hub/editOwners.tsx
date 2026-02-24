@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient, usePublicClient } from 'wagmi';
 import { StepContainer } from './onboarding/components';
 import { StyledInputGroup, StyledTextField } from './onboarding/styled';
-import { browserClient } from '../../providers/wagmi';
 
 // Components
-import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import ConfirmModal from '../../components/Modal/staking-hub/ConfirmModal';
 import Button from '../../future-hopr-lib-components/Button';
@@ -64,10 +62,11 @@ export default function EditOwners() {
   const safeModules = useAppSelector((state) => state.safe.info.data?.modules);
   //const safeOwners = useAppSelector((store) => store.safe.info.data?.owners); // Safe Infra
   const safeOwnersSubgraph = useAppSelector((store) => store.stakingHub.safeInfo.data.owners); // Subgraph
-  const safeOwners = safeOwnersSubgraph.map((elem) => elem.owner.id);
+  const safeOwners = safeOwnersSubgraph.map((elem) => elem.owner.id).filter((owner) => !!owner);
   const safeThreshold = useAppSelector((store) => store.stakingHub.safeInfo.data.threshold);
   const walletAddress = useAppSelector((store) => store.web3.account);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
+  const publicClient = usePublicClient();
   const [newOwner, set_newOwner] = useState('');
   const [newThreshold, set_newThreshold] = useState<null | string>(null);
   const [updateSafeThresholdConfirm, set_updateSafeThresholdConfirm] = useState(false);
@@ -100,8 +99,8 @@ export default function EditOwners() {
         )
           .unwrap()
           .then(async (transactionHash) => {
-            browserClient &&
-              (await browserClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
+            publicClient &&
+              (await publicClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
             dispatch(safeActions.addOwnerToSafe(newOwner));
             dispatch(stakingHubActions.addOwnerToSafe(newOwner));
             set_newOwner('');
@@ -164,8 +163,8 @@ export default function EditOwners() {
         )
           .unwrap()
           .then(async (transactionHash) => {
-            browserClient &&
-              (await browserClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
+            publicClient &&
+              (await publicClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
             set_updateSafeThresholdConfirm(false);
             dispatch(stakingHubActions.updateThreshold(newThreshold));
             dispatch(safeActions.updateThreshold(newThreshold));
@@ -230,7 +229,7 @@ export default function EditOwners() {
       )
         .unwrap()
         .then(async (transactionHash) => {
-          browserClient && (await browserClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
+          publicClient && (await publicClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
           dispatch(safeActions.removeOwnerFromSafe(confirmRemoveOwner));
         })
         .finally(async () => {
@@ -287,7 +286,7 @@ export default function EditOwners() {
       >
         <br />
         <br />
-        <h4 className="inline">Owners ({safeOwners?.length}):</h4>
+        <h4 className="inline">Owners ({safeOwners.length !== 0 ? safeOwners.length : '...'}):</h4>
         <ul>
           {safeOwners?.map((owner) => (
             <li key={`safe_owner_${owner}`}>
@@ -315,6 +314,7 @@ export default function EditOwners() {
               )}
             </li>
           ))}
+          {safeOwners.length === 0 && <li>Loading...</li>}
         </ul>
         <StyledInputGroup style={{ alignItems: 'flex-start' }}>
           <StyledText>ADD OWNER</StyledText>
@@ -359,7 +359,7 @@ export default function EditOwners() {
               </MenuItem>
             ))}
           </Select>{' '}
-          out of {safeOwners?.length} owner(s)
+          out of  {safeOwners.length !== 0 ? safeOwners.length : '...'} owner(s)
         </div>
         <Button
           disabled={newThreshold === safeThreshold || newThreshold === '0'}
@@ -442,8 +442,6 @@ export default function EditOwners() {
           />
         }
       />
-
-      <StartOnboarding />
       <NetworkOverlay />
     </Section>
   );

@@ -8,14 +8,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 
-import { useReadContract, useWriteContract, useSimulateContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useSimulateContract, useWalletClient } from 'wagmi';
 import { ERC1820_REGISTRY } from '../../../../config';
 import { ERC1820RegistryAbi } from '../../../utils/abis/ERC1820RegistryAbi';
-import { useEthersSigner } from '../../../hooks';
-import { safeActions, safeActionsAsync } from '../../../store/slices/safe';
-import { Address, encodeFunctionData, encodePacked, getAddress } from 'viem';
-import { type UseSimulateContractParameters } from 'wagmi';
-import { encode } from 'punycode';
+import { safeActionsAsync } from '../../../store/slices/safe';
+import { encodeFunctionData, } from 'viem';
 import SafeTransactionButton from '../../../components/SafeTransactionButton';
 import { useNavigate } from 'react-router-dom';
 
@@ -75,7 +72,7 @@ const AddAddressToERC1820RegistryModal = ({
   const [txStarted, set_txStarted] = useState<boolean>(false);
   const [success, set_success] = useState<boolean | null>(null);
   const [error, set_error] = useState<string | null>(null);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const walletAddress = useAppSelector((store) => store.web3.account);
   const safeAddress = useAppSelector((state) => state.safe.selectedSafe.data.safeAddress || '0x0000000000000000000000000000000000000000');
 
@@ -229,18 +226,16 @@ const AddAddressToERC1820RegistryModal = ({
       </STopBar>
       <Content>
         <p>
-          A one time, additional transaction must be done prior to the wrapping.
+          Wrapping will fail for this account due to the lack of a callback handler.
           <br />
-          Without it, the wrapping of xHOPR to wxHOPR in this account will fail due to the lack of a callback handler.
-          You need to set interface implementer in the{' '}
+          To fix this, a one-time transaction will be performed before wrapping to set the interface implementer in the{' '}
           <a
             href="https://gnosisscan.io/address/0x1820a4b7618bde71dce8cdc73aab6c95905fad24#code"
             target="_blank"
             style={{ textDecoration: 'underline' }}
           >
             ERC1820 Registry
-          </a>{' '}
-          to be able to continue with this transition.
+          </a>
         </p>
         <div>
           <Button

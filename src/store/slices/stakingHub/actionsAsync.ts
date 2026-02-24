@@ -31,6 +31,7 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
   'stakingHub/getHubSafesByOwner',
   async (payload, { rejectWithValue, dispatch }) => {
     dispatch(setHubSafesByOwnerFetching(true));
+    console.log('getHubSafesByOwnerThunk', payload);
     try {
       const resp = await fetch(`${WEBAPI_URL}/hub/getHubSafesByOwner`, {
         method: 'POST',
@@ -64,6 +65,7 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
   {
     condition: (_payload, { getState }) => {
       const isFetching = getState().stakingHub.safes.isFetching;
+      console.log('getHubSafesByOwnerThunk condition', isFetching);
       if (isFetching) {
         return false;
       }
@@ -111,11 +113,11 @@ const registerNodeAndSafeToNRThunk = createAsyncThunk<
 
 const getSubgraphDataThunk = createAsyncThunk<
   SubgraphParsedOutput,
-  { safeAddress: string; moduleAddress: string; browserClient: PublicClient },
+  { safeAddress: string; moduleAddress: string; publicClient: PublicClient },
   { state: RootState }
 >(
   'stakingHub/getSubgraphData',
-  async ({ safeAddress, moduleAddress, browserClient }, { rejectWithValue, dispatch }) => {
+  async ({ safeAddress, moduleAddress, publicClient }, { rejectWithValue, dispatch }) => {
     try {
       const resp = await fetch(`${WEBAPI_URL}/hub/getSafeInfo`, {
         method: 'POST',
@@ -150,9 +152,9 @@ const getSubgraphDataThunk = createAsyncThunk<
 
       console.log('nodeAddress', nodesAddressesFiltered);
 
-      dispatch(getNodesDataThunk({ nodesAddresses: nodesAddressesFiltered, browserClient }));
+      dispatch(getNodesDataThunk({ nodesAddresses: nodesAddressesFiltered, publicClient }));
       nodesAddressesFiltered.map((nodeAddress) => {
-        dispatch(getNodeBalanceThunk({ nodeAddress, browserClient }));
+        dispatch(getNodeBalanceThunk({ nodeAddress, publicClient }));
       });
 
       console.log('SubgraphParsedOutput', output);
@@ -315,6 +317,8 @@ const goToStepWeShouldBeOnThunk = createAsyncThunk<number, undefined, { state: R
         return 11;
       }
 
+      console.log('[Onboarding check] Safe balance (xDai):', state.safe.balance.data.xDai.value);
+      console.log('[Onboarding check] Safe balance (wxHopr):', state.safe.balance.data.wxHopr.value);
       // Part of the onboarding before COMM registers you
       const xDaiInSafeCheck =
         state.safe.balance.data.xDai.value &&
@@ -360,10 +364,9 @@ const goToStepWeShouldBeOnThunk = createAsyncThunk<number, undefined, { state: R
 
 const getOnboardingDataThunk = createAsyncThunk<
   void,
-  { browserClient: PublicClient; safeAddress: string; moduleAddress: string },
+  { publicClient: PublicClient; safeAddress: string; moduleAddress: string },
   { state: RootState }
 >('stakingHub/getOnboardingData', async (payload, { rejectWithValue, dispatch }) => {
-  dispatch(stakingHubActions.onboardingIsFetching(true));
   // await dispatch(safeActionsAsync.getCommunityNftsOwnedBySafeThunk(payload.safeAddress)).unwrap();
   const moduleAddress = payload.moduleAddress;
 
@@ -375,7 +378,7 @@ const getOnboardingDataThunk = createAsyncThunk<
     getModuleTargetsThunk({
       safeAddress: payload.safeAddress,
       moduleAddress,
-      walletClient: payload.browserClient,
+      walletClient: payload.publicClient,
     })
   );
 
@@ -383,7 +386,7 @@ const getOnboardingDataThunk = createAsyncThunk<
     getSubgraphDataThunk({
       safeAddress: payload.safeAddress,
       moduleAddress,
-      browserClient: payload.browserClient,
+      publicClient: payload.publicClient,
     })
   ).unwrap();
 
@@ -393,7 +396,7 @@ const getOnboardingDataThunk = createAsyncThunk<
     subgraphResponse.registeredNodesInNetworkRegistryParsed?.length > 0 &&
     subgraphResponse.registeredNodesInNetworkRegistryParsed[0] !== null
   ) {
-    const nodeBalanceInBigInt = await payload.browserClient?.getBalance({
+    const nodeBalanceInBigInt = await payload.publicClient?.getBalance({
       address: subgraphResponse.registeredNodesInNetworkRegistryParsed[0] as Address,
     });
     nodeXDaiBalance = nodeBalanceInBigInt?.toString() ?? '0';
@@ -407,12 +410,11 @@ const getOnboardingDataThunk = createAsyncThunk<
     })
   );
   dispatch(goToStepWeShouldBeOnThunk());
-  dispatch(stakingHubActions.onboardingIsFetching(false));
 });
 
 const getNodesDataThunk = createAsyncThunk<
   NodePayload[],
-  { nodesAddresses: string[]; browserClient: PublicClient },
+  { nodesAddresses: string[]; publicClient: PublicClient },
   { state: RootState }
 >(
   'stakingHub/getNodesData',
@@ -438,12 +440,12 @@ const getNodesDataThunk = createAsyncThunk<
 
 const getNodeBalanceThunk = createAsyncThunk<
   NodePayload,
-  { nodeAddress: string; browserClient: PublicClient },
+  { nodeAddress: string; publicClient: PublicClient },
   { state: RootState }
 >(
   'stakingHub/getNodeBalance',
   async (payload, { rejectWithValue, dispatch }) => {
-    const nodeBalanceInBigInt = await payload.browserClient?.getBalance({ address: payload.nodeAddress as Address });
+    const nodeBalanceInBigInt = await payload.publicClient?.getBalance({ address: payload.nodeAddress as Address });
     const nodeXDaiBalance = nodeBalanceInBigInt?.toString() ?? '0';
     const nodeXDaiBalanceFormatted = formatEther(nodeBalanceInBigInt);
     let nodeBalance = {
@@ -493,11 +495,11 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.safes.data = action.payload;
     }
     if (action.payload.length === 0) {
-      state.onboarding.notStarted = true;
-      state.onboarding.isFetching = false;
-    } else {
-      state.onboarding.notStarted = false;
+      state.onboarding.status = 'NOT_STARTED';
     }
+    state.safes.isFetching = false;
+  });
+  builder.addCase(getHubSafesByOwnerThunk.rejected, (state) => {
     state.safes.isFetching = false;
   });
   builder.addCase(getSubgraphDataThunk.pending, (state, action) => {
@@ -506,6 +508,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   builder.addCase(getSubgraphDataThunk.fulfilled, (state, action) => {
     if (action.payload) {
       state.safeInfo.data = action.payload;
+
       if (action.payload?.registeredNodesInNetworkRegistry?.length > 0) {
         let tmp = [];
         tmp = action.payload.registeredNodesInNetworkRegistry.map((elem: { node: { id: string | null } }) => {
@@ -525,6 +528,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         state.safeInfo.data.registeredNodesInNetworkRegistryParsed = tmp;
         state.onboarding.nodeAddress = tmp[tmp.length - 1];
       }
+
       if (action.payload?.registeredNodesInSafeRegistry?.length > 0) {
         let tmp = [];
         tmp = action.payload.registeredNodesInSafeRegistry.map((elem: { node: { id: string | null } }) => {
@@ -544,6 +548,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         state.safeInfo.data.registeredNodesInSafeRegistryParsed = tmp;
         state.onboarding.nodeAddress = tmp[tmp.length - 1];
       }
+
       if (action.payload?.module?.includedNodes?.length > 0) {
         action.payload.module.includedNodes.map((elem: { node: { id: string | null } }) => {
           if (elem.node.id) {
@@ -559,6 +564,35 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
           }
         });
       }
+
+      // In case the subgraph data is outdated, we check localStorage for recent updates
+      try {
+        const safeAddress = action.meta.arg.safeAddress.toLowerCase();
+        const thresholdUpdated = localStorage.getItem(`${safeAddress}_threshold_updated`);
+        const allowanceUpdated = localStorage.getItem(`${safeAddress}_allowance_updated`);
+
+        if(thresholdUpdated && typeof thresholdUpdated === 'string'){
+          const object = JSON.parse(thresholdUpdated);
+          if(object.updated && typeof object.updated === 'number' && Date.now() - object.updated < 15_000){
+            console.log('Using locally stored updated threshold value:', object);
+            state.safeInfo.data.threshold = `${object.threshold}`;
+          } else {
+            localStorage.removeItem(`${safeAddress}_threshold_updated`);
+          }
+        }
+        if(allowanceUpdated && typeof allowanceUpdated === 'string'){
+          const object = JSON.parse(allowanceUpdated);
+          if(object.updated && typeof object.updated === 'number' && Date.now() - object.updated < 15_000){
+            console.log('Using locally stored updated allowance value:', object);
+            state.safeInfo.data.allowance.wxHoprAllowance = `${object.allowance}`;
+          } else {
+            localStorage.removeItem(`${safeAddress}_allowance_updated`);
+          }
+        }
+      } catch (e) {
+        console.warn('Error parsing localStorage data for threshold and allowance updates', e);
+      }
+
     }
     state.safeInfo.isFetching = false;
   });
@@ -591,21 +625,32 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.config.needsUpdate.isFetching = false;
     }
   });
-  builder.addCase(goToStepWeShouldBeOnThunk.pending, (state) => {
+  builder.addCase(getOnboardingDataThunk.pending, (state) => {
     state.onboarding.isFetching = true;
+    state.onboarding.status = 'FETCHING';
+  });
+  builder.addCase(getOnboardingDataThunk.rejected, (state) => {
+    state.onboarding.isFetching = false;
+    state.onboarding.status = 'NOT_STARTED';
+  });
+  // Called only from getOnboardingDataThunk
+  builder.addCase(goToStepWeShouldBeOnThunk.pending, (state) => {
   });
   builder.addCase(goToStepWeShouldBeOnThunk.fulfilled, (state, action) => {
     if (action.payload) {
       state.onboarding.step = action.payload;
       state.onboarding.isFetching = false;
-      if (state.onboarding.step !== 0 && state.onboarding.step !== 16) {
-        state.onboarding.notFinished = true;
-        state.onboarding.notStarted = false;
+      if (state.onboarding.step === 0) {
+        state.onboarding.status = 'NOT_STARTED';
       } else if (state.onboarding.step === 16) {
-        state.onboarding.notFinished = false;
-        state.onboarding.notStarted = false;
+        state.onboarding.status = 'COMPLETED';
+      } else {
+        state.onboarding.status = 'IN_PROGRESS';
       }
     }
+  });
+  builder.addCase(goToStepWeShouldBeOnThunk.rejected, (state) => {
+    state.onboarding.isFetching = false;
   });
   builder.addCase(getNodesDataThunk.fulfilled, (state, action) => {
     const nodesData = action.payload;

@@ -8,7 +8,7 @@ import {
 } from '../../../config';
 import Button from '../../future-hopr-lib-components/Button';
 import Section from '../../future-hopr-lib-components/Section';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient } from 'wagmi';
 import { StepContainer } from './onboarding/components';
 import { Lowercase, StyledCoinLabel, StyledInputGroup, StyledTextField } from './onboarding/styled';
 
@@ -44,13 +44,14 @@ export default function SetAllowance() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as Address;
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const [wxHoprValue, set_wxHoprValue] = useState('');
   const [loading, set_loading] = useState(false);
 
   const executeAllowance = async () => {
     if (signer && selectedSafeAddress && HOPR_CHANNELS_SMART_CONTRACT_ADDRESS) {
       set_loading(true);
+      console.log('xxxxx Allowance', wxHoprValue);
       await dispatch(
         safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
           data: createApproveTransactionData(HOPR_CHANNELS_SMART_CONTRACT_ADDRESS, parseUnits(wxHoprValue, 18)),
@@ -61,6 +62,7 @@ export default function SetAllowance() {
       )
         .unwrap()
         .then(() => {
+          console.log('xxxxx Allowance set to ', wxHoprValue);
           dispatch(stakingHubActions.updateAllowance(wxHoprValue));
         })
         .finally(() => {

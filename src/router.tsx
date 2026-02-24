@@ -9,8 +9,6 @@ import {
 } from 'react-router-dom';
 import { environment } from '../config';
 import { useDisconnect } from 'wagmi';
-import { parseAndFormatUrl } from './utils/parseAndFormatUrl';
-import { trackGoal } from 'fathom-client';
 
 // Store
 import { useAppDispatch, useAppSelector } from './store';
@@ -55,6 +53,7 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import PaidIcon from '@mui/icons-material/Paid';
 import WalletIcon from '@mui/icons-material/Wallet';
 import TrainIcon from './future-hopr-lib-components/Icons/TrainIcon';
+import OnboardingIcon from './future-hopr-lib-components/Icons/OnboardingIcon';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyNotice from './pages/PrivacyNotice';
@@ -97,7 +96,7 @@ export const applicationMapStakingHub: ApplicationMapType = [
       {
         name: 'Onboarding',
         path: 'onboarding',
-        icon: <TrainIcon />,
+        icon: <OnboardingIcon />,
         element: <Onboarding />,
         loginNeeded: 'web3',
       },
@@ -128,7 +127,6 @@ export const applicationMapStakingHub: ApplicationMapType = [
         path: 'wrapper',
         icon: <PaidIcon />,
         element: <WrapperPage />,
-        loginNeeded: 'web3',
       },
       {
         path: 'edit-owners',
@@ -237,34 +235,14 @@ const LayoutEnhanced = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const { disconnect } = useDisconnect();
-  const nodeConnected = useAppSelector((store) => store.auth.status.connected);
-  const web3Connected = useAppSelector((store) => store.web3.status.connected);
+  const disconnect = useDisconnect();
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const isConnected = useAppSelector((store) => store.web3.status.connected);
+  const walletIconRedux = useAppSelector((store) => store.web3.walletIcon);
   const [searchParams] = useSearchParams();
   const HOPRdNodeAddressForOnboarding = searchParams.get('HOPRdNodeAddressForOnboarding'); //Address given in HOPRd: https://hub.hoprnet.org/staking/onboarding?HOPRdNodeAddressForOnboarding={my_address}
 
-  const numberOfPeers = useAppSelector((store) => store.node.peers.data?.connected.length);
-  const numberOfAliases = useAppSelector(
-    (store) => store.node.aliases?.data && Object.keys(store.node.aliases?.data).length
-  );
-  const numberOfMessagesReceived = useAppSelector((store) => store.node.messages.data.length);
-  const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
-  const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
-
-  const onboardingIsFetching = useAppSelector((store) => store.stakingHub.onboarding.isFetching);
-  const onboardingNotFinished = useAppSelector((store) => store.stakingHub.onboarding.notFinished);
-  const onboardingNotStarted = useAppSelector((store) => store.stakingHub.onboarding.notStarted);
-  const onboardingFinished = onboardingIsFetching || onboardingNotStarted ? null : !onboardingNotFinished;
-
-  const numberForDrawer = {
-    numberOfPeers,
-    numberOfAliases,
-    numberOfMessagesReceived,
-    numberOfChannelsIn,
-    numberOfChannelsOut,
-  };
+  const onboardingStatus = useAppSelector((store) => store.stakingHub.onboarding.status);
 
   useEffect(() => {
     if (!HOPRdNodeAddressForOnboarding) return;
@@ -277,12 +255,11 @@ const LayoutEnhanced = () => {
       (location.pathname === '/' || location.pathname === '/privacy-notice' || location.pathname === '/tos')
     )
       return false;
-    if (isConnected || nodeConnected) return true;
-    return false;
+    return isConnected;
   };
 
   const handleDisconnectMM = () => {
-    disconnect();
+    disconnect.mutate();
     dispatch(appActions.resetState());
     dispatch(web3Actions.resetState());
     dispatch(safeActions.resetState());
@@ -298,11 +275,18 @@ const LayoutEnhanced = () => {
       mobileOnly: true,
       items: [
         {
-          name: web3Connected ? 'Disconnect' : 'Connect Wallet',
+          name: isConnected ? 'Disconnect' : 'Connect Wallet',
           path: 'function',
-          icon: <MetaMaskFox />,
-          onClick: () => {
-            if (web3Connected) handleDisconnectMM();
+          icon: <img
+            src={walletIconRedux}
+            alt="wallet icon"
+            style={ walletIconRedux === '/assets/wallet-icon.svg' ?
+              {     filter: 'brightness(0) invert(1)' } :
+              {}
+            }
+          />,
+          onClick:()=>{
+            if (isConnected) handleDisconnectMM();
             else dispatch(web3Actions.setModalOpen(true));
           },
           mobileOnly: true,
@@ -310,6 +294,8 @@ const LayoutEnhanced = () => {
       ],
     },
   ];
+
+  const numberForDrawer: { [key: string]: number } = {};
 
   return (
     <Layout
@@ -319,11 +305,9 @@ const LayoutEnhanced = () => {
       drawerFunctionItems={environment === 'web3' ? drawerFunctionItems : undefined}
       drawerNumbers={numberForDrawer}
       drawerLoginState={{
-        node: nodeConnected,
-        web3: web3Connected,
-        safe: !!safeAddress && web3Connected,
-        onboardingNotStarted,
-        onboardingFinished,
+        web3: isConnected,
+        safe: !!safeAddress && isConnected,
+        onboardingStatus
       }}
       className={environment}
       drawerType={environment === 'web3' ? 'blue' : undefined}

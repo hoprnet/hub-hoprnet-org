@@ -18,8 +18,7 @@ import { appActions } from '../../store/slices/app';
 import { truncateEthereumAddress } from '../../utils/blockchain';
 
 //web3
-import { browserClient } from '../../providers/wagmi';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient, usePublicClient } from 'wagmi';
 import { getAddress } from 'viem';
 
 const AppBarContainer = styled(Button)`
@@ -114,7 +113,8 @@ export default function ConnectSafe() {
   useWatcher({});
   const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
+  const publicClient = usePublicClient();
   const isConnected = useAppSelector((store) => store.web3.status.connected);
   const ownerAddress = useAppSelector((store) => store.web3.account);
   const safes = useAppSelector((store) => store.stakingHub.safes.data);
@@ -151,14 +151,21 @@ export default function ConnectSafe() {
 
   // If no selected safeAddress, choose 1st one
   useEffect(() => {
-    console.log({ safeFromUrl, moduleFromUrl });
-    if (safeFromUrl && moduleFromUrl && !safeAddress) {
-      console.log('useSelectedSafe from url', safeFromUrl, moduleFromUrl);
+    console.log('x3 1. ConnectSafe useEffect checking selected safe', {
+      safes,
+      safeAddress,
+      signer,
+      ownerAddress,
+      isConnected
+    });
+    if (safeFromUrl && moduleFromUrl && signer && !safeAddress) {
+      console.log('x3 useSelectedSafe from url', safeFromUrl, moduleFromUrl);
       useSelectedSafe({
         safeAddress: getAddress(safeFromUrl),
         moduleAddress: getAddress(moduleFromUrl),
       });
-    } else if (safes.length > 0 && !safeAddress && signer && ownerAddress) {
+    } else if (safes.length > 0 && !safeAddress && ownerAddress) {
+      console.log('x3 2. no safe selected yet, selecting...');
       try {
         //@ts-ignore
         let localStorage: { [key: string]: { safeAddress: string; moduleAddress: string } } =
@@ -169,27 +176,30 @@ export default function ConnectSafe() {
           safes.filter((safe) => safe?.safeAddress === localStorage[ownerAddress]?.safeAddress).length > 0
         ) {
           useSelectedSafe(localStorage[ownerAddress]);
-          console.log('useSelectedSafe from ls', localStorage[ownerAddress]);
+          console.log('x3 useSelectedSafe from ls', localStorage[ownerAddress]);
         } else {
           useSelectedSafe(safes[0]);
-          console.log('useSelectedSafe [0]', safes[0]);
+          console.log('x3 useSelectedSafe [0]', safes[0]);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('x3 Error parsing localStorage for chosen safe', e);
+      }
     }
   }, [safes, safeAddress, signer, ownerAddress, safeFromUrl, moduleFromUrl]);
 
   // If safe got selected, update all and onboarding data
   useEffect(() => {
-    if (selectedSafe && browserClient && selectedSafe.safeAddress) {
+    console.log('x3 getOnboardingDataThunk [selectedSafe, publicClient]', { selectedSafe, publicClient });
+    if (selectedSafe && publicClient && selectedSafe.safeAddress) {
       dispatch(
         stakingHubActionsAsync.getOnboardingDataThunk({
-          browserClient,
+          publicClient,
           safeAddress: selectedSafe.safeAddress as string,
           moduleAddress: selectedSafe.moduleAddress as string,
         })
       );
     }
-  }, [selectedSafe, browserClient]);
+  }, [selectedSafe, publicClient]);
 
   const useSelectedSafe = async (safeObject: { safeAddress?: string | null; moduleAddress?: string | null }) => {
     if (!safeObject.safeAddress || !safeObject.moduleAddress) return;
@@ -219,12 +229,12 @@ export default function ConnectSafe() {
       });
       dispatch(
         safeActionsAsync.getSafesByOwnerThunk({
-          signer: signer,
+          signer,
         })
       );
       dispatch(
         safeActionsAsync.getSafeInfoThunk({
-          signer: signer,
+          signer,
           safeAddress,
         })
       );
@@ -235,10 +245,7 @@ export default function ConnectSafe() {
         })
       );
       dispatch(
-        safeActionsAsync.getSafeDelegatesThunk({
-          signer,
-          options: { safeAddress },
-        })
+        safeActionsAsync.getSafeDelegatesThunk({safeAddress})
       );
       // dispatch(
       //   safeActionsAsync.getGnoAidropThunk(safeAddress)

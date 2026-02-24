@@ -1,15 +1,17 @@
 import { useAppSelector } from '../../store';
 import styled from '@emotion/styled';
-import { formatEther } from 'viem';
 import Tooltip from '@mui/material/Tooltip';
 import numbro from 'numbro';
+import { WidthShowInfoBar } from './index';
 
 interface Props {
   style?: object;
+  inTheDrawer?: boolean;
 }
 
 const Web3Container = styled.div`
   background-color: #cadeff;
+  color: #000;
   border-radius: 1rem;
   display: flex;
   gap: 8px;
@@ -19,6 +21,11 @@ const Web3Container = styled.div`
   /* margin-right: 8px; */
   box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
     0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  &.inTheDrawer {
+    @media (min-width: ${WidthShowInfoBar}) {
+      display: none;
+    }
+  }
 `;
 
 const IconContainer = styled.div`
@@ -145,31 +152,16 @@ function shrinkNumber(value?: string | number | undefined | null): string {
 }
 
 export default function Details(props: Props) {
-  const channels = useAppSelector((store) => store.node.channels.data);
-  const peers = useAppSelector((store) => store.node.peers.data);
-  const balances = useAppSelector((store) => store.node.balances.data);
-  const info = useAppSelector((store) => store.node.info.data);
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
   const web3Connected = useAppSelector((store) => store.web3.status.connected);
-  const nodeConnected = useAppSelector((store) => store.auth.status.connected);
   const walletBalance = useAppSelector((store) => store.web3.balance);
   const safeBalance = useAppSelector((store) => store.safe.balance.data);
-  const loginData = useAppSelector((store) => store.auth.loginData);
-  const statistics = useAppSelector((store) => store.node.statistics.data);
-
-  const totalwxHOPR =
-    balances.channels?.value && balances.safeHopr?.value
-      ? formatEther(BigInt(balances.channels?.value) + BigInt(balances.safeHopr?.value))
-      : '-';
-
-  const isXdaiEnough = () => {
-    if (balances.native.value && BigInt(balances.native.value) < BigInt('50000000000000000')) return 'Orange';
-    else if (balances.native.value && BigInt(balances.native.value) < BigInt('1000000000000000')) return 'Red';
-    return '';
-  };
 
   const web3Drawer = (
-    <Web3Container style={props.style}>
+    <Web3Container
+      className={ `Details ${props.inTheDrawer ? 'inTheDrawer' : ''}` }
+      style={props.style}
+    >
       <TitleColumn className="web3">
         <IconAndText>
           <IconContainer>
@@ -266,122 +258,10 @@ export default function Details(props: Props) {
     </Web3Container>
   );
 
-  const nodeDrawer = (
-    <Web3Container style={props.style}>
-      <TitleColumn className="node">
-        <IconAndText>
-          <IconContainer></IconContainer>
-          <Text>Status</Text>
-        </IconAndText>
-        <IconAndText>
-          <IconContainer>
-            <Icon
-              src="/assets/xDaiIcon.svg"
-              alt="xDai Icon"
-            />
-          </IconContainer>
-          <Text>xDAI: Node</Text>
-        </IconAndText>
-        <IconAndText>
-          <IconContainer>
-            <Icon
-              src="/assets/wxHoprIcon.svg"
-              alt="xDai Icon"
-            />
-          </IconContainer>
-          <Text className="noWrap">wxHOPR: Safe</Text>
-        </IconAndText>
-        <IconAndText>
-          <IconContainer>
-            <Icon
-              src="/assets/wxHoprIcon.svg"
-              alt="xDai Icon"
-            />
-          </IconContainer>
-          <Text>wxHOPR: Channels OUT</Text>
-        </IconAndText>
-        <IconAndText>
-          <IconContainer>
-            <Icon
-              src="/assets/wxHoprIcon.svg"
-              alt="xDai Icon"
-            />
-          </IconContainer>
-          <Text>wxHOPR: Total</Text>
-        </IconAndText>
-        <IconAndText>
-          <IconContainer></IconContainer>
-          <Text>Unredeemed wxHOPR</Text>
-        </IconAndText>
-        <IconAndText>
-          <IconContainer></IconContainer>
-          <Text>Redeemed wxHOPR</Text>
-        </IconAndText>
-      </TitleColumn>
-      <DataColumn>
-        <Data className="nodeOnly">
-          <p>
-            <ColorStatus className={`status-${info?.connectivityStatus}`}>
-              {info?.connectivityStatus ? info?.connectivityStatus : '-'}
-            </ColorStatus>
-          </p>
-          <ColorStatus className={`status-${isXdaiEnough()}`}>
-            <Tooltip
-              title={
-                balances.native?.formatted && balances.native?.formatted !== '0' ? balances.native?.formatted : null
-              }
-            >
-              <p>{balances.native?.formatted ?? '-'}</p>
-            </Tooltip>
-          </ColorStatus>
-          <Tooltip
-            title={
-              balances.safeHopr?.formatted && balances.safeHopr?.formatted !== '0' ? balances.safeHopr?.formatted : null
-            }
-          >
-            <p>{balances.safeHopr?.formatted ?? '-'}</p>
-          </Tooltip>
-          <Tooltip
-            title={
-              balances.channels?.formatted && balances.channels?.formatted !== '0' ? balances.channels?.formatted : null
-            }
-          >
-            <p className="double">{balances.channels?.formatted ?? '-'}</p>
-          </Tooltip>
-          <Tooltip title={totalwxHOPR && totalwxHOPR !== '0' ? totalwxHOPR : null}>
-            <p className="double">{totalwxHOPR ?? '-'}</p>
-          </Tooltip>
-          <Tooltip
-            title={
-              statistics?.unredeemedValue && statistics?.unredeemedValue !== '0'
-                ? formatEther(BigInt(statistics?.unredeemedValue as string))
-                : null
-            }
-          >
-            <p className="double">
-              {statistics?.unredeemedValue ? formatEther(BigInt(statistics?.unredeemedValue as string)) : '-'}
-            </p>
-          </Tooltip>
-          <Tooltip
-            title={
-              statistics?.redeemedValue && statistics?.redeemedValue !== '0'
-                ? formatEther(BigInt(statistics?.redeemedValue as string))
-                : null
-            }
-          >
-            <p className="double">
-              {statistics?.redeemedValue ? formatEther(BigInt(statistics?.redeemedValue as string)) : '-'}
-            </p>
-          </Tooltip>
-        </Data>
-      </DataColumn>
-    </Web3Container>
-  );
 
   return (
     <>
       {web3Connected && web3Drawer}
-      {nodeConnected && !web3Connected && nodeDrawer}
     </>
   );
 }

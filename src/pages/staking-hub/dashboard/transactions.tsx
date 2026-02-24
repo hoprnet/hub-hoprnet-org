@@ -30,14 +30,13 @@ import Button from '../../../future-hopr-lib-components/Button';
 
 // LIBS
 import styled from '@emotion/styled';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
-import { erc20Abi } from 'viem';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
+import { erc20Abi, WalletClient } from 'viem';
 
 // HOOKS
-import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import { Address, decodeFunctionData, formatEther } from 'viem';
-import { useEthersSigner } from '../../../hooks';
+import { useWalletClient } from 'wagmi';
 import {
   CustomAllTransactionsListResponse,
   CustomEthereumTxWithTransfersResponse,
@@ -164,18 +163,18 @@ const RawTX = styled.div`
 
 const GNOSIS_BASE_URL = 'https://gnosisscan.io';
 
-const TruncatedEthereumAddressWithTooltip = ({ address }: { address: string }) => {
+const TruncatedEthereumAddressWithTooltip = ({ address }: { address?: string | null }) => {
   return (
     <div>
       <Tooltip title={address}>
-        <p>{truncateEthereumAddress(address)}</p>
+        <p>{address && truncateEthereumAddress(address)}</p>
       </Tooltip>
     </div>
   );
 };
 
 const ActionButtons = ({ transaction }: { transaction: SafeMultisigTransactionResponse }) => {
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const dispatch = useAppDispatch();
   const address = useAppSelector((store) => store.web3.account);
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
@@ -261,7 +260,7 @@ const ActionButtons = ({ transaction }: { transaction: SafeMultisigTransactionRe
         safeActionsAsync.createSafeRejectionTransactionThunk({
           signer,
           safeAddress: transaction.safe,
-          nonce: transaction.nonce,
+          nonce: Number(transaction.nonce),
         })
       )
         .unwrap()
@@ -357,7 +356,7 @@ const ActionButtons = ({ transaction }: { transaction: SafeMultisigTransactionRe
 const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisigTransactionResponse }) => {
   const address = useAppSelector((store) => store.web3.account);
   const safeNonce = useAppSelector((store) => store.safe.info.data?.nonce);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   const dispatch = useAppDispatch();
   const [open, set_open] = useState(false);
   const [userAction, set_userAction] = useState<'EXECUTE' | 'SIGN' | null>(null);
@@ -403,7 +402,7 @@ const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisi
 
   const getCurrencyFromTransaction = async (
     transaction: SafeMultisigTransactionResponse,
-    signer: ethers.providers.JsonRpcSigner
+    signer: WalletClient
   ) => {
     const isNativeTransaction = !transaction.data;
     if (isNativeTransaction) {
@@ -426,7 +425,7 @@ const PendingTransactionRow = ({ transaction }: { transaction: CustomSafeMultisi
 
   const getValueFromTransaction = async (
     transaction: SafeMultisigTransactionResponse,
-    signer: ethers.providers.JsonRpcSigner
+    signer: WalletClient
   ) => {
     const isNativeTransaction = !transaction.data;
     console.log('getValueFromTransaction', transaction);
@@ -922,7 +921,7 @@ function TransactionHistoryTable() {
   const dispatch = useAppDispatch();
   const safeTransactions = useAppSelector((store) => store.safe.allTransactions.data);
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
 
   const fetchAllSafeTransaction = () => {
     if (signer && selectedSafeAddress) {
@@ -975,7 +974,7 @@ const PendingTransactionsTable = () => {
   const dispatch = useAppDispatch();
   const pendingTransactions = useAppSelector((store) => store.safe.pendingTransactions.data);
   const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
 
   useEffect(() => {
     if (signer && selectedSafeAddress) {
@@ -1005,11 +1004,11 @@ const PendingTransactionsTable = () => {
 
   const sortByNonce = (pendingTransactions: CustomSafeMultisigTransactionListResponse) => {
     if (!pendingTransactions?.count) return null;
-    const sortedCopy: CustomSafeMultisigTransactionListResponse = JSON.parse(JSON.stringify(pendingTransactions));
+    const sortedCopy = JSON.parse(JSON.stringify(pendingTransactions)) as NonNullable<CustomSafeMultisigTransactionListResponse>;
 
     // sort from oldest date to newest
-    return sortedCopy?.results.sort(
-      (prevDay, nextDay) => prevDay.nonce - nextDay.nonce
+    return sortedCopy.results.sort(
+      (prevDay, nextDay) => Number(prevDay.nonce) - Number(nextDay.nonce)
     ) as CustomSafeMultisigTransactionResponse[];
   };
 

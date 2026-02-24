@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Address, parseUnits, getAddress } from 'viem';
@@ -8,7 +8,7 @@ import {
   wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
   xHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
 } from '../../../config';
-import { useEthersSigner } from '../../hooks';
+import { useWalletClient } from 'wagmi';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { safeActions, safeActionsAsync } from '../../store/slices/safe';
 import { createSendNftTransactionData, createSendTokensTransactionData } from '../../utils/blockchain';
@@ -17,7 +17,6 @@ import { createSendNftTransactionData, createSendTokensTransactionData } from '.
 import Card from '../../components/Card';
 import NetworkOverlay from '../../components/Overlays/NetworkOverlay';
 import Section from '../../future-hopr-lib-components/Section';
-import StartOnboarding from '../../components/Modal/staking-hub/StartOnboarding';
 import { MaxButton } from './wrapper';
 
 // Mui
@@ -29,7 +28,6 @@ import {
 import { FeedbackTransaction } from '../../components/FeedbackTransaction';
 import SafeTransactionButton from '../../components/SafeTransactionButton';
 import Select from '../../future-hopr-lib-components/Select';
-import { browserClient } from '../../providers/wagmi';
 import { getUserActionForPendingTransaction } from '../../utils/safeTransactions';
 
 const StyledForm = styled.div`
@@ -121,11 +119,6 @@ const SUPPORTED_TOKENS = {
       />
     ),
   },
-  // nft: {
-  //   name: 'NFT',
-  //   value: 'nft',
-  //   smartContract: GNOSIS_CHAIN_HOPR_BOOST_NFT,
-  // },
 } as const;
 
 function SafeWithdraw() {
@@ -140,7 +133,7 @@ function SafeWithdraw() {
   const address = useAppSelector((store) => store.web3.account);
   const communityNftIds = useAppSelector((store) => store.safe.communityNftIds.data);
   const safeBalances = useAppSelector((store) => store.safe.balance.data);
-  const signer = useEthersSigner();
+  const { data: signer } = useWalletClient();
   // local state
   const [userAction, set_userAction] = useState<'EXECUTE' | 'SIGN' | null>(null);
   const [ethValue, set_ethValue] = useState<string>('');
@@ -224,35 +217,6 @@ function SafeWithdraw() {
             set_isWalletLoading(false);
           });
       }
-
-      // if (token === 'nft') {
-      //   const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
-      //   return dispatch(
-      //     safeActionsAsync.createSafeContractTransactionThunk({
-      //       data: createSendNftTransactionData(
-      //         getAddress(selectedSafeAddress) as Address,
-      //         getAddress(receiver) as Address,
-      //         Number(nftId)
-      //       ),
-      //       signer,
-      //       safeAddress: getAddress(selectedSafeAddress),
-      //       smartContractAddress,
-      //     })
-      //   )
-      //     .unwrap()
-      //     .then((transactionResponse) => {
-      //       set_proposedTxHash(transactionResponse);
-      //       navigate('/staking/dashboard#transactions');
-      //     })
-      //     .catch((e) => {
-      //       if (e.message) set_error(`ERROR: ${JSON.stringify(e.message)}`);
-      //       else set_error(`ERROR: ${JSON.stringify(e)}`);
-      //     })
-      //     .finally(() => {
-      //       set_isWalletLoading(false);
-      //     });
-      // }
-      // else {
       const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
       const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
       return dispatch(
@@ -275,7 +239,6 @@ function SafeWithdraw() {
         .finally(() => {
           set_isWalletLoading(false);
         });
-      //}
     }
   };
 
@@ -305,29 +268,6 @@ function SafeWithdraw() {
             set_isWalletLoading(false);
           });
       }
-      // if (token === 'nft') {
-      //   const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
-
-      //   await dispatch(
-      //     safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
-      //       data: createSendNftTransactionData(getAddress(selectedSafeAddress) as Address, getAddress(receiver) as Address, Number(nftId)),
-      //       signer,
-      //       safeAddress: getAddress(selectedSafeAddress),
-      //       smartContractAddress,
-      //     }),
-      //   )
-      //     .unwrap()
-      //     .then((transactionResponse) => {
-      //       browserClient?.waitForTransactionReceipt({ hash: transactionResponse as Address }).then(() => {
-      //         dispatch(safeActions.removeCommunityNftsOwnedBySafe(nftId));
-      //       });
-      //       set_proposedTxHash(transactionResponse);
-      //     })
-      //     .finally(() => {
-      //       set_isWalletLoading(false);
-      //     });
-      // }
-      // else {
       const smartContractAddress = SUPPORTED_TOKENS[token].smartContract;
       const parsedValue = Number(ethValue) ? parseUnits(ethValue as `${number}`, 18).toString() : BigInt(0);
       return dispatch(
@@ -453,7 +393,6 @@ function SafeWithdraw() {
       center
       fullHeightMin
     >
-      <StartOnboarding />
       <Card
         image={{
           src: '/assets/funds-safe-withdraw.svg',
@@ -507,24 +446,6 @@ function SafeWithdraw() {
                   inputProps={{ autoComplete: 'off' }}
                 />
               </InputWithLabel>
-              {/* {token === 'nft' ? (
-                <InputWithLabel>
-                  <Select
-                    size="small"
-                    values={Object.values(communityNftIds).map((nft) => ({
-                      name: nft.id,
-                      value: nft.id,
-                    }))}
-                    value={nftId}
-                    onChange={handleChangeNftId}
-                    style={{
-                      width: '230px',
-                      margin: 0,
-                    }}
-                  />
-                  <StyledCoinLabel>NFT ID</StyledCoinLabel>
-                </InputWithLabel>
-              ) : ( */}
               <InputWithLabel
                 style={{
                   width: '100%',

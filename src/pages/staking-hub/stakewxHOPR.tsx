@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Address, parseUnits } from 'viem';
-import { useBalance, useWriteContract, useSimulateContract } from 'wagmi';
+import {
+  useReadContracts,
+  useWriteContract,
+  useSimulateContract
+} from 'wagmi';
 import { erc20Abi } from 'viem';
 import { wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS } from '../../../config';
 
@@ -23,23 +27,27 @@ import {
 } from './onboarding/styled';
 
 const StakewxHOPR = () => {
-  const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress);
+  const selectedSafeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as `0x${string}`;
   const walletBalance = useAppSelector((store) => store.web3.balance);
   const [wxhoprValue, set_wxhoprValue] = useState('');
   const [transactionHash, set_transactionHash] = useState<Address>();
 
-  const { refetch: refetchWXHoprSafeBalance } = useBalance({
-    address: selectedSafeAddress as `0x${string}`,
-    token: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
-    query: {
-      enabled: !!selectedSafeAddress,
-    },
+
+  //TODO: check if that does update the app
+  const { refetch: refetchWXHoprSafeBalance } = useReadContracts({
+    contracts: [
+      {
+        address: wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [selectedSafeAddress],
+      },
+    ],
   });
 
   useEffect(() => {
     const fetchBalanceInterval = setInterval(() => {
       if (selectedSafeAddress) {
-        refetchWXHoprSafeBalance();
         refetchWXHoprSafeBalance();
       }
     }, 15_000);

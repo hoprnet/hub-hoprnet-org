@@ -6,7 +6,7 @@ import {
   SafeMultisigTransactionWithTransfersResponse,
   SafeDelegateListResponse,
 } from '@safe-global/api-kit';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
 import { Address, decodeFunctionData, formatEther, formatUnits } from 'viem';
 import { erc20Abi, erc4626Abi, erc721Abi } from 'viem';
 import { truncateEthereumAddress } from './blockchain';
@@ -205,13 +205,16 @@ const getSourceFromHistoryEthereumTransaction = (transaction: EthereumTxWithTran
  */
 
 const getValueFromHistoryModuleTransaction = (transaction: SafeModuleTransactionWithTransfersResponse) => {
-  const units = transaction.transfers.at(0)?.tokenInfo.decimals ?? 18;
+  const units = transaction.transfers.at(0)?.tokenInfo?.decimals ?? 18;
   const value = formatUnits(BigInt(transaction.transfers.at(0)?.value ?? 0), units);
   return value;
 };
 
 const getCurrencyFromHistoryModuleTransaction = (transaction: SafeModuleTransactionWithTransfersResponse) => {
-  const currency = transaction.transfers.at(0)?.tokenInfo.symbol;
+  if (!transaction.transfers.at(0)?.tokenAddress) {
+    return '';
+  }
+  const currency = transaction.transfers.at(0)?.tokenInfo?.symbol;
   return currency;
 };
 
@@ -229,7 +232,7 @@ const getCurrencyFromHistoryMultisigTransaction = (transaction: SafeMultisigTran
     return 'xDai';
   }
 
-  const currency = transaction.transfers.at(0)?.tokenInfo.symbol;
+  const currency = transaction.transfers.at(0)?.tokenInfo?.symbol;
   return currency;
 };
 

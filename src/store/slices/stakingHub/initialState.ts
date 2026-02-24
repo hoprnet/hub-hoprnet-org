@@ -1,3 +1,5 @@
+export type OnboardingStatus = 'NOT_FETCHED' | 'FETCHING' | 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+
 type InitialState = {
   safes: {
     data: {
@@ -8,7 +10,6 @@ type InitialState = {
   };
   onboarding: {
     step: number;
-    notFinished: boolean;
     nodeAddress: string | null;
     nodeBalance: {
       xDai: {
@@ -17,12 +18,12 @@ type InitialState = {
       };
     };
     safeAddress: string | null;
-    notStarted: boolean | null;
     modalToSartOnboardingDismissed: boolean;
     moduleAddress: string | null;
     userIsInOnboarding: boolean;
     nodeXDaiBalance: string | null;
     nodeAddressProvidedByMagicLink: string | null;
+    status: OnboardingStatus;
     isFetching: boolean;
   };
   safeInfo: {
@@ -74,6 +75,7 @@ type Owner = {
 };
 
 export type SubgraphParsedOutput = {
+  id: string | null;
   balance: {
     mHoprBalance: string | null;
     wxHoprBalance: string | null;
@@ -147,11 +149,10 @@ export const initialState: InitialState = {
     nodeAddress: null,
     safeAddress: null,
     moduleAddress: null,
-    notFinished: false,
     userIsInOnboarding: false,
     nodeXDaiBalance: null,
-    isFetching: true,
-    notStarted: null,
+    isFetching: false,
+    status: 'NOT_FETCHED',
     modalToSartOnboardingDismissed: false,
     nodeAddressProvidedByMagicLink: null,
     nodeBalance: {
@@ -163,6 +164,7 @@ export const initialState: InitialState = {
   },
   safeInfo: {
     data: {
+      id: null,
       balance: {
         mHoprBalance: null,
         wxHoprBalance: null,

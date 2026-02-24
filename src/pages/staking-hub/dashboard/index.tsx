@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { useWalletClient } from 'wagmi';
+import { useWalletClient, usePublicClient } from 'wagmi';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../../store';
@@ -10,7 +10,6 @@ import { stakingHubActions, stakingHubActionsAsync } from '../../../store/slices
 
 // HOPR Components
 import NetworkOverlay from '../../../components/Overlays/NetworkOverlay';
-import StartOnboarding from '../../../components/Modal/staking-hub/StartOnboarding';
 
 // Mui
 import Paper from '@mui/material/Paper/Paper';
@@ -23,8 +22,6 @@ import SafeActions from './transactions';
 import SafeDashboard from './safe';
 import NoNodeAdded from './noNodeAdded';
 import NodeAdded from './node';
-
-import { browserClient } from '../../../providers/wagmi';
 
 export const DASHBOARD = {
   staking: 0,
@@ -92,17 +89,18 @@ const STabs = styled(Tabs)`
 function Dashboard() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const publicClient = usePublicClient();
   const [tabIndex, set_tabIndex] = useState(getTabIndexFromUrl());
   const safeAddress = useAppSelector((store) => store.safe.selectedSafe.data.safeAddress) as string;
   const moduleAddress = useAppSelector((store) => store.safe.selectedSafe.data.moduleAddress);
 
   useEffect(() => {
-    if (safeAddress && moduleAddress && browserClient) {
+    if (safeAddress && moduleAddress && publicClient) {
       dispatch(
         stakingHubActionsAsync.getSubgraphDataThunk({
           safeAddress,
           moduleAddress,
-          browserClient,
+          publicClient,
         })
       );
     }
@@ -159,7 +157,6 @@ function Dashboard() {
       </SPaper>
 
       <NetworkOverlay />
-      <StartOnboarding />
     </DashboardContainer>
   );
 }
