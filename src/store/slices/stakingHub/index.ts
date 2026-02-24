@@ -112,20 +112,28 @@ const stakingHubSlice = createSlice({
       state.safeInfo.data.threshold = `${action.payload}`;
       const safeAddress = state.safeInfo.data.id;
       if (safeAddress) {
-        localStorage.setItem(`${safeAddress.toLowerCase()}_threshold_updated`, JSON.stringify({
-          threshold: action.payload,
-          updated: Date.now(),
-        }));
+        try {
+          localStorage.setItem(`${safeAddress.toLowerCase()}_threshold_updated`, JSON.stringify({
+            threshold: action.payload,
+            updated: Date.now(),
+          }));
+        } catch (error) {
+          console.error('Error saving threshold update to localStorage:', error);
+        }
       }
     },
     updateAllowance: (state, action) => {
       state.safeInfo.data.allowance.wxHoprAllowance = `${action.payload}`;
       const safeAddress = state.safeInfo.data.id;
       if (safeAddress) {
-        localStorage.setItem(`${safeAddress.toLowerCase()}_allowance_updated`, JSON.stringify({
-          allowance: `${action.payload}`,
-          updated: Date.now(),
-        }));
+        try {
+          localStorage.setItem(`${safeAddress.toLowerCase()}_allowance_updated`, JSON.stringify({
+            allowance: `${action.payload}`,
+            updated: Date.now(),
+          }));
+        } catch (error) {
+          console.error('Error saving allowance update to localStorage:', error);
+        }
       }
     }
   },
