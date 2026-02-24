@@ -224,8 +224,6 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
   };
 
   useEffect(() => {
-    console.log('connector', connector);
-
     const setIcon = (connector: Connector | undefined) => {
       if (!connector?.id) {
         return '/assets/wallet-icon.svg';
@@ -244,7 +242,7 @@ export default function ConnectWeb3({ inTheAppBar, open, onClose }: ConnectWeb3P
 
     const icon = setIcon(connector);
     dispatch(web3Actions.setIcon(icon));
-  }, [connector]);
+  }, [connector, account]);
 
   return (
     <>
