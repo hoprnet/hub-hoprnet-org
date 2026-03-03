@@ -629,13 +629,13 @@ function WrapperPage() {
                 onClick: () => executeSafeSwap(false),
                 disabled: swapDisabled,
                 pending: loading,
-                buttonText: 'SWAP',
+                buttonText: swapDirection === 'wxHOPR_to_xHOPR' ? 'UNWRAP' : 'WRAP',
               }}
               signOptions={{
                 onClick: () => executeSafeSwap(true),
                 disabled: swapDisabled,
                 pending: loading,
-                buttonText: 'SIGN SWAP',
+                buttonText: swapDirection === 'wxHOPR_to_xHOPR' ? 'SIGN UNWRAP' : 'SIGN WRAP',
               }}
             />
           ) : (
@@ -645,7 +645,7 @@ function WrapperPage() {
               onClick={handleClick}
               pending={(walletLoading || isLoading) && !safeTxOverwrite.success}
             >
-              SWAP
+              {swapDirection === 'wxHOPR_to_xHOPR' ? 'UNWRAP' : 'WRAP'}
             </Button>
           )
         }
