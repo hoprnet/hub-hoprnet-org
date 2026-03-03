@@ -446,14 +446,6 @@ const createSafeTransactionThunk = createAsyncThunk<
       // error is not serializable
       return rejectWithValue(JSON.stringify(e));
     }
-  },
-  {
-    condition: (_payload, { getState }) => {
-      const isFetching = getState().safe.createTransaction.isFetching;
-      if (isFetching) {
-        return false;
-      }
-    },
   }
 );
 
@@ -734,14 +726,6 @@ const createAndExecuteSafeTransactionThunk = createAsyncThunk<
       // error is not serializable
       return rejectWithValue(JSON.stringify(e));
     }
-  },
-  {
-    condition: (_payload, { getState }) => {
-      const isFetching = getState().safe.executeTransaction.isFetching;
-      if (isFetching) {
-        return false;
-      }
-    },
   }
 );
 

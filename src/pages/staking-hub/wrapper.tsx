@@ -464,6 +464,8 @@ function WrapperPage() {
       }
       updateBalances();
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for the state to update
+    } catch (error) {
+      console.error('Error executing safe swap:', error);
     } finally {
       set_loading(false);
     }
@@ -617,7 +619,7 @@ function WrapperPage() {
           fundsSource === 'safe' ? (
             <SafeTransactionButton
               executeOptions={{
-                onClick: executeSafeSwap,
+                onClick: () => executeSafeSwap(false),
                 disabled: swapDisabled,
                 pending: loading,
                 buttonText: 'SWAP',
