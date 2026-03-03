@@ -1081,10 +1081,10 @@ const getTokenList = createAsyncThunk<
  * */
 const createSafeWithConfigThunk = createAsyncThunk<
   | {
-      transactionHash: string;
-      moduleProxy: string;
-      safeAddress: string;
-    }
+    transactionHash: string;
+    moduleProxy: string;
+    safeAddress: string;
+  }
   | undefined,
   {
     walletClient: WalletClient;
@@ -1378,7 +1378,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
             state.selectedSafe.data,
             state.delegates.data,
           )
-          ?? '',
+            ?? '',
         })),
       };
     }

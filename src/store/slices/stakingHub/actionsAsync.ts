@@ -17,7 +17,7 @@ import { Address, PublicClient, WalletClient, parseEther, publicActions } from '
 import { stakingHubActions } from '.';
 import { safeActionsAsync } from '../safe';
 import { NodePayload, TotalStaked } from './initialState';
-import { formatEther, getAddress } from 'viem';
+import { formatEther, getAddress, isAddress } from 'viem';
 import { To } from 'react-router-dom';
 
 const getHubSafesByOwnerThunk = createAsyncThunk<
@@ -570,6 +570,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         const safeAddress = action.meta.arg.safeAddress.toLowerCase();
         const thresholdUpdated = localStorage.getItem(`${safeAddress}_threshold_updated`);
         const allowanceUpdated = localStorage.getItem(`${safeAddress}_allowance_updated`);
+        const ownersUpdated = localStorage.getItem(`${safeAddress}_owners_updated`);
 
         if(thresholdUpdated && typeof thresholdUpdated === 'string'){
           const object = JSON.parse(thresholdUpdated);
@@ -587,6 +588,20 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
             state.safeInfo.data.allowance.wxHoprAllowance = `${object.allowance}`;
           } else {
             localStorage.removeItem(`${safeAddress}_allowance_updated`);
+          }
+        }
+        if(ownersUpdated && typeof ownersUpdated === 'string'){
+          const object = JSON.parse(ownersUpdated);
+          if(object.updated && typeof object.updated === 'number' && Date.now() - object.updated < 15_000){
+            console.log('Using locally stored updated owners value:', object);
+            const validOwners = object.owners.filter((owner: string) => isAddress(owner));
+            if(validOwners.length > 0 && validOwners.length === object.owners.length){
+              state.safeInfo.data.owners = validOwners;
+            } else {
+              localStorage.removeItem(`${safeAddress}_owners_updated`);
+            }
+          } else {
+            localStorage.removeItem(`${safeAddress}_owners_updated`);
           }
         }
       } catch (e) {

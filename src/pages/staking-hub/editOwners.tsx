@@ -231,15 +231,11 @@ export default function EditOwners() {
         .then(async (transactionHash) => {
           publicClient && (await publicClient.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` }));
           dispatch(safeActions.removeOwnerFromSafe(confirmRemoveOwner));
+          dispatch(stakingHubActions.removeOwnerFromSafe(confirmRemoveOwner));
         })
         .finally(async () => {
-          // set_confirmRemoveOwner(false);
-          // set_pending(false);
-          if (walletAddress && confirmRemoveOwner.toLowerCase() === walletAddress.toLowerCase()) {
-            setTimeout(() => {
-              window.location.href = window.location.origin;
-            }, 2_000);
-          }
+          set_confirmRemoveOwner(false);
+          set_pending(false);
         });
     }
   };

@@ -6,6 +6,7 @@ import {
   useSimulateContract,
   useWaitForTransactionReceipt,
   useConnection,
+  usePublicClient,
 } from 'wagmi';
 import { parseUnits, parseEther, toHex, parseTransaction, encodeFunctionData } from 'viem';
 import {
@@ -78,6 +79,13 @@ const StyledTextField = styled(TextField)`
 
   &:disabled {
     pointer-events: none;
+  }
+
+  &.not-active-direction {
+    .MuiInputAdornment-root {
+      display: none;
+    }
+
   }
 `;
 
@@ -161,6 +169,7 @@ function TransactionLink({ isSuccess, hash }: TransactionLinkProps) {
 function WrapperPage() {
   const dispatch = useAppDispatch();
   const { data: signer } = useWalletClient();
+  const publicClient = usePublicClient();
   const [fundsSource, set_fundsSource] = useState<'wallet' | 'safe'>('safe');
   const [xhoprValue, set_xhoprValue] = useState('');
   const [wxhoprValue, set_wxhoprValue] = useState('');
@@ -185,6 +194,8 @@ function WrapperPage() {
   const safeBalance = useAppSelector((store) => store.safe.balance.data);
   const walletIcon = useAppSelector((store) => store.web3.walletIcon);
   const [loading, set_loading] = useState(false);
+  const [eoa, set_eoa] = useState<boolean | null>(null);
+
 
   useEffect(() => {
     if (fundsSource === 'wallet') {
@@ -207,6 +218,28 @@ function WrapperPage() {
     refetch2();
     refetchHandler();
   }, [selectedAddress]);
+
+  // Check if address is an EOA by reading its bytecode
+  useEffect(() => {
+    const checkIfEOA = async () => {
+      if (!publicClient || !selectedAddress) {
+        set_eoa(null);
+        return;
+      }
+      try {
+        const bytecode = await publicClient.getCode({
+          address: selectedAddress as `0x${string}`,
+        });
+        const isEoa = bytecode === '0x' || bytecode === '0x0' || bytecode === '0x0000000000000000000000000000000000000000' || !bytecode;
+        set_eoa(isEoa);
+      } catch (error) {
+        console.error('Error checking if EOA:', error);
+        set_eoa(null);
+      }
+    };
+
+    checkIfEOA();
+  }, [publicClient, selectedAddress]);
 
   useEffect(() => {
     set_showTxInfo(false);
@@ -268,7 +301,7 @@ function WrapperPage() {
     args: [selectedAddress as `0x${string}`, '0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b'],
   });
 
-  const handlerIsSet = handlerData !== `0x0000000000000000000000000000000000000000`;
+  const handlerIsSet = eoa ? true : handlerData !== `0x0000000000000000000000000000000000000000`;
 
   // Prepare contract write configurations
   // TX: wxHOPR -> xHOPR
@@ -464,6 +497,8 @@ function WrapperPage() {
       }
       updateBalances();
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for the state to update
+    } catch (error) {
+      console.error('Error executing safe swap:', error);
     } finally {
       set_loading(false);
     }
@@ -617,16 +652,16 @@ function WrapperPage() {
           fundsSource === 'safe' ? (
             <SafeTransactionButton
               executeOptions={{
-                onClick: executeSafeSwap,
+                onClick: () => executeSafeSwap(false),
                 disabled: swapDisabled,
                 pending: loading,
-                buttonText: 'SWAP',
+                buttonText: swapDirection === 'wxHOPR_to_xHOPR' ? 'UNWRAP' : 'WRAP',
               }}
               signOptions={{
                 onClick: () => executeSafeSwap(true),
                 disabled: swapDisabled,
                 pending: loading,
-                buttonText: 'SIGN SWAP',
+                buttonText: swapDirection === 'wxHOPR_to_xHOPR' ? 'SIGN UNWRAP' : 'SIGN WRAP',
               }}
             />
           ) : (
@@ -636,7 +671,7 @@ function WrapperPage() {
               onClick={handleClick}
               pending={(walletLoading || isLoading) && !safeTxOverwrite.success}
             >
-              SWAP
+              {swapDirection === 'wxHOPR_to_xHOPR' ? 'UNWRAP' : 'WRAP'}
             </Button>
           )
         }
@@ -646,11 +681,12 @@ function WrapperPage() {
         <br />
         <WrapperContainer>
           <StyledTextField
+            className={swapDirection === 'wxHOPR_to_xHOPR' ? 'active-direction' : 'not-active-direction'}
             label="wxHOPR"
             placeholder="Your wxHOPR here..."
             type="number"
             size="small"
-            value={wxhoprValue}
+            value={swapDirection === 'wxHOPR_to_xHOPR' ? wxhoprValue : xhoprValue}
             onChange={(e) => set_wxhoprValue(e.target.value)}
             onPointerDown={() => {
               if (selectedAddress) {
@@ -678,18 +714,19 @@ function WrapperPage() {
             }}
           />
           <StyledIconButton
-            className={`${swapDirection === 'xHOPR_to_wxHOPR' ? 'swapDirection' : ''}`}
+            className={swapDirection === 'xHOPR_to_wxHOPR' ? 'swapDirection' : ''}
             onClick={handleSwap}
             disabled={loading}
           >
             <ArrowDownwardIcon />
           </StyledIconButton>
           <StyledTextField
+            className={swapDirection === 'xHOPR_to_wxHOPR' ? 'active-direction' : 'not-active-direction'}
             label="xHOPR"
             placeholder="Your xHOPR here..."
             type="number"
             size="small"
-            value={xhoprValue}
+            value={swapDirection === 'wxHOPR_to_xHOPR' ? wxhoprValue : xhoprValue}
             onChange={(e) => set_xhoprValue(e.target.value)}
             onPointerDown={() => {
               if (selectedAddress) {

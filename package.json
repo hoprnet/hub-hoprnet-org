@@ -1,6 +1,6 @@
 {
   "name": "hub-hoprnet-org",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -15,6 +15,7 @@
     "@safe-global/protocol-kit": "^6.1.2",
     "@safe-global/types-kit": "^3.0.0",
     "@tanstack/react-query": "5.90.10",
+    "@walletconnect/ethereum-provider": "^2.23.7",
     "apexcharts": "^5.3.6",
     "canvas-confetti": "^1.6.0",
     "dayjs": "^1.11.9",

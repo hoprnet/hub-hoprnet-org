@@ -49,16 +49,6 @@ const stakingHubSlice = createSlice({
     addSafe: (state, action) => {
       state.safes.data = [...state.safes.data, action.payload];
     },
-    addOwnerToSafe: (state, action) => {
-      state.safeInfo.data.owners.push({
-        owner: {
-          id: action.payload,
-        },
-      });
-    },
-    removeOwnerFromSafe: (state, action) => {
-      state.safeInfo.data.owners = state.safeInfo.data.owners.filter((elem) => elem.owner.id !== action.payload);
-    },
     addSafeAndUseItForOnboarding: (state, action) => {
       state.safes.data = [...state.safes.data, action.payload];
       state.onboarding.safeAddress = action.payload.safeAddress;
@@ -133,6 +123,41 @@ const stakingHubSlice = createSlice({
           }));
         } catch (error) {
           console.error('Error saving allowance update to localStorage:', error);
+        }
+      }
+    },
+    addOwnerToSafe: (state, action) => {
+      const exists = state.safeInfo.data.owners.some(
+        (elem) => elem.owner.id?.toLowerCase() === `${action.payload}`.toLowerCase()
+      );
+      const newOwners = exists
+        ? state.safeInfo.data.owners
+        : [...state.safeInfo.data.owners, { owner: { id: action.payload } }];
+      state.safeInfo.data.owners = newOwners;
+      const safeAddress = state.safeInfo.data.id;
+      if (safeAddress) {
+        try {
+          localStorage.setItem(`${safeAddress.toLowerCase()}_owners_updated`, JSON.stringify({
+            owners: newOwners,
+            updated: Date.now(),
+          }));
+        } catch (error) {
+          console.error('Error saving owners update to localStorage:', error);
+        }
+      }
+    },
+    removeOwnerFromSafe: (state, action) => {
+      const newOwners = state.safeInfo.data.owners.filter((elem) => elem.owner.id?.toLowerCase() !== action.payload.toLowerCase());
+      state.safeInfo.data.owners = newOwners;
+      const safeAddress = state.safeInfo.data.id;
+      if (safeAddress) {
+        try {
+          localStorage.setItem(`${safeAddress.toLowerCase()}_owners_updated`, JSON.stringify({
+            owners: newOwners,
+            updated: Date.now(),
+          }));
+        } catch (error) {
+          console.error('Error saving owners update to localStorage:', error);
         }
       }
     }
