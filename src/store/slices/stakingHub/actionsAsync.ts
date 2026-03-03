@@ -17,7 +17,7 @@ import { Address, PublicClient, WalletClient, parseEther, publicActions } from '
 import { stakingHubActions } from '.';
 import { safeActionsAsync } from '../safe';
 import { NodePayload, TotalStaked } from './initialState';
-import { formatEther, getAddress } from 'viem';
+import { formatEther, getAddress, isAddress } from 'viem';
 import { To } from 'react-router-dom';
 
 const getHubSafesByOwnerThunk = createAsyncThunk<
@@ -594,7 +594,12 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
           const object = JSON.parse(ownersUpdated);
           if(object.updated && typeof object.updated === 'number' && Date.now() - object.updated < 15_000){
             console.log('Using locally stored updated owners value:', object);
-            state.safeInfo.data.owners = object.owners;
+            const validOwners = object.owners.filter((owner: string) => isAddress(owner));
+            if(validOwners.length > 0 && validOwners.length === object.owners.length){
+              state.safeInfo.data.owners = validOwners;
+            } else {
+              localStorage.removeItem(`${safeAddress}_owners_updated`);
+            }
           } else {
             localStorage.removeItem(`${safeAddress}_owners_updated`);
           }
