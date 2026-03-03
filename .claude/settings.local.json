@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C c:/dev/hoprnet/hub-hoprnet-org status)"
+    ]
+  }
+}
