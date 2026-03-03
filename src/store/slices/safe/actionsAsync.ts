@@ -446,6 +446,14 @@ const createSafeTransactionThunk = createAsyncThunk<
       // error is not serializable
       return rejectWithValue(JSON.stringify(e));
     }
+  },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().safe.createTransaction.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
   }
 );
 
@@ -726,6 +734,14 @@ const createAndExecuteSafeTransactionThunk = createAsyncThunk<
       // error is not serializable
       return rejectWithValue(JSON.stringify(e));
     }
+  },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().safe.executeTransaction.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
   }
 );
 
@@ -1065,10 +1081,10 @@ const getTokenList = createAsyncThunk<
  * */
 const createSafeWithConfigThunk = createAsyncThunk<
   | {
-      transactionHash: string;
-      moduleProxy: string;
-      safeAddress: string;
-    }
+    transactionHash: string;
+    moduleProxy: string;
+    safeAddress: string;
+  }
   | undefined,
   {
     walletClient: WalletClient;
@@ -1362,7 +1378,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
             state.selectedSafe.data,
             state.delegates.data,
           )
-          ?? '',
+            ?? '',
         })),
       };
     }

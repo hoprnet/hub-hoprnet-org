@@ -79,6 +79,13 @@ const StyledTextField = styled(TextField)`
   &:disabled {
     pointer-events: none;
   }
+
+  &.not-active-direction {
+    .MuiInputAdornment-root {
+      display: none;
+    }
+
+  }
 `;
 
 const StyledIconButton = styled(IconButton)`
@@ -648,11 +655,12 @@ function WrapperPage() {
         <br />
         <WrapperContainer>
           <StyledTextField
+            className={swapDirection === 'wxHOPR_to_xHOPR' ? 'active-direction' : 'not-active-direction'}
             label="wxHOPR"
             placeholder="Your wxHOPR here..."
             type="number"
             size="small"
-            value={wxhoprValue}
+            value={swapDirection === 'wxHOPR_to_xHOPR' ? wxhoprValue : xhoprValue}
             onChange={(e) => set_wxhoprValue(e.target.value)}
             onPointerDown={() => {
               if (selectedAddress) {
@@ -680,18 +688,19 @@ function WrapperPage() {
             }}
           />
           <StyledIconButton
-            className={`${swapDirection === 'xHOPR_to_wxHOPR' ? 'swapDirection' : ''}`}
+            className={swapDirection === 'xHOPR_to_wxHOPR' ? 'swapDirection' : ''}
             onClick={handleSwap}
             disabled={loading}
           >
             <ArrowDownwardIcon />
           </StyledIconButton>
           <StyledTextField
+            className={swapDirection === 'xHOPR_to_wxHOPR' ? 'active-direction' : 'not-active-direction'}
             label="xHOPR"
             placeholder="Your xHOPR here..."
             type="number"
             size="small"
-            value={xhoprValue}
+            value={swapDirection === 'wxHOPR_to_xHOPR' ? wxhoprValue : xhoprValue}
             onChange={(e) => set_xhoprValue(e.target.value)}
             onPointerDown={() => {
               if (selectedAddress) {
