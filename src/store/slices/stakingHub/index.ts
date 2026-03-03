@@ -127,7 +127,12 @@ const stakingHubSlice = createSlice({
       }
     },
     addOwnerToSafe: (state, action) => {
-      const newOwners = [...state.safeInfo.data.owners, { owner: { id: action.payload } }];
+      const exists = state.safeInfo.data.owners.some(
+        (elem) => elem.owner.id?.toLowerCase() === `${action.payload}`.toLowerCase()
+      );
+      const newOwners = exists
+        ? state.safeInfo.data.owners
+        : [...state.safeInfo.data.owners, { owner: { id: action.payload } }];
       state.safeInfo.data.owners = newOwners;
       const safeAddress = state.safeInfo.data.id;
       if (safeAddress) {
