@@ -243,13 +243,13 @@ const header = [
     maxWidth: '160px',
     tooltipHeader: 'Has this node been successfully onboarded. Hover over icons to see specific statuses.',
   },
-  {
-    key: 'version',
-    name: 'Version',
-    search: true,
-    maxWidth: '160px',
-    tooltipHeader: 'Last version seen by the Network Dashboard',
-  },
+  // {
+  //   key: 'version',
+  //   name: 'Version',
+  //   search: true,
+  //   maxWidth: '160px',
+  //   tooltipHeader: 'Last version seen by the Network Dashboard',
+  // },
   {
     key: 'lastSeen',
     name: 'Last seen',
@@ -396,7 +396,7 @@ const NodeAdded = () => {
             </>
           ),
           avability30d: <ProgressBar value={availability30d} />,
-          version: version || '-',
+          // version: version || '-',
           id: node,
           balance: (
             <Tooltip title={nodes[node]?.balanceFormatted}>
