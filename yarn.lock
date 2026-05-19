@@ -611,6 +611,11 @@
   resolved "https://registry.yarnpkg.com/@fontsource/roboto/-/roboto-5.2.6.tgz#93a2a5ef98cc79880355de0aac71def215b873e7"
   integrity sha512-hzarG7yAhMoP418smNgfY4fO7UmuUEm5JUtbxCoCcFHT0hOJB+d/qAEyoNjz7YkPU5OjM2LM8rJnW8hfm0JLaA==
 
+"@graphql-typed-document-node/core@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
+  integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
+
 "@hoprnet/hopr-sdk@2.1.0-beta.30":
   version "2.1.0-beta.30"
   resolved "https://registry.yarnpkg.com/@hoprnet/hopr-sdk/-/hopr-sdk-2.1.0-beta.30.tgz#bd98f5f5dd117255dca76836d1232c6bc8c937a6"
@@ -4323,6 +4328,13 @@ graphemer@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/graphemer/-/graphemer-1.4.0.tgz#fb2f1d55e0e3a1849aeffc90c4fa0dd53a0e66c6"
   integrity sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==
+
+graphql-request@^7.4.0:
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-7.4.0.tgz#97a1fc871e79f682d816963446ac6b7f99c963f9"
+  integrity sha512-xfr+zFb/QYbs4l4ty0dltqiXIp07U6sl+tOKAb0t50/EnQek6CVVBLjETXi+FghElytvgaAWtIOt3EV7zLzIAQ==
+  dependencies:
+    "@graphql-typed-document-node/core" "^3.2.0"
 
 h3@^1.15.5:
   version "1.15.5"
