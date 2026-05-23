@@ -466,9 +466,23 @@ const getNodeBalanceThunk = createAsyncThunk<
 const getTotalStakedwxHoprThunk = createAsyncThunk<TotalStaked | null, void, { state: RootState }>(
   'stakingHub/getTotalStakedwxHopr',
   async () => {
-    const rez = await fetch(`https://webapi.hoprnet.org/api/hub/getStakingData`);
-    const json = await rez.json();
-    return json.balances[0] || null;
+    const query = gql`
+      query SafesBalance {
+        safesBalance {
+          ... on SafesBalance { balance }
+        }
+      }
+    `;
+
+    const data = await request<{ safesBalance: { balance?: string } }>(`${BLOKLI_URL}/graphql`, query);
+
+    if (!data.safesBalance.balance) return null;
+
+    return {
+      mHoprBalance: '0',
+      wxHoprBalance: data.safesBalance.balance,
+      xHoprBalance: '0',
+    };
   },
   {
     condition: (_, { getState }) => {
