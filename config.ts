@@ -34,6 +34,13 @@ export const HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS = import.meta.env.VITE_HOP
 
 //API
 export const WEBAPI_URL = 'https://webapi.hoprnet.org/api';
+export const BLOKLI_URL = (() => {
+  let url = import.meta.env.VITE_BLOKLI_URL;
+  if (url && url.endsWith('/')) {
+    url = url.slice(0, -1);
+  }
+  return url;
+})();
 
 //Subgraphs
 export const STAKE_SUBGRAPH = 'https://webapi.hoprnet.org/api/hub/subgraph-allSeasons';

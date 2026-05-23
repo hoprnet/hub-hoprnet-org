@@ -11,6 +11,7 @@ import {
   HOPR_CHANNELS_SMART_CONTRACT_ADDRESS,
   wxHOPR_TOKEN_SMART_CONTRACT_ADDRESS,
   WEBAPI_URL,
+  BLOKLI_URL,
 } from '../../../../config';
 import { web3 } from '@hoprnet/hopr-sdk';
 import { Address, PublicClient, WalletClient, parseEther, publicActions } from 'viem';
@@ -19,6 +20,7 @@ import { safeActionsAsync } from '../safe';
 import { NodePayload, TotalStaked } from './initialState';
 import { formatEther, getAddress, isAddress } from 'viem';
 import { To } from 'react-router-dom';
+import { request, gql } from 'graphql-request';
 
 const getHubSafesByOwnerThunk = createAsyncThunk<
   {
@@ -31,41 +33,38 @@ const getHubSafesByOwnerThunk = createAsyncThunk<
   'stakingHub/getHubSafesByOwner',
   async (payload, { rejectWithValue, dispatch }) => {
     dispatch(setHubSafesByOwnerFetching(true));
-    console.log('getHubSafesByOwnerThunk', payload);
     try {
-      const resp = await fetch(`${WEBAPI_URL}/hub/getHubSafesByOwner`, {
-        method: 'POST',
-        body: JSON.stringify({ ownerAddress: payload }),
-      });
+      const query = gql`
+        query SafesByOwner($address: String!) {
+          safeBy(selector: OWNER, address: $address) {
+            ... on SafesList {
+              safes { address moduleAddress }
+            }
+          }
+        }
+      `;
 
-      const json: {
-        safes: {
-          id: string;
-          addedModules: {
-            module: {
-              id: string;
-            };
-          }[];
-        }[];
-      } = await resp.json();
+      const data = await request<{
+        safeBy: { safes?: { address: string; moduleAddress: string }[] };
+      }>(`${BLOKLI_URL}/graphql`, query, { address: payload });
 
-      let mapped = json.safes.map((elem) => {
-        return {
-          moduleAddress: getAddress(elem.addedModules[0].module.id),
-          safeAddress: getAddress(elem.id),
-        };
-      });
-      mapped = mapped.filter((elem) => elem.moduleAddress);
+      if (!data.safeBy.safes) {
+        return rejectWithValue('safeBy did not return SafesList');
+      }
 
-      return [...mapped];
+      return data.safeBy.safes
+        .filter((s) => s.moduleAddress)
+        .map((s) => ({
+          safeAddress: getAddress(s.address),
+          moduleAddress: getAddress(s.moduleAddress),
+        }));
     } catch (e) {
-      return rejectWithValue(e);
+      return rejectWithValue(e instanceof Error ? e.message : JSON.stringify(e));
     }
   },
   {
     condition: (_payload, { getState }) => {
       const isFetching = getState().stakingHub.safes.isFetching;
-      console.log('getHubSafesByOwnerThunk condition', isFetching);
       if (isFetching) {
         return false;
       }

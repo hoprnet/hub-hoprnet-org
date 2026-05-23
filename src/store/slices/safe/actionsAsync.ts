@@ -72,6 +72,37 @@ const createSafeApiService = async () => {
   return apiKit;
 };
 
+// V4 HoprNodeStakeFactory (jura). Replace with the SDK ABI once @hoprnet/hopr-sdk
+// publishes the v4 variant — currently only the v3 stakingV2 ABI ships there.
+const hoprNodeStakeFactoryV4ABI = [
+  {
+    inputs: [
+      { internalType: 'uint256', name: 'nonce', type: 'uint256' },
+      { internalType: 'bytes32', name: 'defaultTarget', type: 'bytes32' },
+      { internalType: 'address[]', name: 'admins', type: 'address[]' },
+    ],
+    name: 'clone',
+    outputs: [
+      { internalType: 'address', name: '', type: 'address' },
+      { internalType: 'address payable', name: '', type: 'address' },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    anonymous: false,
+    inputs: [{ indexed: false, internalType: 'address', name: 'instance', type: 'address' }],
+    name: 'NewHoprNodeStakeSafe',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [{ indexed: false, internalType: 'address', name: 'instance', type: 'address' }],
+    name: 'NewHoprNodeStakeModule',
+    type: 'event',
+  },
+] as const;
+
 const createSafeSDK = async (signer: WalletClient, safeAddress: string) => {
   const safeAccount = await Safe.init({
     provider: signer as Eip1193Provider,
@@ -1074,6 +1105,7 @@ const getTokenList = createAsyncThunk<
   }
 );
 
+
 // SC staking functions
 
 /**
@@ -1094,6 +1126,109 @@ const createSafeWithConfigThunk = createAsyncThunk<
   { state: RootState }
 >(
   'safe/createSafeWithConfig',
+  async (payload, { rejectWithValue, dispatch }) => {
+    try {
+      const superWalletClient = payload.walletClient.extend(publicActions);
+
+      if (!superWalletClient.account) return;
+
+      // The saltNonce is used to calculate a deterministic address for the new Safe contract.
+      // This way, even if the same Safe configuration is used multiple times,
+      // each deployment will result in a new, unique Safe contract.
+      const saltNonce = keccak256(
+        encodePacked(['bytes20', 'string'], [superWalletClient.account.address, Date.now().toString()])
+      );
+
+      // Sets ALLOW_ALL on all Channel and Token operations by default.
+      const defaultTarget = toBytes(HOPR_CHANNELS_SMART_CONTRACT_ADDRESS + '010103030303030303030303');
+
+      const { result, request } = await superWalletClient.simulateContract({
+        account: payload.walletClient.account,
+        address: HOPR_NODE_STAKE_FACTORY,
+        abi: hoprNodeStakeFactoryV4ABI,
+        functionName: 'clone',
+        args: [
+          BigInt(saltNonce),
+          toHex(new Uint8Array(defaultTarget), { size: 32 }),
+          payload.config.owners as Address[],
+        ],
+      });
+
+      // TODO: Add error handling if failed (notificaiton)
+
+      if (!result) return;
+
+      const transactionHash = await superWalletClient.writeContract(request);
+
+      await superWalletClient.waitForTransactionReceipt({ hash: transactionHash });
+
+      const [moduleProxy, safeAddress] = result as [Address, Address];
+
+      if (!payload.doNotSwitch) {
+        dispatch(
+          stakingHubActions.addSafeAndUseItForOnboarding({
+            safeAddress,
+            moduleAddress: moduleProxy,
+          })
+        );
+      } else {
+        dispatch(
+          stakingHubActions.addSafe({
+            safeAddress,
+            moduleAddress: moduleProxy,
+          })
+        );
+      }
+
+      return {
+        transactionHash,
+        moduleProxy,
+        safeAddress,
+      };
+    } catch (e) {
+      if (e instanceof Error) {
+        return rejectWithValue(e.message);
+      }
+
+      // value is serializable
+      if (isPlain(e)) {
+        return rejectWithValue(e);
+      }
+
+      // error is not serializable
+      return rejectWithValue(JSON.stringify(e));
+    }
+  },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().safe.selectedSafe.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
+  }
+);
+
+// SC staking functions
+
+/**
+ * Next version of create safe with HOPR_NODE_STAKE_FACTORY .clone
+ * */
+const createSafeV3WithConfigThunk = createAsyncThunk<
+  | {
+    transactionHash: string;
+    moduleProxy: string;
+    safeAddress: string;
+  }
+  | undefined,
+  {
+    walletClient: WalletClient;
+    config: SafeAccountConfig;
+    doNotSwitch?: boolean;
+  },
+  { state: RootState }
+>(
+  'safe/createSafeV3WithConfig',
   async (payload, { rejectWithValue, dispatch }) => {
     try {
       const superWalletClient = payload.walletClient.extend(publicActions);
