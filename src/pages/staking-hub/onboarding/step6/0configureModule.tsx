@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { Address, getAddress } from 'viem';
 import { StepContainer } from '../components';
-import { useWalletClient} from 'wagmi';
+import { useReadContract, useWalletClient } from 'wagmi';
+import { web3 } from '@hoprnet/hopr-sdk';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../../future-hopr-lib-components/Button';
 
@@ -55,6 +56,19 @@ export default function ConfigureModule(props?: {
   const [thisTransactionHasSignaturesIsWaitingToExecute, set_thisTransactionHasSignaturesIsWaitingToExecute] = useState<
     false | SafeMultisigTransactionResponse
   >(false);
+
+  const { data: announcementTarget, isLoading: isLoadingAnnouncementTarget } = useReadContract({
+    address: moduleAddress,
+    abi: web3.hoprNodeManagementModuleABI,
+    functionName: 'tryGetTarget',
+    args: [HOPR_ANNOUNCEMENT_SMART_CONTRACT_ADDRESS],
+    query: {
+      enabled: !!moduleAddress,
+    },
+  });
+  // scopeTargetToken reverts with TargetIsScoped() if the announcement target already exists
+  const needsAnnouncementTarget =
+    props?.onboardingType === 'main' && (announcementTarget as [boolean, bigint] | undefined)?.[0] !== true;
 
   useEffect(() => {
     if (walletAddress && moduleAddress && threshold && threshold > 1 && nodeAddress) {
@@ -199,7 +213,7 @@ export default function ConfigureModule(props?: {
   const executeIncludeNode = async () => {
     if (!signer || !selectedSafeAddress || !moduleAddress || !nodeAddress) return;
 
-    if (props?.onboardingType === 'main') {
+    if (needsAnnouncementTarget) {
       dispatch(
         safeActionsAsync.createAndExecuteSafeContractTransactionThunk({
           data: createDataToIncludeNodeAndSetAnnoucmentContractAsTarget(),
@@ -227,7 +241,7 @@ export default function ConfigureModule(props?: {
     }
 
     // accoucment contract is already added as a target now to the module, so we can only include a node in the safe module
-    else if (props?.onboardingType === 'nextNode') {
+    else {
       const includeNodeTransactionData = createIncludeNodeTransactionData(nodeAddress);
 
       dispatch(
@@ -259,7 +273,7 @@ export default function ConfigureModule(props?: {
   const signIncludeNode = async () => {
     if (!signer || !selectedSafeAddress || !moduleAddress || !nodeAddress) return;
 
-    if (props?.onboardingType === 'main') {
+    if (needsAnnouncementTarget) {
       await dispatch(
         safeActionsAsync.createSafeContractTransactionThunk({
           data: createDataToIncludeNodeAndSetAnnoucmentContractAsTarget(),
@@ -269,7 +283,7 @@ export default function ConfigureModule(props?: {
           smartContractAddress: MULTISEND_CONTRACT_GNOSIS,
         })
       ).unwrap();
-    } else if (props?.onboardingType === 'nextNode') {
+    } else {
       await dispatch(
         safeActionsAsync.createSafeContractTransactionThunk({
           smartContractAddress: moduleAddress,
@@ -323,7 +337,7 @@ export default function ConfigureModule(props?: {
   };
 
   const description =
-    props?.onboardingType === 'main'
+    needsAnnouncementTarget
       ? 'You need to sign this multi-transaction to connect your node to your existing HOPR safe module and also configure the announcement smart contract of the network as a target in your safe module so that your node will be able to announce itself on the network.'
       : 'You need to sign this transaction to connect your node to your existing HOPR safe module';
 
@@ -349,13 +363,14 @@ export default function ConfigureModule(props?: {
             executeOptions={{
               onClick: executeIncludeNode,
               pending: isLoading,
+              disabled: isLoadingAnnouncementTarget,
               buttonText: 'EXECUTE',
             }}
             signOptions={{
               onClick: signIncludeNode,
               pending: isLoading,
               buttonText: 'SIGN',
-              disabled: thisTransactionIsWaitingToSign,
+              disabled: thisTransactionIsWaitingToSign || isLoadingAnnouncementTarget,
               tooltipText: thisTransactionIsWaitingToSign
                 ? 'You need to sign this transaction by using another owner'
                 : undefined,
