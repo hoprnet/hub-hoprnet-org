@@ -6,6 +6,8 @@ on:
     tags:
     - 'v[0-9]+.[0-9]+.[0-9]+'   # v1.0.0
 
+permissions: {}
+
 concurrency:
   group: admin-release
   cancel-in-progress: true
@@ -14,6 +16,8 @@ jobs:
   build:
     name: docker-build
     runs-on: self-hosted-hoprnet-small
+    permissions:
+      contents: read
     steps:
       - name: Checkout hoprnet repository
         uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
